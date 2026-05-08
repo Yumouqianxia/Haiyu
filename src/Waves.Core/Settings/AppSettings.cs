@@ -127,6 +127,13 @@ public class AppSettings : SettingBase
         get => Read();
         set => Write(value);
     }
+
+    public string? UpdateType
+    {
+        get => Read();
+        set => Write(value);
+    }
+
     public bool? StartGameAllowCloseMain
     {
         get => NullBoolAdaptive.Instance.GetForward(Read());

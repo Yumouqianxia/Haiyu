@@ -327,14 +327,30 @@ public sealed partial class ShellViewModel : ViewModelBase
         await RefreshHeaderUser();
         OpenMain();
         //检查更新
+
+        await CheckAppUpdate();
         
+    }
+
+    private async Task CheckAppUpdate()
+    {
+        if (DesktopBridge.IsRunningAsMsix())
+        {
+            return;
+        }
         var gitService = Instance.Host.Services.GetKeyedService<Haiyu.Plugin.Contracts.IUpdateService>("GitHub");
-        if(!DesktopBridge.IsRunningAsUwp() && await gitService.CheckProgramUpdateAsync(App.AppVersion))
+        if ( await gitService.CheckProgramUpdateAsync(App.AppVersion))
         {
             var info = await gitService.GetLasterProgramInfoAsync();
+            if (info != null)
+            {
 
+            }
+            else
+            {
+                await TipShow.ShowMessageAsync("检查更新失败，请稍后再试", Symbol.Clear);
+            }
         }
-        
     }
 
     [RelayCommand]

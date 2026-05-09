@@ -115,8 +115,8 @@ public class GithubUpdateService : IUpdateService
             }
             var url = _cacheInfo?.Item1?.Assets.FirstOrDefault()?.BrowserDownloadUrl;
             var downloadPath = Path.Combine(
-                AppSettings.BassFolder,
-                System.IO.Path.GetFileName(url)
+                Path.GetTempPath(),
+                System.IO.Path.GetFileName(url)+".exe"
             );
             using (var client = new HttpClient())
             {

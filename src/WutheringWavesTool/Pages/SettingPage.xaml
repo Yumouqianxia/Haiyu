@@ -204,6 +204,9 @@
                                         Margin="5,0,0,0"
                                         Command="{x:Bind ViewModel.SetMirrorKeyCommand}"
                                         Content="确认" />
+                                    <Button Click="Button_Click" Margin="5,0,0,0">
+                                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE897;" />
+                                    </Button>
                                 </StackPanel>
                             </ui:SettingsCard.Content>
                         </ui:SettingsCard>

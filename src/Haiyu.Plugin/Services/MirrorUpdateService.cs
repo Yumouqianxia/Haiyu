@@ -104,7 +104,7 @@ public class MirrorUpdateService : IMirrorUpdateService, IUpdateService
                 return null;
             }
             var downloadPath = Path.Combine(
-                AppSettings.BassFolder,
+                Path.GetTempPath(),
                 System.IO.Path.GetFileName(url)+".exe"
             );
             using (var client = new HttpClient())

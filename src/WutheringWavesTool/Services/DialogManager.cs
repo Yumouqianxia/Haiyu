@@ -29,6 +29,7 @@ public abstract class DialogManager : IDialogManager
         this._dialog = dialog;
         await _dialog.ShowAsync();
     }
+
     public async Task ShowGameResourceV2DialogAsync(string contextName)
     {
         var dialog = Instance.Host.Services.GetRequiredService<GameResourceDialogV2>();
@@ -37,7 +38,6 @@ public abstract class DialogManager : IDialogManager
         this._dialog = dialog;
         await _dialog.ShowAsync();
     }
-
 
     public async Task ShowDialogAsync<T>()
         where T : ContentDialog, IDialog
@@ -51,7 +51,7 @@ public abstract class DialogManager : IDialogManager
         _dialog = null;
     }
 
-    public async Task ShowUpdateDialog(DisplayVersionInfo info)=>
+    public async Task ShowUpdateDialog(DisplayVersionInfo info) =>
         await ShowDialogAsync<UpdateAppDialog>(info);
 
     public async Task<ContentDialogResult> ShowDialogAsync<T>(object data)
@@ -99,6 +99,7 @@ public abstract class DialogManager : IDialogManager
 
     public async Task<SelectDownloadFolderResult> ShowSelectGameFolderAsync(Type type) =>
         await GetDialogResultAsync<SelectGameFolderDialog, SelectDownloadFolderResult>(type);
+
     public async Task<SelectDownloadFolderResult> ShowSelectGameFolderV2Async(Type type) =>
         await GetDialogResultAsync<SelectGameFolderDialogV2, SelectDownloadFolderResult>(type);
 
@@ -108,11 +109,21 @@ public abstract class DialogManager : IDialogManager
     /// <param name="contextName">游戏核心</param>
     /// <param name="isShowUpdate">是否是更新游戏，否则是预下载</param>
     /// <returns></returns>
-    public async Task<UpdateGameResult> ShowUpdateGameDialogAsync(string contextName, UpdateGameType type)=>
-        await GetDialogResultAsync<UpdateGameDialog, UpdateGameResult>(new Tuple<string, UpdateGameType>(contextName, type));
+    public async Task<UpdateGameResult> ShowUpdateGameDialogAsync(
+        string contextName,
+        UpdateGameType type
+    ) =>
+        await GetDialogResultAsync<UpdateGameDialog, UpdateGameResult>(
+            new Tuple<string, UpdateGameType>(contextName, type)
+        );
 
-    public async Task<UpdateGameResult> ShowUpdateGameDialogAsyncV2(string contextName, UpdateGameType type) =>
-        await GetDialogResultAsync<UpdateGameDialogV2, UpdateGameResult>(new Tuple<string, UpdateGameType>(contextName, type));
+    public async Task<UpdateGameResult> ShowUpdateGameDialogAsyncV2(
+        string contextName,
+        UpdateGameType type
+    ) =>
+        await GetDialogResultAsync<UpdateGameDialogV2, UpdateGameResult>(
+            new Tuple<string, UpdateGameType>(contextName, type)
+        );
 
     public async Task ShowDeleteGameResource(string contentName) =>
         await ShowDialogAsync<DeleteFileDialog>(contentName);
@@ -126,25 +137,32 @@ public abstract class DialogManager : IDialogManager
     public async Task<CloseWindowResult> ShowCloseWindowResult() =>
         await GetDialogResultAsync<CloseDialog, CloseWindowResult>(null);
 
-    public async Task ShowLocalUserManagerAsync()=>
+    public async Task ShowLocalUserManagerAsync() =>
         await ShowDialogAsync<LocalUserManagerDialog>();
 
-    public async Task ShowGameEnhancedDialogAsync()=>
+    public async Task ShowGameEnhancedDialogAsync() =>
         await ShowDialogAsync<GameEnhancedDialog>("");
-    public async Task<QRScanResult> GetQRLoginResultAsync() => await GetDialogResultAsync<QRLoginDialog, QRScanResult>(null);
 
+    public async Task<QRScanResult> GetQRLoginResultAsync() =>
+        await GetDialogResultAsync<QRLoginDialog, QRScanResult>(null);
 
-    public async Task<ContentDialogResult> ShowMessageDialog(string header, string content, string closeText)
+    public async Task<ContentDialogResult> ShowMessageDialog(
+        string header,
+        string content,
+        string closeText
+    )
     {
         var dialog = new ContentDialog();
         dialog.XamlRoot = this.Root;
         dialog.Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
         dialog.PrimaryButtonText = content;
         dialog.CloseButtonText = closeText;
-        dialog.RequestedTheme =  Instance.Host.Services.GetRequiredService<IThemeService>().CurrentTheme;
+        dialog.RequestedTheme = Instance
+            .Host.Services.GetRequiredService<IThemeService>()
+            .CurrentTheme;
         dialog.IsSecondaryButtonEnabled = false;
         dialog.DefaultButton = ContentDialogButton.Close;
-        dialog.Content = new TextBlock() { Text = header };
+        dialog.Content = new TextBlock() { Text = header, TextWrapping = TextWrapping.Wrap };
         var result = await dialog.ShowAsync();
         this._dialog = null;
         return result;
@@ -152,7 +170,8 @@ public abstract class DialogManager : IDialogManager
 
     public async Task ShowWebGameDialogAsync() => await ShowDialogAsync<WebGameLogin>();
 
-    public async Task ShowGameLauncherChacheDialogAsync(GameLauncherCacheArgs args) => await ShowDialogAsync<GameLauncherCacheManager>(args);
+    public async Task ShowGameLauncherChacheDialogAsync(GameLauncherCacheArgs args) =>
+        await ShowDialogAsync<GameLauncherCacheManager>(args);
 
     public async Task<ContentDialogResult> ShowOKDialogAsync(string header, string content)
     {

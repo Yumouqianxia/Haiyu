@@ -1,4 +1,5 @@
-﻿using Haiyu.Plugin.Contracts;
+﻿using Haiyu.Plugin.Common.LegacyMessageBox;
+using Haiyu.Plugin.Contracts;
 using Haiyu.Plugin.Models;
 using Haiyu.Services.DialogServices;
 using System;
@@ -24,8 +25,9 @@ public sealed partial class UpdateAppViewModel : DialogViewModelBase
     public partial Visibility SkipVisiblity { get; set; }
 
     public IUpdateService UpdateService { get; }
+    public IAppContext<App> AppContext { get; }
 
-    public UpdateAppViewModel([FromKeyedServices(nameof(MainDialogService))] IDialogManager dialogManager) : base(dialogManager)
+    public UpdateAppViewModel([FromKeyedServices(nameof(MainDialogService))] IDialogManager dialogManager,IAppContext<App> appContext) : base(dialogManager)
     {
         if(AppSettings.UpdateType == "Github")
         {
@@ -33,8 +35,10 @@ public sealed partial class UpdateAppViewModel : DialogViewModelBase
         }
          else
         {
-            //UpdateService = AppContext.Host.Services.GetRequiredService<IUpdateService>("Mirror");
+            UpdateService = Instance.Host.Services.GetRequiredKeyedService<IUpdateService>("Mirror");
         }
+
+        AppContext = appContext;
     }
 
 
@@ -56,11 +60,19 @@ public sealed partial class UpdateAppViewModel : DialogViewModelBase
     [RelayCommand]
     async Task DownloadAppUpdate()
     {
-        IProgress<double> progress = new Progress<double>((s) =>
+        IProgress<double> progress = new Progress<double>(async(s) =>
         {
-            Progress = s;
+            await this.AppContext.TryInvokeAsync(async() =>
+            {
+                Progress = s;
+            });
         });
         var path =  await UpdateService.DownloadProgramInfoAsync(progress, this.CTS.Token);
+        if(path == null)
+        {
+            LegacyMessageBox.ShowError("下载失败！请检查网络，如果是Mirror模式下载，请检查Key是否可用");
+            return;
+        }
         ProcessStartInfo info = new ProcessStartInfo(path);
         info.Verb = "runas";
         info.UseShellExecute = true;

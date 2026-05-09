@@ -199,8 +199,11 @@
                         <ui:SettingsCard Header="Mirror Key">
                             <ui:SettingsCard.Content>
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBox Width="200" />
-                                    <Button Content="确认" />
+                                    <TextBox Width="200" Text="{x:Bind ViewModel.MirrorKey, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <Button
+                                        Margin="5,0,0,0"
+                                        Command="{x:Bind ViewModel.SetMirrorKeyCommand}"
+                                        Content="确认" />
                                 </StackPanel>
                             </ui:SettingsCard.Content>
                         </ui:SettingsCard>

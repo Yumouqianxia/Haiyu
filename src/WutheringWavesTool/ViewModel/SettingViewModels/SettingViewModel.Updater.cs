@@ -16,6 +16,9 @@ partial class SettingViewModel
             AppSettings.UpdateType = value;
     }
 
+    [ObservableProperty]
+    public partial string MirrorKey { get; set; }
+
     public void LoadUpdateAppType()
     {
         if (DesktopBridge.IsRunningAsMsix())
@@ -35,6 +38,7 @@ partial class SettingViewModel
         {
             this.SelectUpdateAppType = UpdateAppType[0];
         }
+        this.MirrorKey = AppSettings.MirrorKey;
     }
 
 
@@ -42,6 +46,17 @@ partial class SettingViewModel
     async Task UpdateVersion()
     {
         await AppContext.UpdateAppAsync(true);
+    }
+
+    [RelayCommand]
+    void SetMirrorKey()
+    {
+        AppSettings.MirrorKey = MirrorKey;
+        if(Instance.Host.Services.GetRequiredKeyedService<IUpdateService>("Mirror") is IMirrorUpdateService mirror)
+        {
+            mirror.SetMirrorKey(MirrorKey);
+        };
+        TipShow.ShowMessage("设置成功！", Symbol.Accept);
     }
 
 }

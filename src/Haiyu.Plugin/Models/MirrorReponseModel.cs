@@ -2,7 +2,7 @@
 
 namespace Haiyu.Plugin.Models;
 
-public class Data
+public class MirrorData
 {
     [JsonPropertyName("version_name")]
     public string VersionName { get; set; }
@@ -10,8 +10,6 @@ public class Data
     [JsonPropertyName("version_number")]
     public int VersionNumber { get; set; }
 
-    [JsonPropertyName("url")]
-    public string Url { get; set; }
 
     [JsonPropertyName("sha256")]
     public string Sha256 { get; set; }
@@ -21,6 +19,9 @@ public class Data
 
     [JsonPropertyName("os")]
     public string Os { get; set; }
+
+    [JsonPropertyName("url")]
+    public string Url { get; set; }
 
     [JsonPropertyName("arch")]
     public string Arch { get; set; }
@@ -47,5 +48,5 @@ public class MirrorReponseModel
     public string Msg { get; set; }
 
     [JsonPropertyName("data")]
-    public Data Data { get; set; }
+    public MirrorData Data { get; set; }
 }

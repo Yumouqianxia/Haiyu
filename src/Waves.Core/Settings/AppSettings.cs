@@ -145,4 +145,9 @@ public class AppSettings : SettingBase
         get => NullBoolAdaptive.Instance.GetForward(Read());
         set => Write(NullBoolAdaptive.Instance.GetBack(value));
     }
+    public string MirrorKey
+    {
+        get => Read();
+        set => Write(value);
+    }
 }

@@ -67,7 +67,12 @@ public class AppContext<T> : IAppContext<T>
             #endregion
             this.App = app;
             var win = new MainWindow();
-            
+            #region Mirror
+            if (Instance.Host.Services.GetRequiredKeyedService<IUpdateService>("Mirror") is IMirrorUpdateService mirror)
+            {
+                mirror.SetMirrorKey(AppSettings.MirrorKey);
+            }
+            #endregion
             try
             {
                 var scale = TitleBar.GetScaleAdjustment(win);
@@ -235,7 +240,7 @@ public class AppContext<T> : IAppContext<T>
             }
             else
             {
-                throw new Exception("未实现Mirror更新源");
+                service = Instance.Host.Services.GetKeyedService<Haiyu.Plugin.Contracts.IUpdateService>("Mirror");
             }
             if (service == null)
                 return;

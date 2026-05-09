@@ -166,6 +166,7 @@ public static class InstanceBuilderExtensions
                     .AddKeyedTransient<IDialogManager, MainDialogService>("Cache")
                     .AddTransient<IColorGameManager, ColorGameManager>()
                     .AddKeyedSingleton<IUpdateService,GithubUpdateService>("GitHub")
+                    .AddKeyedSingleton<IUpdateService,MirrorUpdateService>("Mirror")
                     #endregion
                     #region Base
                     .AddSingleton<IAppContext<App>, AppContext<App>>()

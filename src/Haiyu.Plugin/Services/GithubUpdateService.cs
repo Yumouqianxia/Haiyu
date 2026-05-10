@@ -19,6 +19,7 @@ namespace Haiyu.Plugin.Services;
 /// </summary>
 public class GithubUpdateService : IUpdateService
 {
+    private const int BufferSize = 81920;
     private const string Owner = "HaiyuGame";
     private const string Repo = "Haiyu";
     private Tuple<GithubResponseModel?, DateTime>? _cacheInfo;
@@ -99,7 +100,7 @@ public class GithubUpdateService : IUpdateService
     {
         try
         {
-            if (DateTime.Now - _cacheInfo.Item2 > TimeSpan.FromMinutes(5))
+            if (_cacheInfo == null || DateTime.Now - _cacheInfo.Item2 > TimeSpan.FromMinutes(5))
             {
                 await RefreshDownloadInfo(token);
             }
@@ -114,6 +115,10 @@ public class GithubUpdateService : IUpdateService
                 return null;
             }
             var url = _cacheInfo?.Item1?.Assets.FirstOrDefault()?.BrowserDownloadUrl;
+            if (url == null)
+            {
+                return null;
+            }
             var downloadPath = Path.Combine(
                 Path.GetTempPath(),
                 System.IO.Path.GetFileName(url)+".exe"
@@ -124,38 +129,58 @@ public class GithubUpdateService : IUpdateService
                     "User-Agent",
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
                 );
-                var request = new HttpRequestMessage(HttpMethod.Get, url);
-                var response = await client.SendAsync(
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                using var response = await client.SendAsync(
                     request,
                     HttpCompletionOption.ResponseHeadersRead,
                     token
-                );
+                ).ConfigureAwait(false);
+                response.EnsureSuccessStatusCode();
+
                 long downLoadLength = 0;
+                var totalLength = response.Content.Headers.ContentLength;
+                double lastReportedProgress = 0;
+
                 using (
                     var fs = new FileStream(
                         downloadPath,
-                        FileMode.OpenOrCreate,
+                        FileMode.Create,
                         FileAccess.ReadWrite,
                         FileShare.Read,
-                        4096,
+                        BufferSize,
                         true
                     )
                 )
                 {
                     var byteShard = ArrayPool<byte>.Shared;
-                    var buffer = byteShard.Rent(8192);
-                    while (true)
+                    var buffer = byteShard.Rent(BufferSize);
+                    try
                     {
-                        buffer = new byte[8192];
-                        var read = await response.Content.ReadAsStreamAsync(token).Result.ReadAsync(buffer, token);
-                        downLoadLength += read;
-                        if (read == 0)
+                        await using var responseStream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false);
+                        while (true)
                         {
-                            break;
+                            var read = await responseStream.ReadAsync(buffer.AsMemory(0, BufferSize), token).ConfigureAwait(false);
+                            downLoadLength += read;
+                            if (read == 0)
+                            {
+                                break;
+                            }
+                            await fs.WriteAsync(buffer.AsMemory(0, read), token).ConfigureAwait(false);
+
+                            if (totalLength is > 0)
+                            {
+                                var radio = (double)downLoadLength / totalLength.Value * 100;
+                                if (radio - lastReportedProgress >= 1 || downLoadLength == totalLength.Value)
+                                {
+                                    lastReportedProgress = radio;
+                                    progress.Report(radio);
+                                }
+                            }
                         }
-                        await fs.WriteAsync(buffer.AsMemory(0, read), token);
-                        var radio = (double)downLoadLength / (double)response.Content.Headers.ContentLength.Value;
-                        progress.Report(radio*100);
+                    }
+                    finally
+                    {
+                        byteShard.Return(buffer);
                     }
                 }
             }

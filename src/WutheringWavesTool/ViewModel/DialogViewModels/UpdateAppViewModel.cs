@@ -60,9 +60,9 @@ public sealed partial class UpdateAppViewModel : DialogViewModelBase
     [RelayCommand]
     async Task DownloadAppUpdate()
     {
-        IProgress<double> progress = new Progress<double>(async(s) =>
+        IProgress<double> progress = new Progress<double>(s =>
         {
-            await this.AppContext.TryInvokeAsync(async() =>
+            this.AppContext.TryInvoke(() =>
             {
                 Progress = s;
             });

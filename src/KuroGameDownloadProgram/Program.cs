@@ -18,6 +18,7 @@ using Waves.Core.Models.CoreApi;
 using Waves.Core.Models.Downloader;
 using Waves.Core.Models.Enums;
 using Waves.Core.Services;
+using Waves.Core.Services.CloudGameService;
 using Waves.Core.Settings;
 
 GameContextFactory.GameBassPath =

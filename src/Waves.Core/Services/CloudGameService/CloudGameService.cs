@@ -5,23 +5,42 @@ using Waves.Api.Models.CloudGame;
 using Waves.Core.Contracts;
 using Waves.Core.Helpers;
 
-namespace Waves.Core.Services;
+namespace Waves.Core.Services.CloudGameService;
 
 public class CloudGameService : ICloudGameService
 {
+
+    #region 常量定义
+    public const string SDKBaseUrl = "https://sdkapi.kurogame.com/";
+    public const string CloudBaseUrl = "https://cloud-game-sh.aki-game.com/";
+    private const string ClientId = "vvkewnskrxxwfo0yi61cy24l";
+    private const string ClientSecret = "g9ej0i1jf3y68wchb0ncm266";
+    private const string ChannelId = "211";
+    private const string GameId = "G152";
+    private const string ProductId = "A1493";
+    private const string Pkg = "com.kurogame.mingchao";
+    private const string UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0";
+
+    #endregion
+    public HttpClient SdkClient { get; private set; }
+    public HttpClient CloudClient { get; private set; }
+    public CloudConfigManager ConfigManager { get; }
+    public string RecordToken { get; private set; }
+
     public CloudGameService(
-        IHttpClientService httpClientService,
         CloudConfigManager cloudConfigManager
     )
     {
-        HttpClientService = httpClientService;
         ConfigManager = cloudConfigManager;
-        HttpClientService.BuildClient();
+        BuildClient();
     }
 
-    public IHttpClientService HttpClientService { get; }
-    public CloudConfigManager ConfigManager { get; }
-    public string RecordToken { get; private set; }
+    private void BuildClient()
+    {
+        this.SdkClient = new HttpClient() { BaseAddress = new(SDKBaseUrl) };
+        this.CloudClient = new HttpClient() { BaseAddress = new(CloudBaseUrl) };
+    }
+
 
     public Dictionary<string, string> GetClientData()
     {
@@ -63,11 +82,11 @@ public class CloudGameService : ICloudGameService
         query.Add("geetestGenTime", geetestGenTime);
         query.Add("geetestLotNumber", geetestLotNumber);
         var request = BuildRequestMessage(
-            "https://sdkapi.kurogame.com/sdkcom/v2/login/getPhoneCode.lg",
+            "/sdkcom/v2/login/getPhoneCode.lg",
             HttpMethod.Post,
             query
         );
-        var result = await HttpClientService.HttpClient.SendAsync(request, token);
+        var result = await SdkClient.SendAsync(request, token);
         var str = await result.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<CloudSendSMS>(str, CloundContext.Default.CloudSendSMS);
     }
@@ -82,11 +101,11 @@ public class CloudGameService : ICloudGameService
         query.Add("phone", phone);
         query.Add("code", code);
         var request = BuildRequestMessage(
-            "https://sdkapi.kurogame.com/sdkcom/v2/login/phoneCode.lg",
+            "/sdkcom/v2/login/phoneCode.lg",
             HttpMethod.Post,
             query
         );
-        var result = await HttpClientService.HttpClient.SendAsync(request, token);
+        var result = await SdkClient.SendAsync(request, token);
         var model = await result.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize<LoginResult>(model, CloundContext.Default.LoginResult);
     }
@@ -107,11 +126,11 @@ public class CloudGameService : ICloudGameService
         query.Add("phone", phone);
         query.Add("token", phoneToken);
         var request = BuildRequestMessage(
-            "https://sdkapi.kurogame.com/sdkcom/v2/login/phoneToken.lg",
+            "/sdkcom/v2/login/phoneToken.lg",
             HttpMethod.Post,
             query
         );
-        var result = await HttpClientService.HttpClient.SendAsync(request, token);
+        var result = await SdkClient.SendAsync(request, token);
         var model = await result.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize(model, CloundContext.Default.PhoneTokenModel);
     }
@@ -129,7 +148,7 @@ public class CloudGameService : ICloudGameService
             HttpMethod.Post,
             query
         );
-        var result = await HttpClientService.HttpClient.SendAsync(request, token);
+        var result = await SdkClient.SendAsync(request, token);
         var model = await result.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize(model, CloundContext.Default.AccessToken);
     }
@@ -148,7 +167,7 @@ public class CloudGameService : ICloudGameService
             endLogin.DeviceId = HardwareIdGenerator.GenerateUniqueId();
             HttpRequestMessage message = new HttpRequestMessage(
                 HttpMethod.Post,
-                "https://cloud-game-sh.aki-game.com/Login/Login"
+                "/Login/Login"
             );
             var content = JsonSerializer.Serialize(endLogin, CloundContext.Default.EndLoginRequest);
             message.Content = new StringContent(
@@ -159,7 +178,7 @@ public class CloudGameService : ICloudGameService
                 "User-Agent",
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0"
             );
-            var result = await HttpClientService.HttpClient.SendAsync(message);
+            var result = await CloudClient.SendAsync(message);
             var str = await result.Content.ReadAsStringAsync();
             var model = JsonSerializer.Deserialize(str, CloundContext.Default.EndLoginReponse);
             return model;
@@ -178,14 +197,14 @@ public class CloudGameService : ICloudGameService
     {
         HttpRequestMessage message = new HttpRequestMessage(
             HttpMethod.Get,
-            "https://cloud-game-sh.aki-game.com/Message/GameRecordInfo"
+            "/Message/GameRecordInfo"
         );
         message.Headers.Add(
             "User-Agent",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0"
         );
         message.Headers.Add("x-token", RecordToken);
-        var result = await HttpClientService.HttpClient.SendAsync(message, token);
+        var result = await CloudClient.SendAsync(message, token);
         var str = await result.Content.ReadAsStringAsync(token);
         var model = JsonSerializer.Deserialize(str, CloundContext.Default.RecordModel);
         return model;
@@ -202,7 +221,7 @@ public class CloudGameService : ICloudGameService
         query.ServerId = "76402e5b20be2c39f095a152090afddc";
         HttpRequestMessage message = new HttpRequestMessage(
             HttpMethod.Post,
-            "https://gmserver-api.aki-game2.com/gacha/record/query"
+            "/gacha/record/query"
         );
         var content = JsonSerializer.Serialize(query, CloundContext.Default.RecardQuery);
         message.Content = new StringContent(content, new MediaTypeHeaderValue("application/json"));
@@ -210,7 +229,7 @@ public class CloudGameService : ICloudGameService
             "User-Agent",
             "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0"
         );
-        var result = await HttpClientService.HttpClient.SendAsync(message, token);
+        var result = await CloudClient.SendAsync(message, token);
         var str = await result.Content.ReadAsStringAsync(token);
         return JsonSerializer.Deserialize(str, PlayerCardRecordContext.Default.PlayerReponse);
     }
@@ -269,7 +288,7 @@ public class CloudGameService : ICloudGameService
 
     public async Task GetUserInfoAsync(LoginData data)
     {
-        var url = $"https://cloud-game-sh.aki-game.com/UserRegion/GetUserInfo?loginType={data.LoginType}&userId={data.Id}&token={data.AutoToken}&userName={data.Username}";
-        var result = await HttpClientService.HttpClient.GetStringAsync(url);
+        var url = $"/UserRegion/GetUserInfo?loginType={data.LoginType}&userId={data.Id}&token={data.AutoToken}&userName={data.Username}";
+        var result = await CloudClient.GetStringAsync(url);
     }
 }

@@ -13,6 +13,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Waves.Api.Models.Rpc;
 using Waves.Core.Services;
+using Waves.Core.Services.CloudGameService;
 using Waves.Core.Settings;
 
 namespace Haiyu;

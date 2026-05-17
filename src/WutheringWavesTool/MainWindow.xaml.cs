@@ -8,6 +8,7 @@ public sealed partial class MainWindow : WindowEx
         this.AppWindow.SetIcon(AppDomain.CurrentDomain.BaseDirectory + "Assets/appLogo.ico");
         this.IsResizable = false;
         NativeWindowHelper.ForceDisableMaximize(this);
+        this.SystemBackdrop = new MicaBackdrop();
     }
 
 

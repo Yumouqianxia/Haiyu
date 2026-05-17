@@ -19,13 +19,9 @@
     xmlns:ui="using:Haiyu.Controls"
     xmlns:wrapper="using:Haiyu.Models.Wrapper"
     xmlns:wui="using:CommunityToolkit.WinUI"
+    Background="Transparent"
     mc:Ignorable="d">
-    <Page.Resources>
-        <media:AttachedCardShadow
-            x:Key="PanelEffect"
-            BlurRadius="5"
-            Color="{ThemeResource TextFillColorPrimary}" />
-    </Page.Resources>
+
     <i:Interaction.Behaviors>
         <i:EventTriggerBehavior EventName="Loaded">
             <i:InvokeCommandAction Command="{x:Bind ViewModel.LoadedCommand}" />
@@ -105,7 +101,7 @@
                             Padding="5"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Center"
-                            cui:Effects.Shadow="{StaticResource PanelEffect}"
+                            
                             CornerRadius="48"
                             Style="{ThemeResource TransparentButtonStyle}">
                             <ui:ImageEx CornerRadius="40">

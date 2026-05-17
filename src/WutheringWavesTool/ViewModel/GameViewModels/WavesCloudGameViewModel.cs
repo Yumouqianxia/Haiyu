@@ -54,7 +54,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
              KuroCloudGameContext.WavesCloudSurivivalService.Cache.ToList();
         this.Logins = [.. users];
         //var wallData = await KuroCloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.GetPingGameNodeAsync(this.Logins[0]);
-        var nodes = await KuroCloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.CloudNetworkSpeedTestService.RunSpeedTestAsync(this.CTS.Token);
+        var nodes = await KuroCloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.GetPingGameNodeAsync(Logins[0],this.CTS.Token);
     }
 
     public override void Dispose()

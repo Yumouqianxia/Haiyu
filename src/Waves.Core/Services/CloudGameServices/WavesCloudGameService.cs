@@ -171,7 +171,10 @@ public class WavesCloudGameService : IWavesCloudGameService
         query.Add("code", refreshPhoneToken);
         query.Add("grant_type", "authorization_code");
         var json = await PostFormAsync(this._sdkClient, "sdkcom/v2/auth/getToken.lg", query, ct);
-        return JsonSerializer.Deserialize(json, CloudGameContext.Default.CloudApiResponseAccessData);
+        return JsonSerializer.Deserialize(
+            json,
+            CloudGameContext.Default.CloudApiResponseAccessData
+        );
     }
 
     public async Task<CloudApiResponse<EndLoginReponseData>?> GetTokenAsync(
@@ -239,9 +242,26 @@ public class WavesCloudGameService : IWavesCloudGameService
         );
     }
 
-    public async Task<CloudApiResponse<List<CloudGameNode>>?> GetPingGameNodeAsync(CloudGameLoginSession session, CancellationToken ct = default)
+    public async Task<CloudApiResponse<List<CloudGameNode>>?> GetPingGameNodeAsync(
+        CloudGameLoginSession session,
+        CancellationToken ct = default
+    )
     {
-        using var client = BuildClientData(session, "GamePlay/GetRegionToScore", method: HttpMethod.Get);
+        var pingNode = await this.CloudNetworkSpeedTestService.RunSpeedTestAsync(ct);
+        var nodeList = pingNode
+            .Select(x => new NodeList() { Delay = x.Delay, NodeId = x.NodeId })
+            .ToList();
+        using var client = BuildClientData(
+            session,
+            "GamePlay/GetRegionToScore",
+            method: HttpMethod.Post
+        );
+        var content = new StringContent(
+            JsonSerializer.Serialize(nodeList, CloudGameContext.Default.ListNodeList),
+            Encoding.UTF8,
+            "application/json"
+        );
+        client.Content = content;
         var result = await _cloudClient.SendAsync(client, ct);
         var str = await result.Content.ReadAsStringAsync();
         return JsonSerializer.Deserialize(
@@ -250,7 +270,10 @@ public class WavesCloudGameService : IWavesCloudGameService
         );
     }
 
-    public async Task<CloudApiResponse<WalletData>?> GetWalletDataAsync(CloudGameLoginSession session, CancellationToken ct = default)
+    public async Task<CloudApiResponse<WalletData>?> GetWalletDataAsync(
+        CloudGameLoginSession session,
+        CancellationToken ct = default
+    )
     {
         using var client = BuildClientData(session, "Message/WalletInfo", method: HttpMethod.Get);
         var result = await _cloudClient.SendAsync(client, ct);
@@ -339,8 +362,4 @@ public class WavesCloudGameService : IWavesCloudGameService
         var body = await response.Content.ReadAsStringAsync(ct);
         return body;
     }
-
 }
-
-
-

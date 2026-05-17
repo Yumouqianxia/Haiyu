@@ -31,4 +31,5 @@ namespace Waves.Api.Models;
 [JsonSerializable(typeof(CloudApiResponse<WalletData>))]
 [JsonSerializable(typeof(CloudNetworkOrgin))]
 [JsonSerializable(typeof(List<CloudNetworkOrgin>))]
+[JsonSerializable(typeof(List<NodeList>))]
 public partial class CloudGameContext : JsonSerializerContext { }

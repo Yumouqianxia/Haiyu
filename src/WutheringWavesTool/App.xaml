@@ -32,6 +32,7 @@
                 <ResourceDictionary Source="/Controls/Styles/ApplicationBackgroundControl.xaml" />
                 <ResourceDictionary Source="/Controls/Styles/AnimatedTextBlock.xaml" />
                 <ResourceDictionary Source="/Controls/Styles/CardSwitcher.xaml" />
+                <ResourceDictionary Source="/Controls/Styles/SVGPath.xaml" />
                 <ResourceDictionary Source="/Controls/Styles/LoadingCard.xaml" />
                 <ResourceDictionary Source="/Controls/Styles/StorageRing.xaml" />
                 <ResourceDictionary Source="/Controls/Colors/GamePathChartColor.xaml" />

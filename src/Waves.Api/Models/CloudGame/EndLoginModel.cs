@@ -77,7 +77,9 @@ namespace Waves.Api.Models.CloudGame
     public class TimeCardInfo
     {
         [JsonPropertyName("expireTimeSeconds")]
-        public int ExpireTimeSeconds { get; set; }
+        public int ExpireTimeSeconds { get => field; set => field = value; }
+
+
     }
 
     public class WalletData

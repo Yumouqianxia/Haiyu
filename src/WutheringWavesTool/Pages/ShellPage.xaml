@@ -101,7 +101,6 @@
                             Padding="5"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Center"
-                            
                             CornerRadius="48"
                             Style="{ThemeResource TransparentButtonStyle}">
                             <ui:ImageEx CornerRadius="40">
@@ -142,6 +141,7 @@
                         <Button
                             Grid.Column="3"
                             Width="40"
+                            Margin="5"
                             VerticalAlignment="Center"
                             CornerRadius="5"
                             Style="{ThemeResource TransparentButtonStyle}"

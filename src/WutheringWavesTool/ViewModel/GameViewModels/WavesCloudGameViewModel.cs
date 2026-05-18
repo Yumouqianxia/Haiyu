@@ -1,5 +1,6 @@
 ﻿using Haiyu.Services.DialogServices;
 using Waves.Api.Models.CloudGame;
+using Waves.Core.Common;
 using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Models.CloudGame;
 
@@ -14,6 +15,18 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     [ObservableProperty]
     public partial ObservableCollection<CloudGameLoginSession> Logins { get; set; }
 
+    [ObservableProperty]
+    public partial bool IsRefreshing { get; set; }
+
+    [ObservableProperty]
+    public partial WallDataWrapper WallData { get; set; }
+
+    [ObservableProperty]
+    public partial int NodesCount { get; set; }
+
+    [ObservableProperty]
+    public partial CloudGameLoginSession SelectLogin { get; set; }
+
     public WavesCloudGameViewModel(
         IWallpaperService wallpaperService,
         IKuroCloudGameContext kuroCloudGameContext,
@@ -23,13 +36,36 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         WallpaperService = wallpaperService;
         KuroCloudGameContext = kuroCloudGameContext;
         DialogManager = dialogManager;
-        KuroCloudGameContext.WavesCloudSurivivalService.MessageHandler += WavesCloudSurivivalService_MessageHandler;
+        KuroCloudGameContext.WavesCloudSurivivalService.MessageHandler +=
+            WavesCloudSurivivalService_MessageHandler;
         RegisterMessager();
     }
 
-    private async void WavesCloudSurivivalService_MessageHandler(object sender, CloudMessageArgs session)
+    async partial void OnSelectLoginChanged(CloudGameLoginSession value)
     {
-        if(session.Type == Waves.Core.Models.Enums.CloudCoreType.DeleteUser)
+        if (value == null)
+            return;
+        var result =
+            await this.KuroCloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.GetWalletDataAsync(
+                value,
+                this.CTS.Token
+            );
+        WallDataWrapper wrapper = new();
+        wrapper.FreeTime = TimeSpan.FromSeconds(result.Data.FreeTimeInfo.LeftSeconds);
+        wrapper.PlayerCard = DateTimeOffset.FromUnixTimeSeconds(
+            result.Data.TimeCardInfo.ExpireTimeSeconds
+        );
+        wrapper.PayTimer = TimeSpan.FromSeconds(result.Data.PayTimeInfo.LeftSeconds);
+        wrapper.Coin = result.Data.Coin;
+        this.WallData = wrapper;
+    }
+
+    private async void WavesCloudSurivivalService_MessageHandler(
+        object sender,
+        CloudMessageArgs session
+    )
+    {
+        if (session.Type == Waves.Core.Models.Enums.CloudCoreType.DeleteUser)
         {
             await this.RefreshUserAsync();
         }
@@ -45,32 +81,69 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         await this.KuroCloudGameContext.WavesCloudSurivivalService.RefreshTaskAsync();
         await Task.Delay(2000);
         await this.RefreshUserAsync();
-
     }
 
     async Task RefreshUserAsync()
     {
-        var users =
-             KuroCloudGameContext.WavesCloudSurivivalService.Cache.ToList();
-        this.Logins = [.. users];
-        //var wallData = await KuroCloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.GetPingGameNodeAsync(this.Logins[0]);
-        var nodes = await KuroCloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.GetPingGameNodeAsync(Logins[0],this.CTS.Token);
+        var users = KuroCloudGameContext.WavesCloudSurivivalService.Cache.ToList();
+        this.Logins = new(users);
+        if (Logins.Count > 0)
+        {
+            SelectLogin = Logins[0];
+        }
     }
 
     public override void Dispose()
     {
-        KuroCloudGameContext.WavesCloudSurivivalService.MessageHandler -= WavesCloudSurivivalService_MessageHandler;
+        KuroCloudGameContext.WavesCloudSurivivalService.MessageHandler -=
+            WavesCloudSurivivalService_MessageHandler;
         base.Dispose();
     }
 
     [RelayCommand]
     async Task Loaded()
     {
-        WallpaperService.SetMediaForUrl(
-            Waves.Core.Models.Enums.WallpaperShowType.Image,
-            "https://aki-gm-resources-back.aki-game.com/pv/cg/login.webp"
-        );
-        await RefreshUserAsync();
+        try
+        {
+            IsRefreshing = true;
+            WallpaperService.SetMediaForUrl(
+                Waves.Core.Models.Enums.WallpaperShowType.Image,
+                "https://aki-gm-resources-back.aki-game.com/pv/cg/login.webp"
+            );
+            await RefreshUserAsync();
+            await RefreshCloudNodesAsync();
+            IsRefreshing = false;
+        }
+        catch (Exception ex)
+        {
+            IsRefreshing = false;
+            this.Logger.WriteError(ex.Message + ex.StackTrace);
+        }
+    }
+
+    [RelayCommand]
+    async Task RefreshCardAsync()
+    {
+        IsRefreshing = true;
+        await this.RefreshUserAsync();
+        await this.RefreshCloudNodesAsync();
+        IsRefreshing = false;
+    }
+
+
+    private async Task RefreshCloudNodesAsync()
+    {
+        var nodes =
+            await KuroCloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.CloudNetworkSpeedTestService.GetNodeListAsync(
+                CloudNetworkSpeedTestService.DefaultBaseUrl,
+                this.CTS.Token
+            );
+        if (nodes == null)
+        {
+            NodesCount = 0;
+            return;
+        }
+        NodesCount = nodes.Lines.Count;
     }
 
     [RelayCommand]

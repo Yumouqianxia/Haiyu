@@ -15,8 +15,8 @@ public class CloudNetworkSpeedTestService : IDisposable
 {
     private readonly HttpClient _httpClient;
 
-    private const string DefaultBaseUrl = "https://paas-sdk-config.vlinkcloud.cn";
-    private const string FallbackBaseUrl = "https://paas-sdk-config-ks.vlinkcloud.cn";
+    public const string DefaultBaseUrl = "https://paas-sdk-config.vlinkcloud.cn";
+    public const string FallbackBaseUrl = "https://paas-sdk-config-ks.vlinkcloud.cn";
 
     private int _nodeRefreshTimeMs = 300_000;
     private int _pingTimeoutMs = 500;
@@ -86,7 +86,7 @@ public class CloudNetworkSpeedTestService : IDisposable
         }
     }
 
-    private async Task<CloudNetworkOrgin?> GetNodeListAsync(string baseUrl, CancellationToken ct)
+    public async Task<CloudNetworkOrgin?> GetNodeListAsync(string baseUrl, CancellationToken ct)
     {
         var hashInput = _tenantKey + "H5";
         var md5Hash = ComputeMd5(hashInput);

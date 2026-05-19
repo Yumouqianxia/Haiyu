@@ -32,4 +32,6 @@ namespace Waves.Api.Models;
 [JsonSerializable(typeof(CloudNetworkOrgin))]
 [JsonSerializable(typeof(List<CloudNetworkOrgin>))]
 [JsonSerializable(typeof(List<NodeList>))]
+[JsonSerializable(typeof(KRSDK))]
+[JsonSerializable(typeof(PKGData))]
 public partial class CloudGameContext : JsonSerializerContext { }

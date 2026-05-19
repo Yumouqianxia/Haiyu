@@ -130,12 +130,12 @@ public static class CloudGameDataFactory
         return new Dictionary<string, string>()
         {
             { "token", login.AccessData.AccessToken },
-            { "autoToken", login.OrginData.AutoToken },
-            { "phoneToken", login.OrginData.PhoneToken },
-            { "username", login.OrginData.Username },
-            { "sdkuserid", login.OrginData.Sdkuserid },
-            { "cuid", login.OrginData.Cuid },
-            { "code", login.OrginData.Code },
+            { "autoToken", login.PhoneToken.AutoToken },
+            { "phoneToken", login.PhoneToken.PhoneToken },
+            { "username", login.PhoneToken.Username },
+            { "sdkuserid", login.PhoneToken.Sdkuserid },
+            { "cuid", login.PhoneToken.Cuid },
+            { "code", login.PhoneToken.Code },
         };
     }
 

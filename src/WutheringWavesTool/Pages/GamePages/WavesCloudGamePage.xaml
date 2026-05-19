@@ -226,23 +226,19 @@
                                 <FontIcon
                                     Grid.RowSpan="2"
                                     FontFamily="Segoe Fluent Icons"
-                                    FontSize="22"
                                     Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                    Glyph="&#xF6FA;" />
-
-                                <TextBlock
-                                    Grid.Column="1"
-                                    Margin="10,0,0,0"
-                                    FontFamily="{ThemeResource DefaultFont}"
-                                    FontSize="18"
-                                    FontWeight="Bold"
-                                    Text="{x:Bind ViewModel.NodesCount, Mode=OneWay}" />
+                                    Glyph="&#xEC92;" />
                                 <TextBlock
                                     Grid.Row="1"
                                     Grid.Column="1"
                                     Margin="10,0,0,0"
-                                    Foreground="{ThemeResource TextFillColorPrimaryBrush}"
-                                    Text="个节点" />
+                                    Text="体验卡" />
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Margin="10,0,0,0"
+                                    FontFamily="{ThemeResource DefaultFont}"
+                                    FontWeight="Bold"
+                                    Text="{x:Bind ViewModel.WallData.ExperienceTime, Mode=OneWay}" />
                             </Grid>
                         </ui:HeaderTileCard>
                     </Grid>

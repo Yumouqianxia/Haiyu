@@ -13,6 +13,9 @@ public partial class WallDataWrapper:ObservableObject
     public partial string PlayerCardString { get; set; }
 
     [ObservableProperty]
+    public partial string ExperienseTimeString { get; set; }
+
+    [ObservableProperty]
     public partial string PayString { get; set; }
 
     [ObservableProperty]
@@ -32,8 +35,7 @@ public partial class WallDataWrapper:ObservableObject
         get=> field;
         set
         {
-            if(string.IsNullOrWhiteSpace(this.PlayerCardString) || this.PlayerCardString == "1970-01-01")
-                this.PayString = $"{value.Days}:{value.Hours}:{value.Minutes}";
+            this.ExperienseTimeString = $"{value.Days}:{value.Hours}:{value.Minutes}";
             field = value;
         }
     }

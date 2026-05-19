@@ -60,7 +60,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         );
 
         wrapper.PayTimer = TimeSpan.FromSeconds(result.Data.PayTimeInfo.LeftSeconds);
-        if(result.Data.ExperienceCardInfo!= null)
+        if (result.Data.ExperienceCardInfo != null)
             wrapper.ExperienceTime = new TimeSpan(
                 result.Data.ExperienceCardInfo.Day,
                 result.Data.ExperienceCardInfo.Hour,
@@ -142,6 +142,14 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         await this.RefreshUserAsync();
         await this.RefreshCloudNodesAsync();
         IsRefreshing = false;
+    }
+
+    [RelayCommand]
+    async Task InvokeTask()
+    {
+        var result =  await DialogManager.ShowSelectGameNodeAsync(
+            this.SelectLogin.OrginData.Username + this.SelectLogin.OrginData.Sdkuserid
+        );
     }
 
     private async Task RefreshCloudNodesAsync()

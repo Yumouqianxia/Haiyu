@@ -104,6 +104,7 @@
                 <Button
                     Padding="2"
                     HorizontalAlignment="Right"
+                    Command="{x:Bind ViewModel.RefreshCardCommand}"
                     Style="{ThemeResource TransparentButtonStyle}">
                     <FontIcon
                         FontFamily="Segoe Fluent Icons"
@@ -300,6 +301,7 @@
                         VerticalAlignment="Stretch"
                         Background="{ThemeResource SystemFillColorSuccess}"
                         BorderThickness="0"
+                        Command="{x:Bind ViewModel.InvokeTaskCommand}"
                         CornerRadius="4"
                         Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}">
                         <Grid>

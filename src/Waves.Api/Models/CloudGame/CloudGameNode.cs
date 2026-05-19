@@ -24,9 +24,19 @@ public class CloudGameNode
 
     [JsonPropertyName("slowWaiting")]
     public int SlowWaiting { get; set; }
+    public int Delay { get; private set; }
 
     [JsonPropertyName("nodeList")]
-    public List<NodeList> NodeList { get; set; }
+    public List<NodeList> NodeList
+    {
+        get => field;
+        set 
+        {
+            if(value != null && value.Count>0)
+                this.Delay = value.Select(x => x.Delay).Sum();
+            field = value; 
+        }
+    }
 }
 
 public class NodeList
@@ -37,4 +47,3 @@ public class NodeList
     [JsonPropertyName("delay")]
     public int Delay { get; set; }
 }
-

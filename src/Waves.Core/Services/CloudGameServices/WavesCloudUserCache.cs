@@ -67,6 +67,15 @@ public class WavesCloudUserCache
         return null;
     }
 
+    public CloudGameLoginSession? TryGet(string id)
+    {
+        if (queryList.TryGetValue(id,out var cache))
+        {
+            return cache;
+        }
+        return null;
+    }
+
     public CloudGameLoginSession? TryGet(CloudGameLoginData data)
     {
         var key = data.Username + data.Sdkuserid;

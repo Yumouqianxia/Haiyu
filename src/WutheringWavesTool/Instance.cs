@@ -86,6 +86,8 @@ public static class InstanceBuilderExtensions
                     .AddTransient<CommunityViewModel>()
                     .AddTransient<GameEnhancedDialog>()
                     .AddTransient<GameEnhancedViewModel>()
+                    .AddTransient<CloudSelectNodeDialog>()
+                    .AddTransient<CloudSelectNodeViewModel>()
                     .AddTransient<GameResourceDialog>()
                     .AddTransient<GameResourceViewModel>()
                     .AddTransient<DeviceInfoPage>()

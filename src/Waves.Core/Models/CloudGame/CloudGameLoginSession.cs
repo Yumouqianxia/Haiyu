@@ -20,7 +20,7 @@ public partial class CloudGameLoginSession:ObservableObject
     public partial AccessData AccessData { get; internal set; }
 
     [ObservableProperty]
-    public partial EndLoginReponseData EndLoginData { get; internal set; }
+    public partial EndLoginData EndLoginData { get; internal set; }
     public string TraceId { get; internal set; }
 
     public DateTime SaveTime { get; internal set; }

@@ -1,15 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Channels;
-using Waves.Core.Contracts.Events;
+﻿using Waves.Core.Contracts.Events;
+using Waves.Core.Contracts.Events.CloudGame;
 using Waves.Core.Models;
+using Waves.Core.Models.CloudGame;
 
 namespace Waves.Core.Services;
 
-public sealed class GameEventPublisher
-    : EventPublishBase<GameContextOutputArgs>,
-        IGameEventPublisher,
+/// <summary>
+/// 云游戏事件发布器
+/// </summary>
+public class CloudGameEventPublisher
+    : EventPublishBase<CloudMessageArgs>,
+        ICloudGameEventPublisher,
         IAsyncDisposable,
         IPublisher
 {
@@ -38,8 +39,8 @@ public sealed class GameEventPublisher
     }
 
     private static async ValueTask SafelyHandleEvent(
-        Func<GameContextOutputArgs, ValueTask> handler,
-        GameContextOutputArgs @event,
+        Func<CloudMessageArgs, ValueTask> handler,
+        CloudMessageArgs @event,
         CancellationToken token
     )
     {
@@ -77,11 +78,11 @@ public sealed class GameEventPublisher
     }
 
     public override async ValueTask<IGameEventSubscription> SubscribeAsync(
-        Func<GameContextOutputArgs, ValueTask> handler
+        Func<CloudMessageArgs, ValueTask> handler
     )
     {
         if (_isDisposed)
-            throw new ObjectDisposedException(nameof(GameEventPublisher));
+            throw new ObjectDisposedException(nameof(CloudGameEventPublisher));
         var id = Guid.NewGuid();
         var cts = new CancellationTokenSource();
         lock (_subscribers)
@@ -95,36 +96,6 @@ public sealed class GameEventPublisher
                 }
             );
         }
-        return new SubscriptionToken<GameEventPublisher>(this, id, cts);
-    }
-
-    
-}
-
-public sealed class SubscriptionToken<Publisher> : IGameEventSubscription
-        where Publisher : IPublisher
-{
-    private readonly Publisher _publisher;
-    private readonly Guid _id;
-    private readonly CancellationTokenSource _cts;
-    private bool _isDisposed;
-
-    public SubscriptionToken(Publisher publisher, Guid id, CancellationTokenSource cts)
-    {
-        _publisher = publisher;
-        _id = id;
-        _cts = cts;
-    }
-
-    public bool IsActive => !_isDisposed && !_cts.IsCancellationRequested;
-
-    public void Dispose()
-    {
-        if (_isDisposed)
-            return;
-        _isDisposed = true;
-        _cts.Cancel();
-        _cts.Dispose();
-        _publisher.Unsubscribe(_id);
+        return new SubscriptionToken<CloudGameEventPublisher>(this, id, cts);
     }
 }

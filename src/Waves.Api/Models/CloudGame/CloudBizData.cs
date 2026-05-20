@@ -20,7 +20,7 @@ public sealed partial class CloudBizData
     public string OsVer { get; set; } = string.Empty;
 
     [JsonPropertyName("clientVer")]
-    public string clientVer { get; set; } = string.Empty;
+    public string ClientVer { get; set; } = string.Empty;
 
     [JsonPropertyName("osCategory")]
     public string OsCategory { get; set; } = "h5";
@@ -32,12 +32,12 @@ public sealed partial class CloudBizData
     public string ExtSdk { get; set; } = "{\"certHash\":true}";
 
     [JsonPropertyName("ping")]
-    public List<BizCloudNode> BizCloudNodes { get; set; }
+    public IEnumerable<BizCloudNode> BizCloudNodes { get; set; }
 
-    public CloudBizData(string osVer, string clientVer, List<BizCloudNode> bizCloudNodes)
+    public CloudBizData(string osVer, string clientVer, IEnumerable<BizCloudNode> bizCloudNodes)
     {
         OsVer = osVer;
-        this.clientVer = clientVer;
+        this.ClientVer = clientVer;
         BizCloudNodes = bizCloudNodes;
     }
 }

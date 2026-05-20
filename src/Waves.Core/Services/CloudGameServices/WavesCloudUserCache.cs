@@ -28,7 +28,7 @@ public class WavesCloudUserCache
         return flage;
     }
 
-    public void TryAdd(CloudGameLoginData data, PhoneTokenData phoneToken =null, AccessData data1 = null, EndLoginReponseData data2 = null)
+    public void TryAdd(CloudGameLoginData data, PhoneTokenData phoneToken =null, AccessData data1 = null, EndLoginData data2 = null)
     {
         var key = data.Username + data.Sdkuserid;
         if (!queryList.ContainsKey(key))

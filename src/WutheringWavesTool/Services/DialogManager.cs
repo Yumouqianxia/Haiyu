@@ -1,6 +1,7 @@
 ﻿using Haiyu.Models.Dialogs;
 using Haiyu.Plugin.Models;
 using Waves.Api.Models.CloudGame;
+using Waves.Core.Models.CloudGame;
 using Waves.Core.Models.Enums;
 
 namespace Haiyu.Services;
@@ -127,8 +128,8 @@ public abstract class DialogManager : IDialogManager
         );
 
 
-    public async Task<CloudGameNode> ShowSelectGameNodeAsync(string id)
-        =>await GetDialogResultAsync<CloudSelectNodeDialog, CloudGameNode>(id);
+    public async Task<LauncheNodeConfig> ShowSelectGameNodeAsync(string id)
+        =>await GetDialogResultAsync<CloudSelectNodeDialog, LauncheNodeConfig>(id);
 
     public async Task ShowDeleteGameResource(string contentName) =>
         await ShowDialogAsync<DeleteFileDialog>(contentName);

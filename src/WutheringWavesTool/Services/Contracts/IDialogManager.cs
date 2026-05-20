@@ -1,6 +1,7 @@
 ﻿using Haiyu.Models.Dialogs;
 using Haiyu.Plugin.Models;
 using Waves.Api.Models.CloudGame;
+using Waves.Core.Models.CloudGame;
 using Waves.Core.Models.Enums;
 
 namespace Haiyu.Services.Contracts;
@@ -25,7 +26,7 @@ public interface IDialogManager
     public Task<QRScanResult> GetQRLoginResultAsync();
     public Task<UpdateGameResult> ShowUpdateGameDialogAsync(string contextName, UpdateGameType type);
     public Task<UpdateGameResult> ShowUpdateGameDialogAsyncV2(string contextName, UpdateGameType type);
-    public Task<CloudGameNode> ShowSelectGameNodeAsync(string id);
+    public Task<LauncheNodeConfig> ShowSelectGameNodeAsync(string id);
     Task ShowGameResourceV2DialogAsync(string contextName);
     public Task ShowDeleteGameResource(string contentName);
     public void CloseDialog();

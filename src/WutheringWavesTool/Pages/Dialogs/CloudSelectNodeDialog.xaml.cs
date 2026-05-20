@@ -1,8 +1,9 @@
 ﻿using Waves.Api.Models.CloudGame;
+using Waves.Core.Models.CloudGame;
 
 namespace Haiyu.Pages.Dialogs
 {
-    public sealed partial class CloudSelectNodeDialog : ContentDialog,IResultDialog<CloudGameNode>
+    public sealed partial class CloudSelectNodeDialog : ContentDialog,IResultDialog<LauncheNodeConfig>
     {
         public CloudSelectNodeDialog()
         {
@@ -13,9 +14,13 @@ namespace Haiyu.Pages.Dialogs
 
         public CloudSelectNodeViewModel ViewModel { get; }
 
-        public CloudGameNode? GetResult()
+        public LauncheNodeConfig? GetResult()
         {
-            return this.ViewModel.SelectNode;
+            return new()
+            {
+                Nodes = ViewModel.Nodes,
+                SelectNode = ViewModel.SelectNode
+            };
         }
 
         public void SetData(object data)

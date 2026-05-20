@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 
 namespace Waves.Api.Models.CloudGame
 {
-    // Root myDeserializedClass = JsonSerializer.Deserialize<Root>(myJsonResponse);
     public class EndLoginData
     {
         [JsonPropertyName("token")]

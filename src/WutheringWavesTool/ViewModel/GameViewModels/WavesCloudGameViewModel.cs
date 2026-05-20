@@ -3,6 +3,8 @@ using Waves.Api.Models.CloudGame;
 using Waves.Core.Common;
 using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Models.CloudGame;
+using Windows.Win32;
+using Windows.Win32.Foundation;
 
 namespace Haiyu.ViewModel.GameViewModels;
 
@@ -147,8 +149,19 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     [RelayCommand]
     async Task InvokeTask()
     {
-        var result =  await DialogManager.ShowSelectGameNodeAsync(
+        var result = await DialogManager.ShowSelectGameNodeAsync(
             this.SelectLogin.OrginData.Username + this.SelectLogin.OrginData.Sdkuserid
+        );
+        if (result == null)
+        {
+            return;
+        }
+        var dpi = (int)HwndExtensions.GetDpiForWindow(App.App.MainWindow.GetWindowHandle());
+        await this.KuroCloudGameContext.StartGameAsync(
+            this.SelectLogin,
+            dpi,
+            result.Nodes,
+            result.SelectNode
         );
     }
 

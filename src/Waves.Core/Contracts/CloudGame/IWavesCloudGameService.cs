@@ -37,7 +37,7 @@ public interface IWavesCloudGameService
         CancellationToken ct = default
     );
 
-    public Task<CloudApiResponse<EndLoginReponseData>?> GetTokenAsync(
+    public Task<CloudApiResponse<EndLoginData>?> GetTokenAsync(
         CloudGameLoginData data,
         string accessToken,
         CancellationToken ct = default
@@ -66,4 +66,6 @@ public interface IWavesCloudGameService
     /// <param name="ct"></param>
     /// <returns></returns>
     public Task<CloudApiResponse<List<CloudGameNode>>?> GetPingGameNodeAsync(CloudGameLoginSession session, CancellationToken ct = default);
+
+    public Task<CloudApiResponse<CommStartReponse>?> CommonStartGameAsync(HttpClient client, CloudGameLoginSession session, WelinkStartParameters startParameters);
 }

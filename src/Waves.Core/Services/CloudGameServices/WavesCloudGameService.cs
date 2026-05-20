@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Buffers.Text;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Runtime.InteropServices;
@@ -56,6 +57,16 @@ public class WavesCloudGameService : IWavesCloudGameService
     /// </summary>
     private readonly HttpClient _cloudClient;
 
+    #endregion
+
+    public WavesCloudGameService(CloudConfigManager cloudConfigManager)
+    {
+        this.ConfigManager = cloudConfigManager;
+        _sdkClient = CreateClient(SdkBaseUrl);
+        _cloudClient = CreateClient(CloudBaseUrl);
+        CloudNetworkSpeedTestService = new CloudNetworkSpeedTestService();
+    }
+
     private static HttpClient CreateClient(string baseUrl)
     {
         var handler = new HttpClientHandler
@@ -70,15 +81,6 @@ public class WavesCloudGameService : IWavesCloudGameService
         client.DefaultRequestHeaders.UserAgent.ParseAdd(UserAgent);
         client.DefaultRequestHeaders.Add("Kr-Ver", "1.9.0");
         return client;
-    }
-    #endregion
-
-    public WavesCloudGameService(CloudConfigManager cloudConfigManager)
-    {
-        this.ConfigManager = cloudConfigManager;
-        _sdkClient = CreateClient(SdkBaseUrl);
-        _cloudClient = CreateClient(CloudBaseUrl);
-        CloudNetworkSpeedTestService = new CloudNetworkSpeedTestService();
     }
 
     public async Task<Tuple<CloudSendSMS?, CloudGameLoginSnapshot>> GetPhoneSMSAsync(
@@ -177,7 +179,7 @@ public class WavesCloudGameService : IWavesCloudGameService
         );
     }
 
-    public async Task<CloudApiResponse<EndLoginReponseData>?> GetTokenAsync(
+    public async Task<CloudApiResponse<EndLoginData>?> GetTokenAsync(
         CloudGameLoginData data,
         string accessToken,
         CancellationToken ct = default
@@ -197,7 +199,7 @@ public class WavesCloudGameService : IWavesCloudGameService
         var result = await PostJsonAsync(_cloudClient, "Login/Login", json, ct);
         return JsonSerializer.Deserialize(
             result,
-            CloudGameContext.Default.CloudApiResponseEndLoginReponseData
+            CloudGameContext.Default.CloudApiResponseEndLoginData
         );
     }
 
@@ -281,6 +283,42 @@ public class WavesCloudGameService : IWavesCloudGameService
         return JsonSerializer.Deserialize<CloudApiResponse<WalletData>?>(
             str,
             CloudGameContext.Default.CloudApiResponseWalletData
+        );
+    }
+
+    public async Task<CloudApiResponse<CommStartReponse>?> CommonStartGameAsync(
+        HttpClient client,
+        CloudGameLoginSession session,
+        WelinkStartParameters startParameters
+    )
+    {
+        CommStartModel model = new CommStartModel()
+        {
+            NodeList = startParameters.Node.NodeList,
+            PayType = 2,
+            ResourceData = new ResourceData()
+            {
+                WlResourceData = new WlResourceData()
+                {
+                    BizData = startParameters.BizData,
+                    BitRate = startParameters.BitRate,
+                    CmdLine = startParameters.CmdLine,
+                    CodecType = startParameters.CodecType,
+                    Fps = startParameters.Fps,
+                    GameId = startParameters.GameId,
+                    Resolution = startParameters.Resolution,
+                    TenantKey = startParameters.TenantKey,
+                    Version = startParameters.Version,
+                },
+            },
+        };
+        var json = JsonSerializer.Serialize(model, CloudGameContext.Default.CommStartModel);
+        using var content = new StringContent(json, Encoding.UTF8, "application/json");
+        using var response = await client.PostAsync("GamePlay/CommonStartGame", content);
+        var body = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<CloudApiResponse<CommStartReponse>>(
+            body,
+            CloudGameContext.Default.CloudApiResponseCommStartReponse
         );
     }
 

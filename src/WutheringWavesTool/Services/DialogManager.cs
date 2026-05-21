@@ -193,4 +193,7 @@ public abstract class DialogManager : IDialogManager
         var result = await dialog.ShowAsync();
         return result;
     }
+
+    public async Task ShowWavesCloudSettingAsync() =>
+        await ShowDialogAsync<CloudGameSettingDialog>(GameType.Waves);
 }

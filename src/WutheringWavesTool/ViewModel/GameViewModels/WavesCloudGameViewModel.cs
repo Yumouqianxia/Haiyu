@@ -3,6 +3,7 @@ using Waves.Api.Models.CloudGame;
 using Waves.Core.Common;
 using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Models.CloudGame;
+using Waves.Core.Services.CloudGameServices;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 
@@ -32,7 +33,8 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
 
     public WavesCloudGameViewModel(
         IWallpaperService wallpaperService,
-        IKuroCloudGameContext kuroCloudGameContext,
+        [FromKeyedServices(nameof(Waves.Core.Services.KuroCloudGameContext))]
+            IKuroCloudGameContext kuroCloudGameContext,
         [FromKeyedServices(nameof(MainDialogService))] IDialogManager dialogManager,
         IAppContext<App> app
     )
@@ -43,7 +45,15 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         App = app;
         KuroCloudGameContext.WavesCloudSurivivalService.MessageHandler +=
             WavesCloudSurivivalService_MessageHandler;
+        KuroCloudGameContext.CloudGameProcessTracker.OnProgressChanged +=
+            CloudGameProcessTracker_OnProgressChanged;
+        ;
         RegisterMessager();
+    }
+
+    private void CloudGameProcessTracker_OnProgressChanged(CloudGameProcessTracker obj)
+    {
+        Debug.WriteLine(obj.CoreType);
     }
 
     async partial void OnSelectLoginChanged(CloudGameLoginSession value)
@@ -78,7 +88,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         CloudMessageArgs session
     )
     {
-        if (session.Type == Waves.Core.Models.Enums.CloudCoreType.DeleteUser)
+        if (session.Type == Waves.Core.Models.Enums.CloudCoreType.UserChanged)
         {
             await this.RefreshUserAsync();
         }
@@ -113,6 +123,8 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     {
         KuroCloudGameContext.WavesCloudSurivivalService.MessageHandler -=
             WavesCloudSurivivalService_MessageHandler;
+        KuroCloudGameContext.CloudGameProcessTracker.OnProgressChanged -=
+            CloudGameProcessTracker_OnProgressChanged;
         base.Dispose();
     }
 
@@ -145,6 +157,8 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         await this.RefreshCloudNodesAsync();
         IsRefreshing = false;
     }
+    
+
 
     [RelayCommand]
     async Task InvokeTask()
@@ -152,16 +166,18 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         var result = await DialogManager.ShowSelectGameNodeAsync(
             this.SelectLogin.OrginData.Username + this.SelectLogin.OrginData.Sdkuserid
         );
-        if (result == null)
+        if (result == null || result.SelectNode == null)
         {
             return;
         }
         var dpi = (int)HwndExtensions.GetDpiForWindow(App.App.MainWindow.GetWindowHandle());
-        await this.KuroCloudGameContext.StartGameAsync(
-            this.SelectLogin,
-            dpi,
-            result.Nodes,
-            result.SelectNode
+        _ = Task.Run(async () =>
+            await this.KuroCloudGameContext.StartGameAsync(
+                this.SelectLogin,
+                dpi,
+                result.Nodes,
+                result.SelectNode
+            )
         );
     }
 

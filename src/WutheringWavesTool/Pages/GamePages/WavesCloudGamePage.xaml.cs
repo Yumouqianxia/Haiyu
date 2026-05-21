@@ -12,5 +12,15 @@ public sealed partial class WavesCloudGamePage : Page,IPage
 
     public Type PageType => typeof(WavesCloudGamePage);
 
-    public WavesCloudGameViewModel ViewModel { get; }
+
+    protected override void OnNavigatedFrom(NavigationEventArgs e)
+    {
+        this.Bindings.StopTracking();
+        this.ViewModel.Dispose();
+        this.ViewModel = null;
+        GC.Collect();
+        base.OnNavigatedFrom(e);
+    }
+
+    public WavesCloudGameViewModel ViewModel { get; set; }
 }

@@ -97,7 +97,7 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
                         await this.WavesCloudGameService.ConfigManager.DeleteUserAsync(
                             data.Sdkuserid
                         );
-                        this.messageHandler?.Invoke(this, new(CloudCoreType.DeleteUser));
+                        this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
                         return;
                     }
                     var cacheToken = await WavesCloudGameService.GetTokenAsync(
@@ -111,7 +111,7 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
                         await this.WavesCloudGameService.ConfigManager.DeleteUserAsync(
                             data.Sdkuserid
                         );
-                        this.messageHandler?.Invoke(this, new(CloudCoreType.DeleteUser));
+                        this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
                         return;
                     }
                     Cache.TryAdd(data, isLogin.Data, accessToken.Data, cacheToken.Data);
@@ -120,7 +120,7 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
                 {
                     Cache.TryRemove(data);
                     await this.WavesCloudGameService.ConfigManager.DeleteUserAsync(data.Sdkuserid);
-                    this.messageHandler?.Invoke(this, new(CloudCoreType.DeleteUser));
+                    this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
                     return;
                 }
             }
@@ -131,7 +131,7 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
             {
                 Cache.TryRemove(data);
                 await this.WavesCloudGameService.ConfigManager.DeleteUserAsync(data.Sdkuserid);
-                this.messageHandler?.Invoke(this, new(CloudCoreType.DeleteUser));
+                this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
                 return;
             }
         }

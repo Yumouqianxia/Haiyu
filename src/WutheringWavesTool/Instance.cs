@@ -67,7 +67,6 @@ public static class InstanceBuilderExtensions
                             return service;
                         }
                     )
-                    .AddSingleton<WavesCloudSurvivalService>()
                     .AddSingleton<AppSettings>()
                 #region XBox
                     .AddSingleton<XBoxConfig>()
@@ -162,6 +161,8 @@ public static class InstanceBuilderExtensions
                     .AddTransient<GameResourceViewModelV2>()
                     .AddTransient<UpdateAppDialog>()
                     .AddTransient<UpdateAppViewModel>()
+                    .AddTransient<CloudGameSettingViewModel>()
+                    .AddTransient<CloudGameSettingDialog>()
                 #endregion
                 #endregion
                 #region More

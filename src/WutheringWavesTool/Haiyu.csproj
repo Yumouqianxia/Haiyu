@@ -252,6 +252,9 @@
 		<None Update="Assets\HpatchzResource\hpatchz.exe">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<Page Update="Pages\Dialogs\GameSettings\CloudGameSettingDialog.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 		<Page Update="Pages\Dialogs\CloudSelectNodeDialog.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
@@ -359,6 +362,7 @@
 	<ItemGroup>
 	  <None Remove="Controls\Styles\SVGPath.xaml" />
 	  <None Remove="Pages\Dialogs\CloudSelectNodeDialog.xaml" />
+	  <None Remove="Pages\Dialogs\GameSettings\CloudGameSettingDialog.xaml" />
 	  <None Remove="Pages\GamePages\WavesCloudGamePage.xaml" />
 	</ItemGroup>
 	<Target Name="CopyXamlResourcesForAot" AfterTargets="Publish" Condition="'$(PublishAot)' == 'true'">

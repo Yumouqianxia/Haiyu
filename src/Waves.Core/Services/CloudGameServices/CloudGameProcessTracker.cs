@@ -1,5 +1,7 @@
 ﻿using Waves.Core.Contracts.Events;
+using Waves.Core.Contracts.Events.CloudGame;
 using Waves.Core.Models.CloudGame;
+using Waves.Core.Models.Enums;
 
 namespace Waves.Core.Services.CloudGameServices;
 
@@ -11,9 +13,11 @@ public class CloudGameProcessTracker:IAsyncDisposable
     private bool _isDirty;
     private DateTime lastTime;
 
+    public CloudCoreType CoreType { get; private set; }
+
     public event Action<CloudGameProcessTracker>? OnProgressChanged;
 
-    public async Task StartTrackingAsync(CloudGameEventPublisher publisher)
+    public async Task StartTrackingAsync(ICloudGameEventPublisher publisher)
     {
         if (publisher == null)
             throw new ArgumentNullException(nameof(publisher));
@@ -55,8 +59,10 @@ public class CloudGameProcessTracker:IAsyncDisposable
             // 避免旧数据覆盖通知
             return;
         }
-        
+        this.CoreType = args.Type;
 
+
+        _isDirty = true;
         await ValueTask.CompletedTask;
     }
 

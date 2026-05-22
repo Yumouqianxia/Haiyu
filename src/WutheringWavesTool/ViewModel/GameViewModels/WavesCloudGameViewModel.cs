@@ -16,6 +16,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     public IKuroCloudGameContext KuroCloudGameContext { get; }
     public IDialogManager DialogManager { get; }
     public IAppContext<App> App { get; }
+    public ITipShow TipShow { get; }
     public IWallpaperService WallpaperService { get; }
 
     [ObservableProperty]
@@ -38,13 +39,15 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         [FromKeyedServices(nameof(Waves.Core.Services.KuroCloudGameContext))]
             IKuroCloudGameContext kuroCloudGameContext,
         [FromKeyedServices(nameof(MainDialogService))] IDialogManager dialogManager,
-        IAppContext<App> app
+        IAppContext<App> app,
+        ITipShow tipShow
     )
     {
         WallpaperService = wallpaperService;
         KuroCloudGameContext = kuroCloudGameContext;
         DialogManager = dialogManager;
         App = app;
+        TipShow = tipShow;
         KuroCloudGameContext.WavesCloudSurivivalService.MessageHandler +=
             WavesCloudSurivivalService_MessageHandler;
         KuroCloudGameContext.CloudGameProcessTracker.OnProgressChanged +=
@@ -168,11 +171,13 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         );
         if (result == null || result.SelectNode == null)
         {
+            await TipShow.ShowMessageAsync("请选择节点或节点失效", Symbol.Clear);
             return;
         }
         var qualityOpt = await this.GetOptionsAsync();
         if (qualityOpt == null)
         {
+            await TipShow.ShowMessageAsync("构建清晰度失败，日志已记录", Symbol.Clear);
             return;
         }
         _ = Task.Run(async () =>
@@ -191,38 +196,48 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     /// <returns></returns>
     public async Task<StreamQualityOptions?> GetOptionsAsync()
     {
-        var quality = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
+        try
+        {
+            var quality = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
             CloudGameLocalSettingName.QualityType
         );
-        var fps = 60;
-        var enable = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
-            CloudGameLocalSettingName.EnableImageEnhancement
-        );
-        var dpi = (int)HwndExtensions.GetDpiForWindow(App.App.MainWindow.GetWindowHandle());
-        var area = DisplayArea.Primary.OuterBounds;
-        if (
-            bool.TryParse(enable, out var enableImage)
-            && Enum.TryParse<CloudQualityType>(quality, out var quEnum)
-        )
-        {
-            var mode =  new StreamQualityOptions(
-                CloudGameMethod.DefaultBitRate,
-                CloudGameMethod.MinBitRate,
-                fps,
-                area.Width,
-                area.Height,
-                CloudGameMethod.DefaultCodecType,
-                "0",
-                enableImage,
-                dpi,
-                quEnum
+            var fps = 60;
+            var enable = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
+                CloudGameLocalSettingName.EnableImageEnhancement
             );
-            return CloudGameDataFactory.ScaleQualityToPhysical(mode,false);
+            var dpi = (int)HwndExtensions.GetDpiForWindow(App.App.MainWindow.GetWindowHandle());
+            var area = DisplayArea.Primary.OuterBounds;
+            if (
+                bool.TryParse(enable, out var enableImage)
+                && Enum.TryParse<CloudQualityType>(quality, out var quEnum)
+            )
+            {
+                var mode = new StreamQualityOptions(
+                    CloudGameMethod.DefaultBitRate,
+                    CloudGameMethod.MinBitRate,
+                    fps,
+                    area.Width,
+                    area.Height,
+                    CloudGameMethod.DefaultCodecType,
+                    "0",
+                    enableImage,
+                    dpi,
+                    quEnum
+                );
+                return CloudGameDataFactory.ScaleQualityToPhysical(mode, false);
+            }
+            else
+            {
+                Logger.WriteError($"游戏设置内容有错误:{quality}-{enable}");
+                return null;
+            }
         }
-        else
+        catch (Exception ex)
         {
+            Logger.WriteError($"构建清晰度出错:{ex.Message}");
             return null;
         }
+        
     }
 
     private async Task RefreshCloudNodesAsync()

@@ -22,19 +22,23 @@ public enum CloudCoreType:uint
     /// </summary>
     OpeningWeb = 5,
     /// <summary>
+    /// 可以准备游戏
+    /// </summary>
+    GameActive = 6,
+    /// <summary>
     /// 正在游戏中
     /// </summary>
-    InGameing = 6,
+    InGameing = 7,
     /// <summary>
     /// 有错误
     /// </summary>
-    ErrorFlage = 7,
+    ErrorFlage = 8,
     /// <summary>
     /// 账户变动
     /// </summary>
-    UserChanged = 8,
+    UserChanged = 9,
     /// <summary>
     /// 消息通知
     /// </summary>
-    Message = 9
+    Message = 10
 }

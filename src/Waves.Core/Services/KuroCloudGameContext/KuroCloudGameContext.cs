@@ -7,6 +7,7 @@ using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Contracts.Events.CloudGame;
 using Waves.Core.Models;
 using Waves.Core.Models.CloudGame;
+using Waves.Core.Models.Enums;
 using Waves.Core.Services.CloudGameServices;
 
 namespace Waves.Core.Services;
@@ -17,6 +18,11 @@ public class KuroCloudGameContext : IKuroCloudGameContext
     {
         WavesCloudSurivivalService = cloudGameService;
     }
+
+    /// <summary>
+    /// 正在运行的游戏窗口句柄
+    /// </summary>
+    private uint GameingWindow { get; set; }
 
     public WavesCloudSurvivalService WavesCloudSurivivalService { get; }
 
@@ -92,9 +98,18 @@ public class KuroCloudGameContext : IKuroCloudGameContext
                 session,
                 paramData
             );
-        if (invokeResult == null) { }
-        if (invokeResult.Code == 1712) { }
-
-
+        if (invokeResult == null) 
+        {
+            this.CloudGameEventPublisher.Publish(new(CloudCoreType.QueueDown));
+            await Task.Delay(1000);
+            //启动Web串流，通知外部ViewModel接受Session，进行Web启动
+            this.CloudGameEventPublisher.Publish(new(CloudCoreType.OpeningWeb));
+            return;
+        }
+        if (invokeResult.Code == 1712) 
+        {
+            this.CloudGameEventPublisher.Publish(new(CloudCoreType.QueueUp));
+            //启动轮询线程
+        }
     }
 }

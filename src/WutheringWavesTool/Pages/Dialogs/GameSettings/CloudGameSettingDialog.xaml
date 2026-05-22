@@ -4,14 +4,70 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Haiyu.Pages.Dialogs"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Haiyu.ViewModel.DialogViewModels"
+    Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
+    CornerRadius="5"
     mc:Ignorable="d">
-
-    <Grid>
+    <i:Interaction.Behaviors>
+        <i:EventTriggerBehavior EventName="Loaded">
+            <i:InvokeCommandAction Command="{x:Bind ViewModel.LoadedCommand}" />
+        </i:EventTriggerBehavior>
+    </i:Interaction.Behaviors>
+    <Grid ColumnSpacing="10" RowSpacing="5">
         <Grid.ColumnDefinitions>
-            <ColumnDefinition />
+            <ColumnDefinition Width="auto" />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <TextBlock VerticalAlignment="Center" Text="清晰度选择" />
+        <ComboBox
+            Grid.Column="1"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Center"
+            ItemsSource="{x:Bind ViewModel.Qualitys, Mode=OneWay}"
+            SelectedItem="{x:Bind ViewModel.SelectQualitys, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:QualityWrapper">
+                    <TextBlock Text="{x:Bind DisplayName}" />
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+        </ComboBox>
+        <TextBlock
+            Grid.Row="1"
+            VerticalAlignment="Center"
+            Text="画质增强" />
+        <ToggleSwitch
+            Grid.Row="1"
+            Grid.Column="1"
+            VerticalAlignment="Center"
+            IsOn="{x:Bind ViewModel.Enable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            OffContent="关"
+            OnContent="开" />
+        <TextBlock
+            Grid.Row="2"
+            VerticalAlignment="Center"
+            Text="是否显示网络状态" />
+        <ToggleSwitch
+            Grid.Row="2"
+            Grid.Column="1"
+            VerticalAlignment="Center"
+            IsOn="{x:Bind ViewModel.ShowNetworkState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            OffContent="关"
+            OnContent="开" />
+        <Button
+            Grid.Row="3"
+            Grid.ColumnSpan="2"
+            Width="80"
+            HorizontalAlignment="Center"
+            Command="{x:Bind ViewModel.CloseCommand}"
+            Content="关闭" />
     </Grid>
 </ContentDialog>

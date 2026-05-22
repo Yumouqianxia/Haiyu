@@ -3,7 +3,9 @@ using Waves.Api.Models.CloudGame;
 using Waves.Core.Common;
 using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Models.CloudGame;
+using Waves.Core.Models.Enums;
 using Waves.Core.Services.CloudGameServices;
+using Windows.Wdk;
 using Windows.Win32;
 using Windows.Win32.Foundation;
 
@@ -157,8 +159,6 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         await this.RefreshCloudNodesAsync();
         IsRefreshing = false;
     }
-    
-
 
     [RelayCommand]
     async Task InvokeTask()
@@ -170,15 +170,59 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         {
             return;
         }
-        var dpi = (int)HwndExtensions.GetDpiForWindow(App.App.MainWindow.GetWindowHandle());
+        var qualityOpt = await this.GetOptionsAsync();
+        if (qualityOpt == null)
+        {
+            return;
+        }
         _ = Task.Run(async () =>
             await this.KuroCloudGameContext.StartGameAsync(
                 this.SelectLogin,
-                dpi,
                 result.Nodes,
-                result.SelectNode
+                result.SelectNode,
+                qualityOpt
             )
         );
+    }
+
+    /// <summary>
+    /// 构建当前设备最佳的清晰度
+    /// </summary>
+    /// <returns></returns>
+    public async Task<StreamQualityOptions?> GetOptionsAsync()
+    {
+        var quality = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
+            CloudGameLocalSettingName.QualityType
+        );
+        var fps = 60;
+        var enable = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
+            CloudGameLocalSettingName.EnableImageEnhancement
+        );
+        var dpi = (int)HwndExtensions.GetDpiForWindow(App.App.MainWindow.GetWindowHandle());
+        var area = DisplayArea.Primary.OuterBounds;
+        if (
+            bool.TryParse(enable, out var enableImage)
+            && Enum.TryParse<CloudQualityType>(quality, out var quEnum)
+        )
+        {
+            var mode =  new StreamQualityOptions(
+                CloudGameMethod.DefaultBitRate,
+                CloudGameMethod.MinBitRate,
+                fps,
+                area.Width,
+                area.Height,
+                CloudGameMethod.DefaultCodecType,
+                "0",
+                enableImage,
+                dpi,
+                quEnum
+            );
+            return CloudGameDataFactory.ScaleQualityToPhysical(mode,false);
+        }
+        else
+        {
+            return null;
+        }
     }
 
     private async Task RefreshCloudNodesAsync()
@@ -200,5 +244,11 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     async Task AddUserAsync()
     {
         await DialogManager.ShowWebGameDialogAsync();
+    }
+
+    [RelayCommand]
+    async Task OpenSettingsDialog()
+    {
+        await DialogManager.ShowWavesCloudSettingAsync(GameType.Waves);
     }
 }

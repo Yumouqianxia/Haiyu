@@ -147,7 +147,7 @@ public static class CloudGameDataFactory
 
     public static SessionLaunchOptions BuildLaunchOption(
         CloudGameLoginSession session,
-        int windowDPI
+        StreamQualityOptions qualityOptions
     )
     {
         return new SessionLaunchOptions
@@ -168,18 +168,17 @@ public static class CloudGameDataFactory
                 "*.aki-game.com",
                 "*.kurogames.com",
             ],
-            Quality = new StreamQualityOptions(18000, 8000, 60, 1920, 1080, 21, "0", true, "clear"),
-            StreamDpi = windowDPI,
+            Quality = qualityOptions,
+            StreamDpi = qualityOptions.DPI,
         };
     }
 
     public static StreamQualityOptions ScaleQualityToPhysical(
         StreamQualityOptions quality,
-        int dpi,
         bool clampToWindow
     )
     {
-        var dpiScale = dpi / 96.0;
+        var dpiScale = quality.DPI / 96.0;
         var physicalWidth = (int)Math.Round(quality.Width * dpiScale);
         var physicalHeight = (int)Math.Round(quality.Height * dpiScale);
 
@@ -212,7 +211,8 @@ public static class CloudGameDataFactory
             quality.CodecType,
             quality.StreamStrategy,
             quality.EnableImageEnhancement,
-            quality.Preset
+            quality.DPI,
+            quality.Type
         );
     }
 

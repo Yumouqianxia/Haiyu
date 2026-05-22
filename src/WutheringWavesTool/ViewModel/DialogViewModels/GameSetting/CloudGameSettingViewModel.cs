@@ -2,12 +2,123 @@
 using System.Collections.Generic;
 using System.Text;
 using Waves.Core.Contracts.CloudGame;
+using Waves.Core.Models.Enums;
+using Waves.Core.Services.CloudGameServices;
 
 namespace Haiyu.ViewModel.DialogViewModels;
 
 public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
 {
     [ObservableProperty]
-    public ObservableCollection<string> Qualitys { get; set;  }
+    public partial ObservableCollection<QualityWrapper> Qualitys { get; set; } =
+        QualityWrapper.Create();
+
+    [ObservableProperty]
+    public partial QualityWrapper? SelectQualitys { get; set; }
+
+    [ObservableProperty]
+    public partial bool Enable { get; set; }
+
+    [ObservableProperty]
+    public partial bool ShowNetworkState { get; set; }
+
+    [ObservableProperty]
+    public partial int CodeType { get; set; } = CloudGameMethod.DefaultCodecType;
+
     public IKuroCloudGameContext CloudGameContext { get; internal set; }
+
+    [RelayCommand]
+    async Task Loaded()
+    {
+        //初始化画质设置
+        if (
+            Enum.TryParse<CloudQualityType>(
+                (
+                    await this.CloudGameContext.GameLocalConfig.GetConfigAsync(
+                        CloudGameLocalSettingName.QualityType
+                    )
+                ),
+                out var quality
+            )
+        )
+        {
+            foreach (var item in Qualitys)
+            {
+                if (item.Type == quality)
+                {
+                    this.SelectQualitys = item;
+                    break;
+                }
+            }
+        }
+
+        if (
+            bool.TryParse(
+                await this.CloudGameContext.GameLocalConfig.GetConfigAsync(
+                    CloudGameLocalSettingName.EnableImageEnhancement
+                ),
+                out var enable
+            )
+        )
+        {
+            this.Enable = enable;
+        }
+        if (
+            bool.TryParse(
+                await this.CloudGameContext.GameLocalConfig.GetConfigAsync(
+                    CloudGameLocalSettingName.EnableNetworkPanel
+                ),
+                out var netWorkEnable
+            )
+        )
+        {
+            this.ShowNetworkState = enable;
+        }
+    }
+
+    async partial void OnSelectQualitysChanged(QualityWrapper? value)
+    {
+        if (value == null || this.CloudGameContext == null)
+            return;
+        await CloudGameContext.GameLocalConfig.SaveConfigAsync(
+            CloudGameLocalSettingName.QualityType,
+            Enum.GetName(value.Type!),
+            this.CTS.Token
+        );
+    }
+
+    async partial void OnEnableChanged(bool value)
+    {
+        if (this.CloudGameContext == null)
+            return;
+        await CloudGameContext.GameLocalConfig.SaveConfigAsync(
+            CloudGameLocalSettingName.EnableImageEnhancement,
+            value.ToString(),
+            this.CTS.Token
+        );
+    }
+
+    async partial void OnShowNetworkStateChanged(bool value)
+    {
+        if (this.CloudGameContext == null)
+            return;
+        await CloudGameContext.GameLocalConfig.SaveConfigAsync(
+            CloudGameLocalSettingName.EnableNetworkPanel,
+            value.ToString(),
+            this.CTS.Token
+        );
+    }
+}
+
+public class QualityWrapper
+{
+    public CloudQualityType Type { get; set; }
+
+    public string DisplayName { get; set; }
+
+    public static ObservableCollection<QualityWrapper> Create() =>
+        [
+            new QualityWrapper() { Type = CloudQualityType.Clarity, DisplayName = "流畅" },
+            new QualityWrapper() { Type = CloudQualityType.Native, DisplayName = "原生" },
+        ];
 }

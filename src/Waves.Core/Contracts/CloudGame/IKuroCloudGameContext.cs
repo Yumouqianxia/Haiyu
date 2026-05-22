@@ -23,8 +23,8 @@ public interface IKuroCloudGameContext
 
     public Task StartGameAsync(
         CloudGameLoginSession session,
-        int dpi,
         IEnumerable<CloudGameNode> nodes,
-        CloudGameNode node
+        CloudGameNode node,
+        StreamQualityOptions options
     );
 }

@@ -43,74 +43,58 @@ public class KuroCloudGameContext : IKuroCloudGameContext
             await CloudGameProcessTracker.DisposeAsync();
             CloudGameProcessTracker = null;
         }
+        Directory.CreateDirectory(GamerConfigPath);
         this.GameLocalConfig = new GameLocalConfig(GamerConfigPath + "\\Settings.bat");
         CloudGameProcessTracker = new CloudGameProcessTracker();
         await CloudGameProcessTracker.StartTrackingAsync(this.CloudGameEventPublisher);
     }
 
+
     public async Task StartGameAsync(
         CloudGameLoginSession session,
-        int dpi,
         IEnumerable<CloudGameNode> nodes,
-        CloudGameNode node
+        CloudGameNode node,
+        StreamQualityOptions options
     )
     {
         if (false)
         {
-            var http = CloudGameDataFactory.CreateWebCloudClient(session);
-            var bizData = CloudGameDataFactory.CreateCloudBizData(
-                nodes.Select(x => new BizCloudNode()
-                {
-                    NodeId = x.NodeList.First().NodeId,
-                    Result = x.NodeList.First().Delay.ToString(),
-                })
-            );
-            var bizString = JsonSerializer.Serialize(
-                bizData,
-                CloudGameContext.Default.CloudBizData
-            );
-            var launchOption = CloudGameDataFactory.BuildLaunchOption(session, dpi);
-            var paramData = CloudGameDataFactory.CreateWebLinkParameters(
-                dpi,
-                launchOption.Quality.Width,
-                launchOption.Quality.Height,
-                launchOption.Quality.BitRateMax,
-                launchOption.Quality.Fps,
-                launchOption.Quality.CodecType,
-                bizString,
-                nodes,
-                node
-            );
-            var invokeResult =
-                await this.WavesCloudSurivivalService.WavesCloudGameService.CommonStartGameAsync(
-                    http,
-                    session,
-                    paramData
-                );
-            if (invokeResult == null) { }
-            if (invokeResult.Code == 1712) { }
+            
         }
-
-        this.CloudGameEventPublisher.Publish(
-            new CloudMessageArgs(Models.Enums.CloudCoreType.RequestCloud)
+        var http = CloudGameDataFactory.CreateWebCloudClient(session);
+        var bizData = CloudGameDataFactory.CreateCloudBizData(
+            nodes.Select(x => new BizCloudNode()
+            {
+                NodeId = x.NodeList.First().NodeId,
+                Result = x.NodeList.First().Delay.ToString(),
+            })
+        );
+        var bizString = JsonSerializer.Serialize(
+            bizData,
+            CloudGameContext.Default.CloudBizData
         );
 
-        await Task.Delay(10000);
-
-        this.CloudGameEventPublisher.Publish(
-            new CloudMessageArgs(Models.Enums.CloudCoreType.QueueUp)
+        var launchOption = CloudGameDataFactory.BuildLaunchOption(session,options);
+        var paramData = CloudGameDataFactory.CreateWebLinkParameters(
+            launchOption.Quality.DPI,
+            launchOption.Quality.Width,
+            launchOption.Quality.Height,
+            launchOption.Quality.BitRateMax,
+            launchOption.Quality.Fps,
+            launchOption.Quality.CodecType,
+            bizString,
+            nodes,
+            node
         );
+        var invokeResult =
+            await this.WavesCloudSurivivalService.WavesCloudGameService.CommonStartGameAsync(
+                http,
+                session,
+                paramData
+            );
+        if (invokeResult == null) { }
+        if (invokeResult.Code == 1712) { }
 
-        await Task.Delay(5000);
 
-        this.CloudGameEventPublisher.Publish(
-            new CloudMessageArgs(Models.Enums.CloudCoreType.QueueDown)
-        );
-        await Task.Delay(5000);
-
-        this.CloudGameEventPublisher.Publish(
-            new CloudMessageArgs(Models.Enums.CloudCoreType.InGameing)
-        );
-        await Task.Delay(5000);
     }
 }

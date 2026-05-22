@@ -343,6 +343,15 @@
                             FontFamily="Segoe Fluent Icons"
                             FontSize="18"
                             Glyph="&#xEC7A;" />
+                        <Button.Flyout>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Command="{x:Bind ViewModel.OpenSettingsDialogCommand}" Text="设置">
+                                    <MenuFlyoutItem.Icon>
+                                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xF8B0;" />
+                                    </MenuFlyoutItem.Icon>
+                                </MenuFlyoutItem>
+                            </MenuFlyout>
+                        </Button.Flyout>
                     </Button>
                 </Grid>
             </Grid>

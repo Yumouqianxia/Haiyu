@@ -25,6 +25,7 @@ public interface IKuroCloudGameContext
         CloudGameLoginSession session,
         IEnumerable<CloudGameNode> nodes,
         CloudGameNode node,
-        StreamQualityOptions options
+        StreamQualityOptions options,
+        uint payType
     );
 }

@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Net.NetworkInformation;
 using System.Text.Json;
+using Haiyu.Models;
 using Waves.Api.Models;
 using Waves.Api.Models.CloudGame;
 using Waves.Core.Models.CloudGame;
@@ -11,10 +12,10 @@ namespace Waves.Core.Common;
 /// <summary>
 /// 云游戏构建参数
 /// </summary>
-public static class CloudGameDataFactory
+public static class CloudGameDataHelper
 {
-    private const string WelinkTenantKey = "1853717215719854081";
-    private const string WelinkGameId = "1853717365355843585600007";
+    public const string WelinkTenantKey = "1853717215719854081";
+    public const string WelinkGameId = "1853717365355843585600007";
     public const string MainUrl = "https://mc.kurogames.com/cloud/index.html";
     private const int MinStreamWidth = 640;
     private const int MinStreamHeight = 360;
@@ -25,6 +26,28 @@ public static class CloudGameDataFactory
 
     public static Dictionary<string, string> BuildWebStorageItems(CloudGameLoginSession login)
     {
+        var sdkLoginInfo = new CloudSdkLoginInfo
+        {
+            Cuid = login.OrginData.Cuid,
+            Token = login.AccessData.AccessToken,
+            Username = login.OrginData.Username,
+            Phone = login.PhoneToken.Phone,
+            SdkOpenid = login.PhoneToken.Id,
+        };
+
+        var appLoginInfo = new CloudAppLoginInfo
+        {
+            Token = login.EndLoginData.Token,
+            UniqueId = login.EndLoginData.UniqueId,
+            WalletData = login.EndLoginData.WalletData,
+        };
+
+        var appStore = new CloudGameAppStore
+        {
+            SdkLoginInfo = sdkLoginInfo,
+            AppLoginInfo = appLoginInfo,
+        };
+
         return new Dictionary<string, string>()
         {
             { "wl_cloud_game_userId", login.EndLoginData.UniqueId },
@@ -36,16 +59,13 @@ public static class CloudGameDataFactory
             { "welink_cloud_game_uuid", Guid.NewGuid().ToString().ToUpperInvariant() },
             {
                 "sdkLoginInfo",
-                JsonSerializer.Serialize(
-                    login.OrginData,
-                    CloudGameContext.Default.CloudGameLoginData
-                )
+                JsonSerializer.Serialize(sdkLoginInfo, CloudGameContext.Default.CloudSdkLoginInfo)
             },
             { "token", login.EndLoginData.Token },
             { $"McCloudSessionId", Guid.NewGuid().ToString() },
             {
                 "useMcCloudGameAppStore",
-                JsonSerializer.Serialize(login.EndLoginData, CloudGameContext.Default.EndLoginData)
+                JsonSerializer.Serialize(appStore, CloudGameContext.Default.CloudGameAppStore)
             },
             { $"__KrSDK_UUID__", Guid.NewGuid().ToString("N") },
             { $"show_user_name", $"1" },
@@ -133,26 +153,37 @@ public static class CloudGameDataFactory
 
     public static Dictionary<string, string> BuildCookieItems(CloudGameLoginSession login)
     {
+        var autoToken = login.OrginData.AutoToken;
+        if (string.IsNullOrWhiteSpace(autoToken))
+        {
+            autoToken = login.PhoneToken?.AutoToken;
+        }
+
+        var phoneToken = login.OrginData.PhoneToken;
+        if (string.IsNullOrWhiteSpace(phoneToken))
+        {
+            phoneToken = login.PhoneToken?.PhoneToken;
+        }
+
         return new Dictionary<string, string>()
         {
-            { "token", login.AccessData.AccessToken },
-            { "autoToken", login.PhoneToken.AutoToken },
-            { "phoneToken", login.PhoneToken.PhoneToken },
-            { "username", login.PhoneToken.Username },
-            { "sdkuserid", login.PhoneToken.Sdkuserid },
-            { "cuid", login.PhoneToken.Cuid },
-            { "code", login.PhoneToken.Code },
+            { "token", login.EndLoginData.Token },
+            { "autoToken", autoToken },
+            { "phoneToken", phoneToken },
+            { "username", login.OrginData.Username },
+            { "sdkuserid", login.OrginData.Sdkuserid },
+            { "cuid", login.OrginData.Cuid },
+            { "code", login.OrginData.Code },
         };
     }
 
-    public static SessionLaunchOptions BuildLaunchOption(
+    public static BrowserSessionLaunchOptions BuildLaunchOption(
         CloudGameLoginSession session,
         StreamQualityOptions qualityOptions
     )
     {
-        return new SessionLaunchOptions
+        return new BrowserSessionLaunchOptions
         {
-            GameUrl = "https://mc.kurogames.com/cloud/index.html",
             BootstrapUrl = "https://mc.kurogames.com/cloud/index.html",
             AccessToken = session.AccessData.AccessToken,
             RefreshToken = session.PhoneToken.PhoneToken,
@@ -250,13 +281,13 @@ public static class CloudGameDataFactory
             "Cookie",
             string.Join(
                 ";",
-                CloudGameDataFactory
+                CloudGameDataHelper
                     .BuildCookieItems(session)
                     .Select(pair => $"{pair.Key}={pair.Value}")
             )
         );
         client.DefaultRequestHeaders.TryAddWithoutValidation("x-os", "web");
-        client.DefaultRequestHeaders.Add("x-b3-traceid", Guid.NewGuid().ToString());
+        client.DefaultRequestHeaders.Add("x-b3-traceid",session.TraceId);
         return client;
     }
 

@@ -127,6 +127,18 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
             var fetchResult = await this.WavesCloudGameService.FetchMesageAsync(
                 this.Cache.TryGet(data)
             );
+            if (fetchResult == null)
+            {
+                return;
+            }
+
+            // 2301 means the character is not currently in a cloud-game session yet.
+            // That is expected while idle or still queueing, and should not invalidate login state.
+            if (fetchResult.Code == 2301)
+            {
+                return;
+            }
+
             if (fetchResult.Code != 0)
             {
                 Cache.TryRemove(data);

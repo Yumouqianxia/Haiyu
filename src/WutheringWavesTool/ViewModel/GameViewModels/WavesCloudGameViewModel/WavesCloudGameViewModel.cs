@@ -56,36 +56,24 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         RegisterMessager();
     }
 
-    private void CloudGameProcessTracker_OnProgressChanged(CloudGameProcessTracker obj)
+    private async void CloudGameProcessTracker_OnProgressChanged(CloudGameProcessTracker obj)
     {
-        Debug.WriteLine(obj.CoreType);
-    }
-
-    async partial void OnSelectLoginChanged(CloudGameLoginSession value)
-    {
-        if (value == null)
-            return;
-        var result =
-            await this.KuroCloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.GetWalletDataAsync(
-                value,
-                this.CTS.Token
-            );
-        WallDataWrapper wrapper = new();
-        wrapper.FreeTime = TimeSpan.FromSeconds(result.Data.FreeTimeInfo.LeftSeconds);
-        wrapper.PlayerCard = DateTimeOffset.FromUnixTimeSeconds(
-            result.Data.TimeCardInfo.ExpireTimeSeconds
-        );
-
-        wrapper.PayTimer = TimeSpan.FromSeconds(result.Data.PayTimeInfo.LeftSeconds);
-        if (result.Data.ExperienceCardInfo != null)
-            wrapper.ExperienceTime = new TimeSpan(
-                result.Data.ExperienceCardInfo.Day,
-                result.Data.ExperienceCardInfo.Hour,
-                result.Data.ExperienceCardInfo.Minute,
-                result.Data.ExperienceCardInfo.Second
-            );
-        wrapper.Coin = result.Data.Coin;
-        this.WallData = wrapper;
+        await App.TryInvokeAsync(async () =>
+        {
+            if (obj.CoreType == CloudCoreType.QueueUp)
+            {
+                BottomText = "游戏中";
+            }
+            if(obj.CoreType == CloudCoreType.OpeningWeb && obj.QueueResult != null)
+            {
+                CloudGameWindows window = new CloudGameWindows(obj.QueueResult);
+                window.Activate();
+            }
+            if (obj.CoreType == CloudCoreType.QueueDown)
+            {
+                BottomText = "排队中";
+            }
+        });
     }
 
     private async void WavesCloudSurivivalService_MessageHandler(
@@ -109,19 +97,6 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         await this.KuroCloudGameContext.WavesCloudSurivivalService.RefreshTaskAsync();
         await Task.Delay(2000);
         await this.RefreshUserAsync();
-    }
-
-    async Task RefreshUserAsync()
-    {
-        var users = KuroCloudGameContext.WavesCloudSurivivalService.Cache.ToList();
-        await App.TryInvokeAsync(async () =>
-        {
-            this.Logins = new(users);
-            if (Logins.Count > 0)
-            {
-                SelectLogin = Logins[0];
-            }
-        });
     }
 
     public override void Dispose()
@@ -155,20 +130,23 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    async Task RefreshCardAsync()
-    {
-        IsRefreshing = true;
-        await this.RefreshUserAsync();
-        await this.RefreshCloudNodesAsync();
-        IsRefreshing = false;
-    }
-
-    [RelayCommand]
     async Task InvokeTask()
     {
+        var wallData =
+            await this.KuroCloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.GetWalletDataAsync(
+                this.SelectLogin,
+                this.CTS.Token
+            );
+
+        if (wallData == null)
+        {
+            await TipShow.ShowMessageAsync(wallData.Msg ?? "获取余额失败！", Symbol.Clear);
+            return;
+        }
         var result = await DialogManager.ShowSelectGameNodeAsync(
             this.SelectLogin.OrginData.Username + this.SelectLogin.OrginData.Sdkuserid
         );
+
         if (result == null || result.SelectNode == null)
         {
             await TipShow.ShowMessageAsync("请选择节点或节点失效", Symbol.Clear);
@@ -185,9 +163,40 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
                 this.SelectLogin,
                 result.Nodes,
                 result.SelectNode,
-                qualityOpt
+                qualityOpt,
+                this.GetDefaultPayType(wallData.Data)
             )
         );
+    }
+
+    public uint GetDefaultPayType(WalletData walletInfo)
+    {
+        var timeCardinfo =
+            DateTimeOffset.FromUnixTimeSeconds(walletInfo.TimeCardInfo.ExpireTimeSeconds)
+            - DateTime.Now;
+        if (walletInfo.TimeCardInfo is not null && (timeCardinfo.TotalSeconds > 0))
+        {
+            return (uint)CloudPayType.Pay;
+        }
+        if (
+            walletInfo.ExperienceCardInfo is not null
+            && (
+                walletInfo.ExperienceCardInfo.Day > 0
+                || walletInfo.ExperienceCardInfo.Hour > 0
+                || walletInfo.ExperienceCardInfo.Minute > 0
+                || walletInfo.ExperienceCardInfo.Second > 0
+            )
+        )
+        {
+            return (uint)CloudPayType.Experience; // 体验卡 → Experience(4)
+        }
+        var freeSeconds = walletInfo.FreeTimeInfo?.LeftSeconds ?? 0;
+        var paySeconds = walletInfo.PayTimeInfo?.LeftSeconds ?? 0;
+        if (freeSeconds > 0)
+            return (uint)CloudPayType.Free;
+        if (paySeconds > 0)
+            return (uint)CloudPayType.Pay;
+        return (uint)CloudPayType.Pay;
     }
 
     /// <summary>
@@ -199,8 +208,8 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         try
         {
             var quality = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
-            CloudGameLocalSettingName.QualityType
-        );
+                CloudGameLocalSettingName.QualityType
+            );
             var fps = 60;
             var enable = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
                 CloudGameLocalSettingName.EnableImageEnhancement
@@ -224,7 +233,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
                     dpi,
                     quEnum
                 );
-                return CloudGameDataFactory.ScaleQualityToPhysical(mode, false);
+                return CloudGameDataHelper.ScaleQualityToPhysical(mode, false);
             }
             else
             {
@@ -237,28 +246,6 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
             Logger.WriteError($"构建清晰度出错:{ex.Message}");
             return null;
         }
-        
-    }
-
-    private async Task RefreshCloudNodesAsync()
-    {
-        var nodes =
-            await KuroCloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.CloudNetworkSpeedTestService.GetNodeListAsync(
-                CloudNetworkSpeedTestService.DefaultBaseUrl,
-                this.CTS.Token
-            );
-        if (nodes == null)
-        {
-            NodesCount = 0;
-            return;
-        }
-        NodesCount = nodes.Lines.Count;
-    }
-
-    [RelayCommand]
-    async Task AddUserAsync()
-    {
-        await DialogManager.ShowWebGameDialogAsync();
     }
 
     [RelayCommand]

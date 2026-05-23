@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using Haiyu.Models;
+using System.Text.Json.Serialization;
 using Waves.Api.Models.CloudGame;
 
 namespace Waves.Api.Models;
@@ -36,4 +37,12 @@ namespace Waves.Api.Models;
 [JsonSerializable(typeof(CloudBizData))]
 [JsonSerializable(typeof(CommStartModel))]
 [JsonSerializable(typeof(CloudApiResponse<CommStartReponse>))]
+[JsonSerializable(typeof(CloudApiResponse<CommonQueueInfo>))]
+[JsonSerializable(typeof(CloudBootstrapScript))]
+[JsonSerializable(typeof(CloudGameAppStore))]
+[JsonSerializable(typeof(CloudSdkLoginInfo))]
+[JsonSerializable(typeof(CloudAppLoginInfo))]
+[JsonSerializable(typeof(BridgeConfig))]
+[JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(IReadOnlyDictionary<string, string>))]
 public partial class CloudGameContext : JsonSerializerContext { }

@@ -23,7 +23,7 @@ public sealed partial class CloudBizData
     public string ClientVer { get; set; } = string.Empty;
 
     [JsonPropertyName("osCategory")]
-    public string OsCategory { get; set; } = "h5";
+    public string OsCategory { get; set; } = "H5";
 
     [JsonPropertyName("isOneLine")]
     public int IsOneLine { get; set; } = 1;

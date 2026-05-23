@@ -14,6 +14,7 @@ public class CloudGameProcessTracker:IAsyncDisposable
     private DateTime lastTime;
 
     public CloudCoreType CoreType { get; private set; }
+    public BrowserSessionLaunchOptions QueueResult { get; private set; }
 
     public event Action<CloudGameProcessTracker>? OnProgressChanged;
 
@@ -60,7 +61,7 @@ public class CloudGameProcessTracker:IAsyncDisposable
             return;
         }
         this.CoreType = args.Type;
-
+        this.QueueResult = args.QueueResult;
 
         _isDirty = true;
         await ValueTask.CompletedTask;

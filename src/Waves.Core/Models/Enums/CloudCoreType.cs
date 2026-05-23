@@ -40,5 +40,6 @@ public enum CloudCoreType:uint
     /// <summary>
     /// 消息通知
     /// </summary>
-    Message = 10
+    Message = 10,
+    None = 11
 }

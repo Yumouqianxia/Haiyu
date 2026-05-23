@@ -5,7 +5,8 @@ using System.Text.Json.Serialization;
 
 namespace Waves.Api.Models.CloudGame;
 
-public class CommStartReponse
+
+public class CommonQueueInfo
 {
     [JsonPropertyName("code")]
     public int Code { get; set; }
@@ -21,4 +22,22 @@ public class CommStartReponse
 
     [JsonPropertyName("dispatchResult")]
     public DispatchResult DispatchResult { get; set; }
+
+    [JsonPropertyName("seatNo")]
+    public int SeatNo { get; set; }
+
+    [JsonPropertyName("waitingTime")]
+    public int WaitingTime { get; set; }
+}
+
+public class DispatchResult
+{
+    [JsonPropertyName("dispatchMsg")]
+    public string DispatchMsg { get; set; }
+
+    [JsonPropertyName("roundId")]
+    public string RoundId { get; set; }
+
+    [JsonPropertyName("reservedId")]
+    public string ReservedId { get; set; }
 }

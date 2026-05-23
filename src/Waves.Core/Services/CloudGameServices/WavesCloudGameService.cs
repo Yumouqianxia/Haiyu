@@ -2,6 +2,7 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Reflection.Metadata;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
@@ -289,13 +290,14 @@ public class WavesCloudGameService : IWavesCloudGameService
     public async Task<CloudApiResponse<CommStartReponse>?> CommonStartGameAsync(
         HttpClient client,
         CloudGameLoginSession session,
-        WelinkStartParameters startParameters
+        WelinkStartParameters startParameters,
+        uint payType
     )
     {
         CommStartModel model = new CommStartModel()
         {
             NodeList = startParameters.Node.NodeList,
-            PayType = 2,
+            PayType = (int)payType,
             ResourceData = new ResourceData()
             {
                 WlResourceData = new WlResourceData()
@@ -322,6 +324,22 @@ public class WavesCloudGameService : IWavesCloudGameService
         );
     }
 
+    public async Task<CloudApiResponse<CommonQueueInfo>?> CommonQueueInfoAsync(HttpClient client,CloudGameLoginSession session)
+    {
+        using var response = await client.GetAsync("GamePlay/CommonQueueInfo");
+        var body = await response.Content.ReadAsStringAsync();
+
+        return JsonSerializer.Deserialize<CloudApiResponse<CommonQueueInfo>>(
+            body,
+            CloudGameContext.Default.CloudApiResponseCommonQueueInfo
+        );
+    }
+
+    public async Task CancelQueqeAsync(HttpClient client, CloudGameLoginSession session)
+    {
+        using var response = await client.GetAsync("GamePlay/CancelQueue");
+        var body = await response.Content.ReadAsStringAsync();
+    }
     public HttpRequestMessage BuildClientData(
         CloudGameLoginSession session,
         string path,
@@ -350,29 +368,12 @@ public class WavesCloudGameService : IWavesCloudGameService
     /// </summary>
     private static string BuildCookieHeader(CloudGameLoginSession options)
     {
-        var cookies = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        cookies.Add("username", options.OrginData.Username);
-        cookies.Add("sdkuserid", options.OrginData.Sdkuserid);
-        cookies.Add("cuid", options.OrginData.Cuid);
-        cookies.Add("code", options.OrginData.Code);
-        if (!string.IsNullOrWhiteSpace(options.AccessData.AccessToken))
-        {
-            cookies.TryAdd("autoToken", options.AccessData.AccessToken);
-        }
-
-        if (!string.IsNullOrWhiteSpace(options.OrginData.PhoneToken))
-        {
-            cookies.TryAdd("phoneToken", options.OrginData.PhoneToken);
-        }
-
-        if (!string.IsNullOrWhiteSpace(options.EndLoginData.Token))
-        {
-            cookies["token"] = options.EndLoginData.Token;
-        }
-
-        if (cookies.Count == 0) { }
-
-        return string.Join("; ", cookies.Select(pair => $"{pair.Key}={pair.Value}"));
+        return string.Join(
+            "; ",
+            CloudGameDataHelper
+                .BuildCookieItems(options)
+                .Select(pair => $"{pair.Key}={pair.Value}")
+        );
     }
 
     private static async Task<string> PostFormAsync(

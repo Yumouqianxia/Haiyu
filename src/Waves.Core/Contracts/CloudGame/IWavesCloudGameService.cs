@@ -6,11 +6,11 @@ namespace Waves.Core.Contracts.CloudGame;
 
 public interface IWavesCloudGameService
 {
-    public CloudConfigManager ConfigManager { get; }
+    CloudConfigManager ConfigManager { get; }
 
-    public CloudNetworkSpeedTestService CloudNetworkSpeedTestService { get;}
+    CloudNetworkSpeedTestService CloudNetworkSpeedTestService { get; }
 
-    public Task<Tuple<CloudSendSMS?, CloudGameLoginSnapshot>> GetPhoneSMSAsync(
+    Task<Tuple<CloudSendSMS?, CloudGameLoginSnapshot>> GetPhoneSMSAsync(
         string phone,
         string geetestCaptchaOutput,
         string geetestPassToken,
@@ -19,25 +19,25 @@ public interface IWavesCloudGameService
         CancellationToken token = default
     );
 
-    public Task<CloudApiResponse<CloudGameLoginData>?> LoginAsync(
-       CloudGameLoginSnapshot snapshot,
-       string phone,
-       string code,
-       CancellationToken token = default
-   );
+    Task<CloudApiResponse<CloudGameLoginData>?> LoginAsync(
+        CloudGameLoginSnapshot snapshot,
+        string phone,
+        string code,
+        CancellationToken token = default
+    );
 
-    public Task<CloudApiResponse<PhoneTokenData>?> RefreshPhoneTokenAsync(
+    Task<CloudApiResponse<PhoneTokenData>?> RefreshPhoneTokenAsync(
         CloudGameLoginData data,
         CancellationToken ct = default
     );
 
-    public Task<CloudApiResponse<AccessData>?> GetAccessToken(
+    Task<CloudApiResponse<AccessData>?> GetAccessToken(
         CloudGameLoginData data,
         string refreshPhoneToken,
         CancellationToken ct = default
     );
 
-    public Task<CloudApiResponse<EndLoginData>?> GetTokenAsync(
+    Task<CloudApiResponse<EndLoginData>?> GetTokenAsync(
         CloudGameLoginData data,
         string accessToken,
         CancellationToken ct = default
@@ -49,7 +49,10 @@ public interface IWavesCloudGameService
     /// <param name="session"></param>
     /// <param name="ct"></param>
     /// <returns></returns>
-    public Task<CloudApiResponse<bool?>> FetchMesageAsync(CloudGameLoginSession session, CancellationToken ct = default);
+    Task<CloudApiResponse<bool?>> FetchMesageAsync(
+        CloudGameLoginSession session,
+        CancellationToken ct = default
+    );
 
     /// <summary>
     /// 云鸣潮计费
@@ -57,7 +60,10 @@ public interface IWavesCloudGameService
     /// <param name="session"></param>
     /// <param name="ct"></param>
     /// <returns></returns>
-    public Task<CloudApiResponse<WalletData>?> GetWalletDataAsync(CloudGameLoginSession session, CancellationToken ct = default);
+    Task<CloudApiResponse<WalletData>?> GetWalletDataAsync(
+        CloudGameLoginSession session,
+        CancellationToken ct = default
+    );
 
     /// <summary>
     /// 获取节点
@@ -65,7 +71,19 @@ public interface IWavesCloudGameService
     /// <param name="session"></param>
     /// <param name="ct"></param>
     /// <returns></returns>
-    public Task<CloudApiResponse<List<CloudGameNode>>?> GetPingGameNodeAsync(CloudGameLoginSession session, CancellationToken ct = default);
+    Task<CloudApiResponse<List<CloudGameNode>>?> GetPingGameNodeAsync(
+        CloudGameLoginSession session,
+        CancellationToken ct = default
+    );
 
-    public Task<CloudApiResponse<CommStartReponse>?> CommonStartGameAsync(HttpClient client, CloudGameLoginSession session, WelinkStartParameters startParameters);
+    Task<CloudApiResponse<CommStartReponse>?> CommonStartGameAsync(
+        HttpClient client,
+        CloudGameLoginSession session,
+        WelinkStartParameters startParameters,
+        uint payType
+    );
+
+    Task CancelQueqeAsync(HttpClient client, CloudGameLoginSession session);
+
+    Task<CloudApiResponse<CommonQueueInfo>?> CommonQueueInfoAsync(HttpClient client, CloudGameLoginSession session);
 }

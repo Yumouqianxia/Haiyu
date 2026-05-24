@@ -1,8 +1,8 @@
-using System.Text.Encodings.Web;
+﻿using System.Text.Encodings.Web;
 
 namespace Haiyu.Common.KuroWebView;
 
-public sealed class WebViewHostInitializer
+public sealed class KuroCommunityWebViewHostInitializer
 {
     private const string AndroidAppUserAgent = "Mozilla/5.0 (Linux; Android 13; 23049RAD8C Build/TQ3A.230805.001; wv) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/124.0.0.0 Mobile Safari/537.36 KuroGameBox/2.2.2 KR Android";
     private static readonly Uri KuroMcBoxOrigin = new("https://web-static.kurobbs.com/");

@@ -4,10 +4,61 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Haiyu.WindowModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
-    <Grid x:Name="grid" Loaded="Grid_Loaded">
-        <WebView2 x:Name="_browser" />
+    <Window.SystemBackdrop>
+        <MicaBackdrop />
+    </Window.SystemBackdrop>
+    <Grid x:Name="grid">
+        <i:Interaction.Behaviors>
+            <i:EventTriggerBehavior EventName="Loaded">
+                <i:InvokeCommandAction Command="{x:Bind ViewModel.LoadedCommand}" />
+            </i:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <TitleBar
+            Title="鸣潮云游戏"
+            Grid.Row="0"
+            IsPaneToggleButtonVisible="True"
+            Subtitle="v1.0" />
+        <WebView2 x:Name="_browser" Grid.Row="1">
+            <WebView2.Resources>
+                <SolidColorBrush x:Key="BrushForThemeBackgroundColor" Color="Transparent" />
+            </WebView2.Resources>
+        </WebView2>
+        <Border
+            Grid.Row="1"
+            Margin="0,5,0,0"
+            Padding="10"
+            HorizontalAlignment="Center"
+            VerticalAlignment="Top">
+            <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock
+                    FontFamily="{ThemeResource DefaultFont}"
+                    FontSize="16"
+                    Foreground="White"
+                    Text="{x:Bind ViewModel.Network, Mode=OneWay}" />
+                <TextBlock
+                    FontFamily="{ThemeResource DefaultFont}"
+                    FontSize="16"
+                    Foreground="White"
+                    Text="{x:Bind ViewModel.Fps, Mode=OneWay}" />
+                <TextBlock
+                    FontFamily="{ThemeResource DefaultFont}"
+                    FontSize="16"
+                    Foreground="White"
+                    Text="{x:Bind ViewModel.DelayTime, Mode=OneWay}" />
+                <TextBlock
+                    FontFamily="{ThemeResource DefaultFont}"
+                    FontSize="16"
+                    Foreground="White"
+                    Text="{x:Bind ViewModel.PacketLossRate, Mode=OneWay}" />
+            </StackPanel>
+        </Border>
     </Grid>
 </Window>

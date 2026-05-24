@@ -40,18 +40,22 @@
 	<ItemGroup>
 		<Compile Remove="AppPackages\**" />
 		<Compile Remove="BundleArtifacts\**" />
+		<Compile Remove="Common\Plugins\**" />
 		<Compile Remove="Strings\**" />
 		<Compile Remove="Themes\**" />
 		<EmbeddedResource Remove="AppPackages\**" />
 		<EmbeddedResource Remove="BundleArtifacts\**" />
+		<EmbeddedResource Remove="Common\Plugins\**" />
 		<EmbeddedResource Remove="Strings\**" />
 		<EmbeddedResource Remove="Themes\**" />
 		<None Remove="AppPackages\**" />
 		<None Remove="BundleArtifacts\**" />
+		<None Remove="Common\Plugins\**" />
 		<None Remove="Strings\**" />
 		<None Remove="Themes\**" />
 		<Page Remove="AppPackages\**" />
 		<Page Remove="BundleArtifacts\**" />
+		<Page Remove="Common\Plugins\**" />
 		<Page Remove="Strings\**" />
 		<Page Remove="Themes\**" />
 	</ItemGroup>
@@ -246,9 +250,6 @@
 		<Content Update="Assets\appLogo.png">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
-		<Content Update="Assets\weklink.html">
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</Content>
 		<None Update="Assets\geet2.html">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
@@ -340,7 +341,6 @@
 	<ItemGroup>
 		<Folder Include="Assets\GameAssets\Punish\" />
 		<Folder Include="Assets\Languages\" />
-		<Folder Include="Common\Plugins\" />
 		<Folder Include="Services\CloudGameServices\" />
 	</ItemGroup>
 	<PropertyGroup Label="Globals" />
@@ -379,4 +379,7 @@
 		</ItemGroup>
 		<Copy SourceFiles="@(_XamlResources)" DestinationFiles="@(_XamlResources->'$(PublishDir)%(RecursiveDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
 	</Target>
+	<ItemGroup>
+	  <PRIResource Remove="Common\Plugins\**" />
+	</ItemGroup>
 </Project>

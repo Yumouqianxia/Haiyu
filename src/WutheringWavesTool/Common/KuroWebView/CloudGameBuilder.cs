@@ -1,91 +1,108 @@
-﻿<!DOCTYPE html>
+﻿namespace Haiyu.Common.KuroWebView;
+
+public static class CloudGameBuilder
+{
+    /// <summary>
+    /// 生成串流页面
+    /// </summary>
+    /// <param name="scriptUrlJson"></param>
+    /// <param name="dispatchMessageJson"></param>
+    /// <param name="bridgeConfigJson"></param>
+    /// <param name="storageItemsJson"></param>
+    /// <returns></returns>
+    public static string BuildDefaultBridgeHtml(string scriptUrlJson,string dispatchMessageJson,string bridgeConfigJson,string storageItemsJson)
+    {
+        return $$"""
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Kuro Stream Bridge</title>
     <style>
-        /* ===========================================
-        🌊 Microsoft Fluent 2 Design System (Pure CSS)
-        Light / Dark 自动适配, 毛玻璃质感卡片, 现代圆角
-        =========================================== */
         :root {
-            /* 🌗 基础色域 */
             color-scheme: dark;
-            --bg-gradient-start: #0a0c10;
-            --bg-gradient-end: #1a1e26;
-            /* 🧊 毛玻璃面板 (Fluent Acrylic Material) */
-            --panel-bg: rgba(28, 32, 40, 0.78);
-            --panel-border: rgba(255, 255, 255, 0.12);
-            --panel-shadow: 0 20px 35px -12px rgba(0, 0, 0, 0.45), 0 0 0 1px var(--panel-border);
-            /* 🎨 Fluent 2 色彩方案 */
-            --accent: #0f6cbd; /* Fluent 品牌蓝，用于强调元素 */
-            --accent-hover: #0a548c;
-            --accent-light: #3a96dd;
-            --text-primary: #ffffff;
-            --text-secondary: #cbd0d9;
-            --text-tertiary: #8c929e;
-            --success: #0b6e41;
-            --error: #c42b1c;
-            /* 🔘 控件与交互 */
-            --border-radius: 8px; /* 标准圆角，卡片可适当增大 */
-            --card-radius: 20px;
-            --transition: all 0.2s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-            --focus-ring: 0 0 0 2px rgba(15, 108, 189, 0.5);
-        }
-
-        /* 浅色模式自动切换 (通过 prefers-color-scheme 实现优雅明暗变体) */
-        @media (prefers-color-scheme: light) {
-            :root {
-                color-scheme: light;
-                --bg-gradient-start: #f0f2f5;
-                --bg-gradient-end: #e4e8ed;
-                --panel-bg: rgba(245, 247, 250, 0.82);
-                --panel-border: rgba(0, 0, 0, 0.08);
-                --text-primary: #1e1f22;
-                --text-secondary: #3b3e44;
-                --text-tertiary: #6f747d;
-                --panel-shadow: 0 12px 28px -8px rgba(0, 0, 0, 0.12), 0 0 0 1px var(--panel-border);
-            }
+            --bg: #05080d;
+            --panel: rgba(18, 24, 34, 0.68);
+            --border: rgba(255, 255, 255, 0.14);
+            --accent: #8fd3ff;
+            --accent-strong: #5fb6ff;
+            --muted: #a4b7ce;
+            --text: #f7fbff;
+            --error: #ff8b7f;
+            --shadow: 0 24px 80px rgba(0, 0, 0, 0.45);
+            --shadow-soft: 0 12px 32px rgba(0, 0, 0, 0.24);
         }
 
         * {
-            margin: 0;
-            padding: 0;
             box-sizing: border-box;
         }
 
         html, body {
             width: 100%;
             height: 100%;
+            margin: 0;
+            background:
+                radial-gradient(circle at 15% 18%, rgba(115, 190, 255, 0.2), transparent 28%),
+                radial-gradient(circle at 82% 14%, rgba(111, 120, 255, 0.18), transparent 30%),
+                radial-gradient(circle at 50% 120%, rgba(34, 91, 201, 0.22), transparent 34%),
+                linear-gradient(180deg, #0d131c 0%, #06090f 100%);
+            color: var(--text);
+            font-family: "Segoe UI", "Microsoft YaHei UI", sans-serif;
             overflow: hidden;
         }
 
-        /* 🖼️ 全新的动态渐变背景，模仿 Fluent 的柔和层次 */
         body {
-            font-family: "Segoe UI", "Segoe UI Variable", system-ui, "SF Pro Text", "Roboto", sans-serif;
-            background: radial-gradient(ellipse at 30% 20%, rgba(15, 108, 189, 0.18), transparent 55%), linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
-            color: var(--text-primary);
-            backdrop-filter: blur(0px);
-            -webkit-font-smoothing: antialiased;
+            position: relative;
         }
 
-            /* 错误状态 */
-            body.error #bridge-message {
-                color: var(--error);
-            }
+        body::before,
+        body::after {
+            content: "";
+            position: absolute;
+            pointer-events: none;
+            z-index: 0;
+            border-radius: 50%;
+            filter: blur(22px);
+            opacity: 0.72;
+        }
 
-        /* 🔲 媒体容器 (游戏画面层) */
+        body::before {
+            top: -120px;
+            left: -120px;
+            width: 320px;
+            height: 320px;
+            background: radial-gradient(circle, rgba(122, 202, 255, 0.18) 0%, rgba(122, 202, 255, 0) 70%);
+            animation: kuro-float 18s ease-in-out infinite;
+        }
+
+        body::after {
+            right: -90px;
+            bottom: -120px;
+            width: 360px;
+            height: 360px;
+            background: radial-gradient(circle, rgba(88, 112, 255, 0.16) 0%, rgba(88, 112, 255, 0) 72%);
+            animation: kuro-float 22s ease-in-out infinite reverse;
+        }
+
+        body.error #bridge-message {
+            color: var(--error);
+        }
+
         #kuro-stream-surface {
             position: absolute;
             inset: 0;
             width: 100%;
             height: 100%;
             background: #000;
-            outline: none;
+            cursor: auto;
+            z-index: 1;
         }
 
-        /* 🪟 浮层遮罩 + 卡片定位 */
+        #kuro-stream-surface * {
+            cursor: inherit !important;
+        }
+
         #bridge-overlay {
             position: absolute;
             inset: 0;
@@ -94,154 +111,322 @@
             justify-content: center;
             pointer-events: none;
             z-index: 20;
-            transition: opacity 240ms ease;
+            padding: 24px;
+            background: linear-gradient(180deg, rgba(2, 6, 12, 0.12), rgba(2, 6, 12, 0.28));
+            transition: opacity 240ms ease, transform 320ms cubic-bezier(0.2, 0.9, 0.2, 1), filter 320ms ease;
         }
 
-            #bridge-overlay.hidden {
-                opacity: 0;
-                transition: opacity 180ms ease-out;
-            }
+        #bridge-overlay.hidden {
+            opacity: 0;
+            transform: scale(1.015);
+            filter: blur(8px);
+        }
 
-        /* 🪞 Fluent Card — 毛玻璃质感 + 优雅阴影 + 大圆角 */
         #bridge-card {
-            width: min(600px, calc(100vw - 48px));
-            padding: 32px 34px;
-            border-radius: var(--card-radius);
-            background: var(--panel-bg);
-            backdrop-filter: blur(28px);
-            border: none;
-            box-shadow: var(--panel-shadow);
-            transition: var(--transition);
-            pointer-events: auto;
-            animation: cardGlowIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+            position: relative;
+            width: min(580px, calc(100vw - 48px));
+            padding: 30px 30px 26px;
+            border-radius: 28px;
+            overflow: hidden;
+            background:
+                linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.02)),
+                var(--panel);
+            border: 1px solid var(--border);
+            -webkit-backdrop-filter: blur(30px) saturate(160%);
+            backdrop-filter: blur(30px) saturate(160%);
+            box-shadow: var(--shadow), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+            animation: kuro-card-in 420ms cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        @keyframes cardGlowIn {
-            from {
-                opacity: 0;
-                transform: scale(0.96) translateY(12px);
-                filter: blur(6px);
-            }
-
-            to {
-                opacity: 1;
-                transform: scale(1) translateY(0);
-                filter: blur(0);
-            }
+        #bridge-card::before,
+        #bridge-card::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
         }
 
-        /* 🏷️ Fluent 徽章/标签 */
+        #bridge-card::before {
+            inset: 1px;
+            border-radius: 27px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        #bridge-card::after {
+            inset: -35% auto auto -10%;
+            width: 62%;
+            height: 52%;
+            background: radial-gradient(circle, rgba(143, 211, 255, 0.2) 0%, rgba(143, 211, 255, 0) 72%);
+            filter: blur(10px);
+            opacity: 0.95;
+        }
+
+        #bridge-header {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+            z-index: 1;
+        }
+
+        #bridge-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            color: #dcecff;
+            font-size: 12px;
+            letter-spacing: 0.04em;
+        }
+
+        #bridge-status::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: radial-gradient(circle, #b6ebff 0%, var(--accent-strong) 65%, rgba(95, 182, 255, 0.2) 100%);
+            box-shadow: 0 0 0 5px rgba(95, 182, 255, 0.12), 0 0 18px rgba(95, 182, 255, 0.4);
+            animation: kuro-pulse 1.8s ease-in-out infinite;
+        }
+
         #bridge-tag {
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            padding: 6px 16px;
-            background: rgba(15, 108, 189, 0.22);
-            border-radius: 60px;
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: linear-gradient(180deg, rgba(58, 105, 162, 0.35), rgba(24, 54, 91, 0.32));
+            border: 1px solid rgba(126, 200, 255, 0.22);
+            color: var(--accent);
             font-size: 12px;
-            font-weight: 500;
-            letter-spacing: 0.02em;
+            letter-spacing: 0.08em;
             text-transform: uppercase;
-            color: var(--accent-light);
-            border: 0.5px solid rgba(15, 108, 189, 0.35);
-            backdrop-filter: blur(4px);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
         }
 
-        /* 🔤 大标题 (Fluent 风格字体粗细与行距) */
-        #bridge-title {
-            margin: 18px 0 12px;
-            font-size: 32px;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-            background: linear-gradient(145deg, #ffffff, #d9e1f0);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-        }
-
-        @media (prefers-color-scheme: light) {
-            #bridge-title {
-                background: linear-gradient(145deg, #1f2937, #2c3645);
-                background-clip: text;
-                -webkit-background-clip: text;
-            }
-        }
-
-        /* 📝 主要信息文本 */
-        #bridge-message {
-            font-size: 15px;
-            line-height: 1.55;
-            color: var(--text-secondary);
-            margin-bottom: 12px;
-        }
-
-        /* 🗺️ 区域/会话元数据 (类似 fluent 的 caption) */
-        #bridge-region {
-            font-size: 13px;
-            color: var(--text-tertiary);
-            background: rgba(128, 128, 128, 0.08);
-            padding: 6px 12px;
-            border-radius: var(--border-radius);
-            display: inline-block;
-            font-family: "Cascadia Code", "JetBrains Mono", monospace;
-            letter-spacing: 0.3px;
-        }
-
-        /* 🔄 进度条 (Fluent 风格微光动效) */
-        #bridge-progress {
-            width: 100%;
+        #bridge-tag::before {
+            content: "";
+            width: 6px;
             height: 6px;
-            margin-top: 28px;
-            overflow: hidden;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+            border-radius: 50%;
+            background: currentColor;
+            box-shadow: 0 0 12px currentColor;
         }
 
-            #bridge-progress::after {
-                content: "";
-                display: block;
-                width: 48%;
-                height: 100%;
-                background: linear-gradient(90deg, var(--accent), var(--accent-light), #7bc5ff);
-                animation: fluentProgress 1.2s ease-in-out infinite alternate;
-                border-radius: inherit;
-                filter: blur(0.5px);
+        #bridge-title {
+            position: relative;
+            z-index: 1;
+            margin: 18px 0 10px;
+            font-size: 30px;
+            font-weight: 700;
+            letter-spacing: -0.03em;
+            text-shadow: 0 8px 28px rgba(0, 0, 0, 0.3);
+        }
+
+        #bridge-message {
+            position: relative;
+            z-index: 1;
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.7;
+        }
+
+        #bridge-region {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            margin-top: 18px;
+            padding: 10px 14px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.045);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: var(--shadow-soft), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+            color: #dbe7f5;
+            font-size: 13px;
+        }
+
+        #bridge-region::before {
+            content: "";
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background:
+                radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0) 36%),
+                linear-gradient(180deg, rgba(143, 211, 255, 0.95), rgba(75, 135, 255, 0.95));
+            box-shadow: 0 0 18px rgba(95, 182, 255, 0.34);
+            flex: 0 0 auto;
+        }
+
+        #bridge-progress {
+            position: relative;
+            width: 100%;
+            height: 10px;
+            margin-top: 24px;
+            overflow: hidden;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.32);
+            z-index: 1;
+        }
+
+        #bridge-progress::before {
+            content: "";
+            position: absolute;
+            inset: 1px;
+            border-radius: inherit;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.01));
+        }
+
+        #bridge-progress::after {
+            content: "";
+            position: absolute;
+            top: 1px;
+            bottom: 1px;
+            left: 0;
+            width: 34%;
+            background: linear-gradient(90deg, rgba(90, 129, 255, 0.12) 0%, #4b8cff 20%, #99e4ff 52%, #5fb6ff 82%, rgba(143, 211, 255, 0.15) 100%);
+            box-shadow: 0 0 18px rgba(95, 182, 255, 0.42);
+            animation: kuro-progress 1.35s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+            border-radius: inherit;
+        }
+
+        #bridge-footer {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin-top: 14px;
+            color: rgba(226, 238, 250, 0.72);
+            font-size: 12px;
+        }
+
+        #bridge-footer-hint {
+            white-space: nowrap;
+        }
+
+        #bridge-loading-dots {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        #bridge-loading-dots span {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: rgba(226, 238, 250, 0.46);
+            animation: kuro-dots 1.2s ease-in-out infinite;
+        }
+
+        #bridge-loading-dots span:nth-child(2) {
+            animation-delay: 0.15s;
+        }
+
+        #bridge-loading-dots span:nth-child(3) {
+            animation-delay: 0.3s;
+        }
+
+        @keyframes kuro-progress {
+            from { transform: translateX(-125%); }
+            to { transform: translateX(335%); }
+        }
+
+        @keyframes kuro-card-in {
+            from {
+                opacity: 0;
+                transform: translateY(18px) scale(0.985);
             }
 
-        @keyframes fluentProgress {
-            0% {
-                transform: translateX(-90%) scaleX(0.8);
-                opacity: 0.7;
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
             }
+        }
 
+        @keyframes kuro-float {
+            0%,
             100% {
-                transform: translateX(220%) scaleX(1.2);
+                transform: translate3d(0, 0, 0) scale(1);
+            }
+
+            50% {
+                transform: translate3d(12px, 18px, 0) scale(1.06);
+            }
+        }
+
+        @keyframes kuro-pulse {
+            0%,
+            100% {
+                transform: scale(1);
+                opacity: 0.85;
+            }
+
+            50% {
+                transform: scale(1.16);
                 opacity: 1;
             }
         }
 
-        /* 📱 响应式 + 焦点优化 */
-        @media (max-width: 520px) {
+        @keyframes kuro-dots {
+            0%,
+            80%,
+            100% {
+                transform: translateY(0);
+                opacity: 0.35;
+            }
+
+            40% {
+                transform: translateY(-4px);
+                opacity: 1;
+            }
+        }
+
+        @media (max-width: 640px) {
+            #bridge-overlay {
+                align-items: flex-end;
+                padding: 16px;
+            }
+
             #bridge-card {
-                padding: 24px 20px;
+                width: 100%;
+                padding: 24px 22px 22px;
+                border-radius: 24px;
+            }
+
+            #bridge-header,
+            #bridge-footer {
+                flex-direction: column;
+                align-items: flex-start;
             }
 
             #bridge-title {
-                font-size: 26px;
+                font-size: 24px;
+            }
+
+            #bridge-footer-hint {
+                white-space: normal;
             }
         }
 
-        /* 键盘/可交互元素焦点指示 */
-        [tabindex]:focus-visible {
-            outline: none;
-            box-shadow: var(--focus-ring);
-        }
-
-        /* 平滑滚动 & 性能调优 */
-        #kuro-stream-surface {
-            will-change: transform;
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+                scroll-behavior: auto !important;
+            }
         }
     </style>
 </head>
@@ -249,19 +434,26 @@
     <div id="kuro-stream-surface" tabindex="0"></div>
     <div id="bridge-overlay">
         <div id="bridge-card">
-            <div id="bridge-tag">⚡ Native Stream Bridge</div>
+            <div id="bridge-header">
+                <div id="bridge-tag">Native Stream Bridge</div>
+                <div id="bridge-status">正在建立安全连接</div>
+            </div>
             <div id="bridge-title">正在接入云端实例</div>
             <p id="bridge-message">原生业务层已完成开始游戏，正在初始化 Welink 串流 SDK。</p>
-            <div id="bridge-region">节点：{{streamSession.RegionName}} | 会话：{{streamSession.SessionKey}}</div>
+            <div id="bridge-region">节点：测试 | 会话：测试1</div>
             <div id="bridge-progress"></div>
+            <div id="bridge-footer">
+                <div id="bridge-footer-hint">正在同步画面、输入与音频通道</div>
+                <div id="bridge-loading-dots" aria-hidden="true">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // ⚙️ 此处保留原始的 JavaScript 逻辑，与样式改造不冲突。
-        // (原有 Welink 桥接代码保持不变，仅 CSS 样式已升级为 Fluent 风格)
-        // 原脚本内容请粘贴回此处，以确保所有游戏串流功能正常。
-
         (() => {
             let sdk = null;
             let isForeground = false;
@@ -275,7 +467,6 @@
             const enhancementState = {
                 enabled: false
             };
-
             const payload = {
                 scriptUrl: {{scriptUrlJson}},
                 dispatchMessage: {{dispatchMessageJson}},
@@ -494,6 +685,10 @@
                 return { invoked: false };
             };
 
+            // Host-side controls exposed to the native window:
+            // requestExit closes the stream session, setVolume/setMuted sync audio,
+            // setImageEnhancement toggles the SDK's enhancement path,
+            // and applyQualityProfile reapplies bitrate/FPS/resolution settings.
             window.__KURO_STREAM_CONTROL__ = {
                 setVolume: setStreamVolume,
                 setMuted: setStreamMuted,
@@ -516,14 +711,68 @@
                 }
             };
 
+            let focusSurfaceLock = false;
             const focusSurface = () => {
+                if (focusSurfaceLock) {
+                    return;
+                }
+
+                focusSurfaceLock = true;
                 try {
                     surface?.focus?.();
-                    document.body?.focus?.();
-                    window.focus?.();
                 } catch {
+                } finally {
+                    queueMicrotask(() => {
+                        focusSurfaceLock = false;
+                    });
                 }
             };
+
+            let forcePointerLockAfterStreamReady = false;
+            const tryForcePointerLockFromUserGesture = () => {
+                if (!forcePointerLockAfterStreamReady || !payload?.bridgeConfig?.lockPoint) {
+                    return;
+                }
+
+                if (document.pointerLockElement === surface) {
+                    return;
+                }
+
+                try {
+                    const result = surface?.requestPointerLock?.();
+                    if (typeof result?.catch === "function") {
+                        result.catch((error) => {
+                            post("warning", {
+                                message: "requestPointerLock 调用失败",
+                                detail: error?.message || String(error)
+                            });
+                        });
+                    }
+                } catch (error) {
+                    post("warning", {
+                        message: "requestPointerLock 抛出异常",
+                        detail: error?.message || String(error)
+                    });
+                }
+            };
+
+            const handlePointerActivation = () => {
+                focusSurface();
+                tryForcePointerLockFromUserGesture();
+            };
+
+            document.addEventListener("pointerlockchange", () => {
+                post("pointer-lock", {
+                    locked: document.pointerLockElement === surface,
+                    lockPointEnabled: Boolean(payload?.bridgeConfig?.lockPoint)
+                });
+            }, true);
+
+            document.addEventListener("pointerlockerror", () => {
+                post("warning", {
+                    message: "pointer lock 失败（浏览器拒绝或上下文不允许）"
+                });
+            }, true);
 
             const setMessage = (message, level = "info") => {
                 if (messageElement) {
@@ -889,6 +1138,10 @@
                         }
 
                         applyQualityProfile(payload.bridgeConfig, { resendResolution: true });
+                        hideOverlay();
+                        focusSurface();
+                        notifyForeground("sdk-first-video-frame");
+                        post("first-frame");
                         break;
                     case 6252:
                         if (detail?.pipeState === 1) {
@@ -999,7 +1252,7 @@
 
             const wrapMethod = (target, methodName, beforeInvoke) => {
                 if (!target || typeof target[methodName] !== "function") {
-                syncForegroundFlag();
+                    syncForegroundFlag();
                     return;
                 }
 
@@ -1123,6 +1376,7 @@
                     applyQualityProfile(payload.bridgeConfig);
 
                     applyMediaAudioState(document);
+                    forcePointerLockAfterStreamReady = true;
                     hideOverlay();
                     focusSurface();
                     notifyForeground("first-video-frame");
@@ -1180,3 +1434,42 @@
     </script>
 </body>
 </html>
+""";
+    }
+
+    public static string BuildBootstrapScript(string payloadJson)
+    {
+        var bootstrapScript = $$"""
+(() => {
+  const payload = {{payloadJson}};
+  const writeStore = (store) => {
+    if (!store || !payload.storageItems) {
+      return;
+    }
+
+    for (const [key, value] of Object.entries(payload.storageItems)) {
+      try {
+        store.setItem(key, value ?? "");
+      } catch {
+      }
+    }
+  };
+
+  try {
+    window.__KURO_LAUNCH_OPTIONS__ = payload;
+  } catch {
+  }
+
+  writeStore(window.localStorage);
+  writeStore(window.sessionStorage);
+
+  try {
+    window.dispatchEvent(new CustomEvent("kuro-launch-bootstrap", { detail: payload }));
+  } catch {
+  }
+})();
+""";
+
+        return bootstrapScript;
+    }
+}

@@ -101,6 +101,7 @@ public static class InstanceBuilderExtensions
                     .AddTransient<AnalysisRecordPage>()
                     .AddTransient<HomeViewModel>()
                     .AddTransient<LanguageSelectViewModel>()
+                    .AddTransient<CloudGameingViewModel>()
                     #region ColorGame
                     #endregion
                     #region GameContext

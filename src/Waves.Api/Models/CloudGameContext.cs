@@ -44,5 +44,6 @@ namespace Waves.Api.Models;
 [JsonSerializable(typeof(CloudAppLoginInfo))]
 [JsonSerializable(typeof(BridgeConfig))]
 [JsonSerializable(typeof(string))]
+[JsonSerializable(typeof(WelinkMessage))]
 [JsonSerializable(typeof(IReadOnlyDictionary<string, string>))]
 public partial class CloudGameContext : JsonSerializerContext { }

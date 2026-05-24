@@ -1,11 +1,11 @@
-using ABI.System;
+﻿using ABI.System;
 using Haiyu.Common.KuroWebView;
 
 namespace Haiyu.WindowModels;
 
 public sealed partial class KuroDataCenterWindow : WindowModelBase
 {
-    WebViewHostInitializer hostInitializer;
+    KuroCommunityWebViewHostInitializer hostInitializer;
 
     public KuroDataCenterWindow(nint value, WebSessionContext context)
         : base(value)
@@ -29,7 +29,7 @@ public sealed partial class KuroDataCenterWindow : WindowModelBase
 
     private async void grid_Loaded(object sender, RoutedEventArgs e)
     {
-        hostInitializer = new WebViewHostInitializer();
+        hostInitializer = new KuroCommunityWebViewHostInitializer();
         await hostInitializer.InitializeAsync(webView2, Context);
         this.webView2.CoreWebView2.Navigate(Context.GetDataCenterUrl());
     }

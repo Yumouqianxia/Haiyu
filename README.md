@@ -60,32 +60,22 @@ Microsoft Store 也可以直接装👇
 
 本项目基于 [LICENSE](LICENSE.txt) 开源。
 
----
-
 *用 ❤️ 和过量咖啡因打造*
-
----
-
-好，在之前的 README 基础上，在 **致谢** 之前插入这一段：
 
 ---
 
 ## 🛠️ 对于开发者了解此项目
 
-好奇这玩意儿怎么造出来的？欢迎上车。
-
-### 技术栈一眼看
+### 技术栈
 
 | 层级 | 技术 |
 |------|------|
-| 框架 | .NET 10 + WinUI 3 (Windows App SDK 1.8) |
-| 语言 | C# 14（拥抱最新语法，不回头那种） |
-| 架构 | MVVM + 依赖注入，规规矩矩 |
+| 框架 | .NET 10 + WinUI 3 (Windows App SDK 2.0) |
+| 语言 | C# preview+ |
+| 模式 | MVVM+DI Service |
 | 打包 | MSIX / 独立 EXE 双模式发布 |
 
 ### 项目结构速览
-
-项目不是一坨丢在一起的，有分工的：
 
 ```
 src/
@@ -94,13 +84,11 @@ src/
 ├── Waves.Api/              ← API 模型与数据契约（和库洛服务器打交道的层）
 ├── Haiyu.Plugin/           ← 插件系统（Contracts + Native 互操作）
 ├── Haiyu.ServiceHost/      ← RPC 服务宿主（WebSocket 通信桥梁）
-├── Astronomical/           ← 天文计算模块（月相、日出日落，浪漫但实用）
+├── Astronomical/           ← 天文计算模块（月相、日出日落，浪漫但实用，已弃用）
 ├── LanguageEditer/         ← 多语言编辑器（独立小工具，方便翻译）
-├── KuroGameDownloadProgram/← 下载引擎独立程序
+├── KuroGameDownloadProgram/← 下载测试
 └── Server/HaiyuServer/     ← 服务端
 ```
-
-简单说：**Waves.Core 是心脏，WutheringWavesTool 是脸面，Waves.Api 是嘴巴**（负责跟服务器说话），其余都是器官。
 
 
 ### 怎么跑起来
@@ -113,9 +101,7 @@ src/
 ### 想深入？
 可以翻阅以下AI生成的技术文档查看：
 
-- [项目结构与布局](3-project-structure-and-layout)
-- [WinUI3 应用启动流程](5-winui3-application-bootstrap-flow)
-- [API 模型与数据契约](13-api-models-and-data-contracts)
-- [页面与 ViewModel 映射](15-page-viewmodel-and-dialog-mapping)
-
+- [项目结构与布局](https://zread.ai/BlameTwo/Haiyu/3-project-structure-and-layout)
+- [WinUI3 应用启动流程](https://zread.ai/BlameTwo/Haiyu/5-winui3-application-bootstrap-flow)
+- [游戏上下文 V2 生命周期与状态机](https://zread.ai/BlameTwo/Haiyu/8-game-context-v2-lifecycle-and-state-machine)
 ---

@@ -8,13 +8,7 @@
     <Platform Name="x86" />
   </Configurations>
   <Folder Name="/Extensions/">
-    <Project Path="Astronomical/Astronomical.csproj" Id="1130a43f-a182-4633-b1ab-f68a92fdc860">
-      <BuildType Solution="All|*" Project="Debug" />
-    </Project>
     <Project Path="Extensions/Haiyu.RpcClient/Haiyu.RpcClient.csproj" Id="6f2d195d-bb29-4532-8aa5-0b0878dc0188">
-      <BuildType Solution="All|*" Project="Debug" />
-    </Project>
-    <Project Path="Extensions/MemoryCleaner/MemoryCleaner.csproj" Id="3a89e5c0-1918-4ac2-a091-634d8e2c6673">
       <BuildType Solution="All|*" Project="Debug" />
     </Project>
     <Project Path="Haiyu.Plugin/Haiyu.Plugin.csproj" Id="1d4b3247-f5e2-4702-890e-976aa3752a89">
@@ -32,9 +26,6 @@
       <Platform Solution="*|x64" Project="x64" />
       <Platform Solution="*|x86" Project="x86" />
       <Deploy />
-    </Project>
-    <Project Path="Performances/FpsCounter/CounterMonitor.csproj">
-      <BuildType Solution="All|*" Project="Debug" />
     </Project>
     <Project Path="Waves.Api/Waves.Api.csproj">
       <BuildType Solution="All|Any CPU" Project="Release" />

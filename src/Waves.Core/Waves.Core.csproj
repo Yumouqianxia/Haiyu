@@ -26,7 +26,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Waves.Api\Waves.Api.csproj" />
+    <ProjectReference Include="..\Extensions\Waves.Api\Waves.Api.csproj" />
   </ItemGroup>
 
 </Project>

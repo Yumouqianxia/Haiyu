@@ -114,10 +114,10 @@
 		</PackageReference>
 	</ItemGroup>
 	<ItemGroup>
-		<ProjectReference Include="..\Haiyu.Plugin\Haiyu.Plugin.csproj" />
-		<ProjectReference Include="..\Haiyu.ServiceHost\Haiyu.ServiceHost.csproj" />
-		<ProjectReference Include="..\LanguageEditer.Model\LanguageEditer.Model.csproj" />
-		<ProjectReference Include="..\Waves.Api\Waves.Api.csproj" />
+		<ProjectReference Include="..\Extensions\Haiyu.Plugin\Haiyu.Plugin.csproj" />
+		<ProjectReference Include="..\Extensions\Haiyu.ServiceHost\Haiyu.ServiceHost.csproj" />
+		<ProjectReference Include="..\Extensions\LanguageEditer.Model\LanguageEditer.Model.csproj" />
+		<ProjectReference Include="..\Extensions\Waves.Api\Waves.Api.csproj" />
 		<ProjectReference Include="..\Waves.Core\Waves.Core.csproj" />
 	</ItemGroup>
 	<ItemGroup>

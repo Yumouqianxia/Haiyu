@@ -132,6 +132,9 @@ partial class CloudGameingViewModel
     [DllImport("user32.dll")]
     private static extern int ShowCursor(bool bShow);
 
+    [DllImport("user32.dll")]
+    private static extern short GetAsyncKeyState(int vKey);
+
     private static bool IsSystemCursorVisible()
     {
         var cursorInfo = new CURSORINFO
@@ -151,6 +154,8 @@ partial class CloudGameingViewModel
     private bool _isClosingRequested;
     private bool _systemCursorSchemeOverridden;
     private DispatcherTimer _cursorTimer;
+    private DispatcherTimer _hotkeyTimer;
+    private bool _altQWasDown;
     private IntPtr _windowHandle;
     private SUBCLASSPROC _webViewCursorSubclassProc;
 
@@ -245,6 +250,47 @@ partial class CloudGameingViewModel
 
         RestoreSystemCursors();
         while (ShowCursor(true) < 0) { }
+    }
+
+    private void ToggleSystemCursor()
+    {
+        if (_cursorHidden)
+        {
+            ShowSystemCursor();
+        }
+        else
+        {
+            HideSystemCursor();
+        }
+    }
+
+    private void StartHotkeyTimer()
+    {
+        if (_hotkeyTimer is not null)
+        {
+            return;
+        }
+
+        _hotkeyTimer = new DispatcherTimer
+        {
+            Interval = TimeSpan.FromMilliseconds(100)
+        };
+        _hotkeyTimer.Tick += (_, _) =>
+        {
+            var altDown = (GetAsyncKeyState(0x12) & 0x8000) != 0;
+            var qDown = (GetAsyncKeyState(0x51) & 0x8000) != 0;
+
+            if (altDown && qDown && !_altQWasDown)
+            {
+                _altQWasDown = true;
+                ToggleSystemCursor();
+            }
+            else if (!altDown || !qDown)
+            {
+                _altQWasDown = false;
+            }
+        };
+        _hotkeyTimer.Start();
     }
 
 

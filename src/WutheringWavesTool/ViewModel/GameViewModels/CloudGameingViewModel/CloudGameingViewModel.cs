@@ -33,8 +33,9 @@ public sealed partial class CloudGameingViewModel:ViewModelBase
         this.Window.Closed += Window_Closed;
     }
 
-    private void Window_Closed(object sender, WindowEventArgs args)
+    private async void Window_Closed(object sender, WindowEventArgs args)
     {
+        await RequestExitAsync();
         this.KuroCloudGameContext.ClearWindow();
         this.KuroCloudGameContext.CloudGameEventPublisher.Publish(new(Waves.Core.Models.Enums.CloudCoreType.None));
         this.ShowSystemCursor();
@@ -53,6 +54,8 @@ public sealed partial class CloudGameingViewModel:ViewModelBase
         WebView2.CoreWebView2.Settings.IsSwipeNavigationEnabled = false;
         WebView2.CoreWebView2.Settings.IsStatusBarEnabled = false;
         WebView2.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
+
+        StartHotkeyTimer();
 
         await ApplyLaunchOptionsAsync();
 

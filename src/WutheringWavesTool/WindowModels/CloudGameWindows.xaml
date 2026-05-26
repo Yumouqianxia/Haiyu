@@ -25,40 +25,46 @@
             Title="鸣潮云游戏"
             Grid.Row="0"
             IsPaneToggleButtonVisible="True"
+            PaneToggleRequested="TitleBar_PaneToggleRequested"
             Subtitle="v1.0" />
-        <WebView2 x:Name="_browser" Grid.Row="1">
-            <WebView2.Resources>
-                <SolidColorBrush x:Key="BrushForThemeBackgroundColor" Color="Transparent" />
-            </WebView2.Resources>
-        </WebView2>
-        <Border
-            Grid.Row="1"
-            Margin="0,5,0,0"
-            Padding="10"
-            HorizontalAlignment="Center"
-            VerticalAlignment="Top">
-            <StackPanel Orientation="Horizontal" Spacing="10">
-                <TextBlock
-                    FontFamily="{ThemeResource DefaultFont}"
-                    FontSize="16"
-                    Foreground="White"
-                    Text="{x:Bind ViewModel.Network, Mode=OneWay}" />
-                <TextBlock
-                    FontFamily="{ThemeResource DefaultFont}"
-                    FontSize="16"
-                    Foreground="White"
-                    Text="{x:Bind ViewModel.Fps, Mode=OneWay}" />
-                <TextBlock
-                    FontFamily="{ThemeResource DefaultFont}"
-                    FontSize="16"
-                    Foreground="White"
-                    Text="{x:Bind ViewModel.DelayTime, Mode=OneWay}" />
-                <TextBlock
-                    FontFamily="{ThemeResource DefaultFont}"
-                    FontSize="16"
-                    Foreground="White"
-                    Text="{x:Bind ViewModel.PacketLossRate, Mode=OneWay}" />
-            </StackPanel>
-        </Border>
+        <SplitView x:Name="view" DisplayMode="Inline">
+            <Grid>
+                <WebView2 x:Name="_browser" Grid.Row="1">
+                    <WebView2.Resources>
+                        <SolidColorBrush x:Key="BrushForThemeBackgroundColor" Color="Transparent" />
+                    </WebView2.Resources>
+                </WebView2>
+                <Border
+                    Grid.Row="1"
+                    Margin="0,5,0,0"
+                    Padding="10"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Top">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                        <TextBlock
+                            FontFamily="{ThemeResource DefaultFont}"
+                            FontSize="16"
+                            Foreground="White"
+                            Text="{x:Bind ViewModel.Network, Mode=OneWay}" />
+                        <TextBlock
+                            FontFamily="{ThemeResource DefaultFont}"
+                            FontSize="16"
+                            Foreground="White"
+                            Text="{x:Bind ViewModel.Fps, Mode=OneWay}" />
+                        <TextBlock
+                            FontFamily="{ThemeResource DefaultFont}"
+                            FontSize="16"
+                            Foreground="White"
+                            Text="{x:Bind ViewModel.DelayTime, Mode=OneWay}" />
+                        <TextBlock
+                            FontFamily="{ThemeResource DefaultFont}"
+                            FontSize="16"
+                            Foreground="White"
+                            Text="{x:Bind ViewModel.PacketLossRate, Mode=OneWay}" />
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </SplitView>
+
     </Grid>
 </Window>

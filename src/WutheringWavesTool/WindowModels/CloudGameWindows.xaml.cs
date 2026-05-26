@@ -35,4 +35,9 @@ public sealed partial class CloudGameWindows : Window
         //RemoveWebViewCursorSubclass();
         //ShowSystemCursor();
     }
+
+    private void TitleBar_PaneToggleRequested(Microsoft.UI.Xaml.Controls.TitleBar sender, object args)
+    {
+        this.view.IsPaneOpen = !this.view.IsPaneOpen;
+    }
 }

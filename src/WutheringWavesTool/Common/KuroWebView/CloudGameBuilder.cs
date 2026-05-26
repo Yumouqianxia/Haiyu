@@ -728,52 +728,6 @@ public static class CloudGameBuilder
                 }
             };
 
-            let forcePointerLockAfterStreamReady = false;
-            const tryForcePointerLockFromUserGesture = () => {
-                if (!forcePointerLockAfterStreamReady || !payload?.bridgeConfig?.lockPoint) {
-                    return;
-                }
-
-                if (document.pointerLockElement === surface) {
-                    return;
-                }
-
-                try {
-                    const result = surface?.requestPointerLock?.();
-                    if (typeof result?.catch === "function") {
-                        result.catch((error) => {
-                            post("warning", {
-                                message: "requestPointerLock 调用失败",
-                                detail: error?.message || String(error)
-                            });
-                        });
-                    }
-                } catch (error) {
-                    post("warning", {
-                        message: "requestPointerLock 抛出异常",
-                        detail: error?.message || String(error)
-                    });
-                }
-            };
-
-            const handlePointerActivation = () => {
-                focusSurface();
-                tryForcePointerLockFromUserGesture();
-            };
-
-            document.addEventListener("pointerlockchange", () => {
-                post("pointer-lock", {
-                    locked: document.pointerLockElement === surface,
-                    lockPointEnabled: Boolean(payload?.bridgeConfig?.lockPoint)
-                });
-            }, true);
-
-            document.addEventListener("pointerlockerror", () => {
-                post("warning", {
-                    message: "pointer lock 失败（浏览器拒绝或上下文不允许）"
-                });
-            }, true);
-
             const setMessage = (message, level = "info") => {
                 if (messageElement) {
                     messageElement.textContent = message;
@@ -1218,9 +1172,82 @@ public static class CloudGameBuilder
                 setTimeout(() => overlay?.remove(), 260);
             };
 
-            window.addEventListener("pointerdown", focusSurface, true);
-            window.addEventListener("mousedown", focusSurface, true);
-            window.addEventListener("click", focusSurface, true);
+            // Pointer lock state tracking (matching official kurogames behavior)
+            let isPointerLocked = false;
+            let pointerLockEscTimer = null;
+
+            document.addEventListener("pointerlockchange", () => {
+                clearTimeout(pointerLockEscTimer);
+                const video = document.getElementById("WelinkGameVideo");
+                if (document.pointerLockElement === video) {
+                    isPointerLocked = true;
+                } else {
+                    isPointerLocked = false;
+                    pointerLockEscTimer = setTimeout(() => {
+                        if (sdk && sdk.gameInstance && sdk.gameInstance.configs && sdk.gameInstance.configs.enableReplenishEsc) {
+                            try {
+                                if (typeof sdk.sendDataToGame === "function") {
+                                    sdk.sendDataToGame(new Uint8Array([0x1b]));
+                                }
+                            } catch {
+                            }
+                        }
+                    }, 200);
+                }
+            });
+
+            const requestPointerLockOnVideo = () => {
+                const video = document.getElementById("WelinkGameVideo");
+                if (video && typeof video.requestPointerLock === "function") {
+                    try {
+                        video.requestPointerLock();
+                    } catch {
+                    }
+                }
+            };
+
+            const setupVideoMouseHandlers = () => {
+                const video = document.getElementById("WelinkGameVideo");
+                if (!video || video._kuroMouseHandlersSetup) {
+                    return;
+                }
+                video._kuroMouseHandlersSetup = true;
+
+                video.addEventListener("mousedown", (e) => {
+                    requestPointerLockOnVideo();
+                    focusSurface();
+                }, true);
+
+                video.addEventListener("contextmenu", (e) => {
+                    e.preventDefault();
+                    return false;
+                }, true);
+            };
+
+            const waitForVideoAndSetupMouse = () => {
+                const existing = document.getElementById("WelinkGameVideo");
+                if (existing) {
+                    setupVideoMouseHandlers();
+                    return;
+                }
+
+                const videoObserver = new MutationObserver(() => {
+                    const video = document.getElementById("WelinkGameVideo");
+                    if (video) {
+                        setupVideoMouseHandlers();
+                        videoObserver.disconnect();
+                    }
+                });
+                videoObserver.observe(document.documentElement, { childList: true, subtree: true });
+            };
+
+            const handlePointerActivation = () => {
+                focusSurface();
+            };
+
+            window.addEventListener("pointerdown", handlePointerActivation, true);
+            window.addEventListener("mousedown", handlePointerActivation, true);
+            window.addEventListener("click", handlePointerActivation, true);
             window.addEventListener("focus", () => {
                 focusSurface();
                 notifyForeground("window-focus");
@@ -1376,7 +1403,6 @@ public static class CloudGameBuilder
                     applyQualityProfile(payload.bridgeConfig);
 
                     applyMediaAudioState(document);
-                    forcePointerLockAfterStreamReady = true;
                     hideOverlay();
                     focusSurface();
                     notifyForeground("first-video-frame");
@@ -1398,6 +1424,7 @@ public static class CloudGameBuilder
                 focusSurface();
                 syncForegroundFlag();
                 notifyForeground("sdk-init");
+                waitForVideoAndSetupMouse();
 
                 if (typeof sdk.unblockKeyboard === "function") {
                     try {

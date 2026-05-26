@@ -6,17 +6,9 @@
 public enum CloudCoreType:uint
 {
     /// <summary>
-    /// 正在请求开始
-    /// </summary>
-    RequestCloud = 1,
-    /// <summary>
     /// 正在排队
     /// </summary>
-    QueueUp =2,
-    /// <summary>
-    /// 排队结束
-    /// </summary>
-    QueueDown = 4,
+    QueueUp = 4,
     /// <summary>
     /// 正在打开串流窗口
     /// </summary>

@@ -277,7 +277,8 @@
                     <TextBlock
                         Margin="4"
                         HorizontalAlignment="Center"
-                        FontFamily="{ThemeResource DefaultFont}" />
+                        FontFamily="{ThemeResource DefaultFont}"
+                        Text="{x:Bind ViewModel.BottomText, Mode=OneWay}" />
                 </Grid>
                 <Grid
                     Grid.Row="1"
@@ -306,29 +307,21 @@
                         Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}">
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
+                                <ColumnDefinition Width="auto" />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition />
-                                <RowDefinition />
-                            </Grid.RowDefinitions>
                             <FontIcon
-                                Grid.RowSpan="2"
+                                VerticalAlignment="Center"
                                 FontFamily="Segoe Fluent Icons"
-                                FontSize="25" />
+                                FontSize="20"
+                                Glyph="&#xE7FC;" />
                             <TextBlock
                                 Grid.Column="1"
-                                Margin="10,0,0,0"
+                                Margin="5,0,0,0"
                                 VerticalAlignment="Center"
                                 FontFamily="{ThemeResource DefaultFont}"
-                                FontSize="15" />
-                            <TextBlock
-                                Grid.Row="1"
-                                Grid.Column="1"
-                                Margin="15,0,0,0"
-                                VerticalAlignment="Center"
-                                FontSize="10" />
+                                FontSize="15"
+                                Text="{x:Bind ViewModel.StartGameText, Mode=OneWay}" />
                         </Grid>
 
                     </Button>

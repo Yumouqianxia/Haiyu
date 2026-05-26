@@ -25,7 +25,12 @@ public class KuroCloudGameContext : IKuroCloudGameContext
     /// <summary>
     /// 正在运行的游戏窗口句柄
     /// </summary>
-    private uint GameingWindow { get; set; }
+    private nint? GameingWindow { get; set; }
+
+    /// <summary>
+    /// 正在运行的游戏窗口标题
+    /// </summary>
+    private string? GameTitleKey { get; set; }
 
     public WavesCloudSurvivalService WavesCloudSurivivalService { get; }
 
@@ -36,9 +41,11 @@ public class KuroCloudGameContext : IKuroCloudGameContext
     public GameLocalConfig GameLocalConfig { get; private set; }
 
     public string GamerConfigPath { get; internal set; }
+    public uint CurrentPayType { get; private set; }
     #region 排队参数
     public CancellationTokenSource? queqeCTS = null;
     public System.Threading.PeriodicTimer? _queqeTimer;
+    private CommonQueueInfo? _lastQueueData;
     #endregion
 
     public async Task InitAsync()
@@ -91,6 +98,7 @@ public class KuroCloudGameContext : IKuroCloudGameContext
             nodes,
             node
         );
+        this.CurrentPayType = payType;
         var invokeResult =
             await this.WavesCloudSurivivalService.WavesCloudGameService.CommonStartGameAsync(
                 http,
@@ -100,17 +108,17 @@ public class KuroCloudGameContext : IKuroCloudGameContext
             );
         if (invokeResult == null)
         {
-            this.CloudGameEventPublisher.Publish(new(CloudCoreType.QueueDown));
+            CloudGameEventPublisher.Publish(new CloudMessageArgs(CloudCoreType.Message) { Message = $"启动失败!" });
             await Task.Delay(1000);
             //启动Web串流，通知外部ViewModel接受Session，进行Web启动
-            this.CloudGameEventPublisher.Publish(new(CloudCoreType.OpeningWeb));
+            this.CloudGameEventPublisher.Publish(new(CloudCoreType.None));
             return;
         }
-        if(invokeResult != null && invokeResult.Code == 0)
+        if(invokeResult.Code == 0 && invokeResult.Data != null)
         {
             var option = launchOption.Clone();
-            this.CloudGameEventPublisher.Publish(new(CloudCoreType.QueueDown));
-            if(queqeCTS!=null)
+            this.CloudGameEventPublisher.Publish(new(CloudCoreType.QueueUp));
+            if (queqeCTS != null)
                 await queqeCTS.CancelAsync();
             option.IsComplete = true;
             option.StreamOptions = new CloudGameStreamSession()
@@ -141,6 +149,40 @@ public class KuroCloudGameContext : IKuroCloudGameContext
         }
     }
 
+    public async Task StopQueueAsync()
+    {
+        await ClearActiveAsync();
+        this.CloudGameEventPublisher.Publish(new(CloudCoreType.None));
+    }
+
+    /// <summary>
+    /// 不需要判断Type
+    /// </summary>
+    /// <returns></returns>
+    public async Task<KuroCLoudGameCoreState> GetCloudStateAsync()
+    {
+        KuroCLoudGameCoreState args = new KuroCLoudGameCoreState();
+        var key = this.GameTitleKey;
+        if(_lastQueueData!= null)
+        {
+            args.IsQueue = true;
+            args.QueueWaitTime = _lastQueueData.WaitingTime;
+            args.QueueQty = _lastQueueData.SeatNo;
+            args.Region = _lastQueueData.RegionName;
+        }
+        //这里的WindowHandle和WindowTitleKey是为了兼容外部ViewModel的设计，由于内核抽象原因并不具备窗口管理功能
+        //由外部ViewModel 通过 WindowsAPI来确定游戏是否在运行。
+        args.WindowHandle = GameingWindow;
+        args.WindowTitleKey = GameTitleKey;
+        return await Task.FromResult(args);
+    }
+
+    public void SetGameingWindow(nint handle, string titleKey)
+    {
+        this.GameingWindow = handle;
+        this.GameTitleKey = titleKey;
+    }
+
     private async Task QueqeTask(
         CloudGameLoginSession session,
         WelinkStartParameters welinkParam,
@@ -157,10 +199,21 @@ public class KuroCloudGameContext : IKuroCloudGameContext
         }
         try
         {
-            while (await _queqeTimer.WaitForNextTickAsync(queqeCTS.Token))
+            int errCount = 0;
+            while (true)
             {
                 if (queqeCTS.IsCancellationRequested)
                 {
+                    await ClearActiveAsync().ConfigureAwait(false);
+                    return;
+                }
+                await _queqeTimer.WaitForNextTickAsync(queqeCTS.Token).ConfigureAwait(false);
+                if (errCount > 2000)
+                {
+                    //排队失败,66*5分钟超时
+                    this.CloudGameEventPublisher.Publish(
+                        new(CloudCoreType.Message) { Message = $"排队异常无果，总耗时{(errCount * _queqeTimer.Period.Seconds) * 5}s" }
+                    );
                     this.CloudGameEventPublisher.Publish(new(CloudCoreType.None));
                     return;
                 }
@@ -171,10 +224,12 @@ public class KuroCloudGameContext : IKuroCloudGameContext
                         session
                     );
                 if (queueResult == null)
+                {
+                    errCount++;
                     continue;
+                }
                 if (queueResult.Code == 0 && queueResult.Data?.Code == 200)
                 {
-                    this.CloudGameEventPublisher.Publish(new(CloudCoreType.QueueDown));
                     await queqeCTS.CancelAsync();
                     option.IsComplete = true;
                     option.StreamOptions = new CloudGameStreamSession()
@@ -190,14 +245,27 @@ public class KuroCloudGameContext : IKuroCloudGameContext
                     this.CloudGameEventPublisher.Publish(
                         new(CloudCoreType.OpeningWeb) { QueueResult = option }
                     );
+                    if (_lastQueueData != null)
+                    {
+                        _lastQueueData = null;
+                    }
                     return;
                 }
                 if (queueResult.Code == 1712)
                 {
                     option.IsComplete = false;
                     this.CloudGameEventPublisher.Publish(
-                        new(CloudCoreType.QueueDown) { QueueResult = option }
+                        new(CloudCoreType.QueueUp)
+                        {
+                            QueueResult = option,
+                            IsQueue = true,
+                            QueueQty = queueResult.Data?.SeatNo ?? 0,
+                            QueueTime = queueResult.Data?.WaitingTime ?? 0,
+                            CurrentRegion = queueResult.Data?.RegionName ?? "",
+                            PayType = this.CurrentPayType
+                        }
                     );
+                    _lastQueueData = queueResult.Data;
                 }
                 if (queueResult.Code == 1724)
                 {
@@ -214,6 +282,27 @@ public class KuroCloudGameContext : IKuroCloudGameContext
                 }
             }
         }
-        catch (OperationCanceledException) { }
+        catch (OperationCanceledException)
+        { //不捕获取消异常 }
+        }
+    }
+
+    /// <summary>
+    /// 取消当前活动排队
+    /// </summary>
+    /// <returns></returns>
+    public async Task ClearActiveAsync()
+    {
+        _queqeTimer?.Dispose();
+        if(queqeCTS!= null) 
+            await queqeCTS.CancelAsync();
+        queqeCTS = null;
+        this.CloudGameEventPublisher.Publish(new(CloudCoreType.None));
+    }
+
+    public void ClearWindow()
+    {
+        this.GameingWindow = 0;
+        this.GameTitleKey = null;
     }
 }

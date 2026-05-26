@@ -15,6 +15,11 @@ public class CloudGameProcessTracker:IAsyncDisposable
 
     public CloudCoreType CoreType { get; private set; }
     public BrowserSessionLaunchOptions QueueResult { get; private set; }
+    public bool IsQueue { get; private set; }
+    public int QueueQty { get; private set; }
+    public double QueueWaitSecond { get; private set; }
+    public string CurrentRegion { get; private set; }
+    public CloudPayType PayType { get; private set; }
 
     public event Action<CloudGameProcessTracker>? OnProgressChanged;
 
@@ -26,6 +31,7 @@ public class CloudGameProcessTracker:IAsyncDisposable
         _timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
         _timerTask = NotifyLoopAsync();
     }
+
 
     /// <summary>
     /// 轮询推送数据
@@ -62,7 +68,11 @@ public class CloudGameProcessTracker:IAsyncDisposable
         }
         this.CoreType = args.Type;
         this.QueueResult = args.QueueResult;
-
+        this.IsQueue = args.IsQueue;
+        this.QueueQty = args.QueueQty;
+        this.QueueWaitSecond = args.QueueTime;
+        this.CurrentRegion = args.CurrentRegion;
+        this.PayType = (CloudPayType)args.PayType;
         _isDirty = true;
         await ValueTask.CompletedTask;
     }

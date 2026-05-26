@@ -9,13 +9,8 @@ partial class CloudGameingViewModel
     #region Win32
 
     private const int CURSOR_SHOWING = 0x00000001;
-    private const int HotKeyIdToggleCursor = 0x5141;
-    private const uint WindowMessageSubclassId = 0x5141;
-    private const uint MOD_ALT = 0x0001;
     private const uint SPI_SETCURSORS = 0x0057;
-    private const uint WM_HOTKEY = 0x0312;
     private const uint WM_SETCURSOR = 0x0020;
-    private const uint VK_Q = 0x51;
     private delegate bool EnumWindowsProc(IntPtr windowHandle, IntPtr lParam);
     private static readonly uint[] SystemCursorIds =
     [
@@ -66,14 +61,6 @@ partial class CloudGameingViewModel
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
     private static extern bool GetCursorInfo(out CURSORINFO pci);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool RegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-
-    [DllImport("user32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool UnregisterHotKey(IntPtr hWnd, int id);
 
     [DllImport("user32.dll", SetLastError = true)]
     [return: MarshalAs(UnmanagedType.Bool)]
@@ -165,9 +152,6 @@ partial class CloudGameingViewModel
     private bool _systemCursorSchemeOverridden;
     private DispatcherTimer _cursorTimer;
     private IntPtr _windowHandle;
-    private bool _windowMessageSubclassInstalled;
-    private bool _cursorHotKeyRegistered;
-    private SUBCLASSPROC _windowMessageSubclassProc;
     private SUBCLASSPROC _webViewCursorSubclassProc;
 
     private void HideSystemCursor()
@@ -354,84 +338,4 @@ partial class CloudGameingViewModel
     }
 
 
-    private void ToggleSystemCursor()
-    {
-        if (_cursorHidden)
-        {
-            ShowSystemCursor();
-            return;
-        }
-
-        HideSystemCursor();
-    }
-
-    private IntPtr WindowMessageSubclassProc(
-            IntPtr windowHandle,
-            uint message,
-            IntPtr wParam,
-            IntPtr lParam,
-            UIntPtr subclassId,
-            UIntPtr referenceData
-        )
-    {
-        if (message == WM_HOTKEY && wParam == new IntPtr(HotKeyIdToggleCursor))
-        {
-            ToggleSystemCursor();
-            return new IntPtr(1);
-        }
-
-        return DefSubclassProc(windowHandle, message, wParam, lParam);
-    }
-
-    private void EnsureWindowMessageSubclass()
-    {
-        if (_windowHandle == IntPtr.Zero)
-        {
-            _windowHandle = WinRT.Interop.WindowNative.GetWindowHandle(this.Window);
-            if (_windowHandle == IntPtr.Zero)
-            {
-                return;
-            }
-        }
-
-        if (!_windowMessageSubclassInstalled)
-        {
-            _windowMessageSubclassProc ??= WindowMessageSubclassProc;
-            _windowMessageSubclassInstalled = SetWindowSubclass(
-                _windowHandle,
-                _windowMessageSubclassProc,
-                new UIntPtr(WindowMessageSubclassId),
-                UIntPtr.Zero
-            );
-        }
-
-        if (!_cursorHotKeyRegistered)
-        {
-            _cursorHotKeyRegistered = RegisterHotKey(
-                _windowHandle,
-                HotKeyIdToggleCursor,
-                MOD_ALT,
-                VK_Q
-            );
-        }
-    }
-
-    private void RemoveWindowMessageSubclass()
-    {
-        if (_cursorHotKeyRegistered && _windowHandle != IntPtr.Zero)
-        {
-            UnregisterHotKey(_windowHandle, HotKeyIdToggleCursor);
-            _cursorHotKeyRegistered = false;
-        }
-
-        if (_windowMessageSubclassInstalled && _windowHandle != IntPtr.Zero)
-        {
-            RemoveWindowSubclass(
-                _windowHandle,
-                _windowMessageSubclassProc,
-                new UIntPtr(WindowMessageSubclassId)
-            );
-            _windowMessageSubclassInstalled = false;
-        }
-    }
 }

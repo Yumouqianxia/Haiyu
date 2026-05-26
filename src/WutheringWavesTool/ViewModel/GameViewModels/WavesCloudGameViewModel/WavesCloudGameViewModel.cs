@@ -1,4 +1,5 @@
 ﻿using Haiyu.Services.DialogServices;
+using System.Text;
 using Waves.Api.Models.CloudGame;
 using Waves.Core.Common;
 using Waves.Core.Contracts.CloudGame;
@@ -34,6 +35,8 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     [ObservableProperty]
     public partial CloudGameLoginSession SelectLogin { get; set; }
 
+    CloudGameUIActive _startBthActive;
+
     public WavesCloudGameViewModel(
         IWallpaperService wallpaperService,
         [FromKeyedServices(nameof(Waves.Core.Services.KuroCloudGameContext))]
@@ -56,24 +59,64 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         RegisterMessager();
     }
 
+
+
     private async void CloudGameProcessTracker_OnProgressChanged(CloudGameProcessTracker obj)
     {
+        
         await App.TryInvokeAsync(async () =>
         {
-            if (obj.CoreType == CloudCoreType.QueueUp)
+            var state = await this.KuroCloudGameContext.GetCloudStateAsync();
+            if (obj.CoreType == CloudCoreType.OpeningWeb && obj.QueueResult != null)
             {
-                BottomText = "游戏中";
-            }
-            if(obj.CoreType == CloudCoreType.OpeningWeb && obj.QueueResult != null)
-            {
+                BottomText = $"正在游戏";
+                StartGameText = "停止游戏";
+                if (state.WindowHandle != null || !string.IsNullOrWhiteSpace(state.WindowTitleKey))
+                {
+                    //防止重复启动
+                    return;
+                }
                 CloudGameWindows window = new CloudGameWindows(obj.QueueResult);
+                var title = Guid.NewGuid().ToString();
+                window.Title = title;
                 window.Activate();
+
+                this.KuroCloudGameContext.SetGameingWindow((nint)window.GetWindowHandle(), title);
+                this._startBthActive = CloudGameUIActive.StopGame;
             }
-            if (obj.CoreType == CloudCoreType.QueueDown)
+            else if (obj.CoreType == CloudCoreType.QueueUp)
             {
-                BottomText = "排队中";
+                BottomText = $"当前排队：{obj.QueueQty}位，预计:{obj.QueueWaitSecond}秒";
+                StartGameText = "停止排队";
+                this._startBthActive = CloudGameUIActive.QueueUp;
+            }
+            else
+            {
+                if(state.WindowHandle == null || string.IsNullOrWhiteSpace(state.WindowTitleKey))
+                {
+                    this._startBthActive = CloudGameUIActive.StartGame;
+                    StartGameText = "进入游戏";
+                    BottomText = "准备就绪";
+                }
+                else
+                {
+                    Span<char> buffer = new char[512];
+                    var len = Windows.Win32.PInvoke.GetWindowText(new HWND((IntPtr)state.WindowHandle), buffer);
+                    var text = new string(buffer[..len]) ?? "";
+                    if (text == state.WindowTitleKey)
+                    {
+                        StartGameText = "终止游戏";
+                        BottomText = "游戏中";
+                        this._startBthActive = CloudGameUIActive.StopGame;
+                    }
+                }
             }
         });
+    }
+
+    void RefreshUIAsync()
+    {
+        CloudGameProcessTracker_OnProgressChanged(this.KuroCloudGameContext.CloudGameProcessTracker);
     }
 
     private async void WavesCloudSurivivalService_MessageHandler(
@@ -120,6 +163,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
             );
             await RefreshUserAsync();
             await RefreshCloudNodesAsync();
+            this.RefreshUIAsync();
             IsRefreshing = false;
         }
         catch (Exception ex)
@@ -138,7 +182,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
                 this.CTS.Token
             );
 
-        if (wallData == null)
+        if (wallData == null || wallData.Data == null)
         {
             await TipShow.ShowMessageAsync(wallData.Msg ?? "获取余额失败！", Symbol.Clear);
             return;
@@ -253,4 +297,21 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     {
         await DialogManager.ShowWavesCloudSettingAsync(GameType.Waves);
     }
+}
+
+
+public enum CloudGameUIActive:uint
+{
+    /// <summary>
+    /// 终止游戏
+    /// </summary>
+    StopGame,
+    /// <summary>
+    /// 排队中
+    /// </summary>
+    QueueUp,
+    /// <summary>
+    /// 开始游戏
+    /// </summary>
+    StartGame
 }

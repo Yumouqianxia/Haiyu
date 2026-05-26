@@ -3,16 +3,25 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Waves.Api.Models.CloudGame;
+using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Models.CloudGame;
+using Waves.Core.Services;
 
 namespace Haiyu.ViewModel.GameViewModels;
 
 public sealed partial class CloudGameingViewModel:ViewModelBase
 {
+    
     public WebView2 WebView2 { get; set; }
     public Window Window { get; set; }
     public BrowserSessionLaunchOptions Option { get; set; }
     public nint WindowHandle { get; private set; }
+    public IKuroCloudGameContext KuroCloudGameContext { get; }
+    public CloudGameingViewModel([FromKeyedServices(nameof(KuroCloudGameContext))] IKuroCloudGameContext kuroCloudGameContext)
+    {
+        this.KuroCloudGameContext = kuroCloudGameContext;
+    }
+
     public void SetWebView(WebView2 webView2, Window window, BrowserSessionLaunchOptions option)
     {
         ArgumentNullException.ThrowIfNull(webView2);
@@ -21,6 +30,14 @@ public sealed partial class CloudGameingViewModel:ViewModelBase
         this.WebView2 = webView2;
         this.Window = window;
         this.Option = option;
+        this.Window.Closed += Window_Closed;
+    }
+
+    private void Window_Closed(object sender, WindowEventArgs args)
+    {
+        this.KuroCloudGameContext.ClearWindow();
+        this.KuroCloudGameContext.CloudGameEventPublisher.Publish(new(Waves.Core.Models.Enums.CloudCoreType.None));
+        this.ShowSystemCursor();
     }
 
     [RelayCommand]
@@ -36,8 +53,6 @@ public sealed partial class CloudGameingViewModel:ViewModelBase
         WebView2.CoreWebView2.Settings.IsSwipeNavigationEnabled = false;
         WebView2.CoreWebView2.Settings.IsStatusBarEnabled = false;
         WebView2.CoreWebView2.WebMessageReceived += CoreWebView2_WebMessageReceived;
-
-        EnsureWindowMessageSubclass();
 
         await ApplyLaunchOptionsAsync();
 

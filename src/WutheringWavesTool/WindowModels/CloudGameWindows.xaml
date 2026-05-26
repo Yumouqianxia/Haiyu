@@ -27,7 +27,20 @@
             IsPaneToggleButtonVisible="True"
             PaneToggleRequested="TitleBar_PaneToggleRequested"
             Subtitle="v1.0" />
-        <SplitView x:Name="view" DisplayMode="Inline">
+        <SplitView
+            x:Name="view"
+            Grid.Row="1"
+            DisplayMode="Overlay"
+            PaneBackground="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}">
+            <SplitView.Pane>
+                <Grid>
+                    <SystemBackdropElement>
+                        <SystemBackdropElement.SystemBackdrop>
+                            <DesktopAcrylicBackdrop />
+                        </SystemBackdropElement.SystemBackdrop>
+                    </SystemBackdropElement>
+                </Grid>
+            </SplitView.Pane>
             <Grid>
                 <WebView2 x:Name="_browser" Grid.Row="1">
                     <WebView2.Resources>

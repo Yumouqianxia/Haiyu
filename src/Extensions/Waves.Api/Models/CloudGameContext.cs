@@ -45,5 +45,8 @@ namespace Waves.Api.Models;
 [JsonSerializable(typeof(BridgeConfig))]
 [JsonSerializable(typeof(string))]
 [JsonSerializable(typeof(WelinkMessage))]
+[JsonSerializable(typeof(int))]
+[JsonSerializable(typeof(bool))]
+[JsonSerializable(typeof(ApplyQualityProfilePayload))]
 [JsonSerializable(typeof(IReadOnlyDictionary<string, string>))]
 public partial class CloudGameContext : JsonSerializerContext { }

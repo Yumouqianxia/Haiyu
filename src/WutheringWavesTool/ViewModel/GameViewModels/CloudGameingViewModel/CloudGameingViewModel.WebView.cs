@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using Waves.Api.Models.CloudGame;
 
 namespace Haiyu.ViewModel.GameViewModels
 {
@@ -30,18 +31,18 @@ namespace Haiyu.ViewModel.GameViewModels
         {
             return await InvokeStreamControlAsync(
                 "applyQualityProfile",
-                new
+                new ApplyQualityProfilePayload
                 {
-                    bitRate = quality.BitRate,
-                    bitRateMin = quality.BitRateMin,
-                    bitRateMax = quality.BitRateMax,
-                    fps = quality.Fps,
-                    width = quality.Width,
-                    height = quality.Height,
-                    codecType = quality.CodecType,
-                    streamStrategy = quality.StreamStrategy,
-                    enableImageEnhancement = quality.EnableImageEnhancement,
-                    dpi = quality.DPI
+                    BitRate = quality.BitRate,
+                    BitRateMin = quality.BitRateMin,
+                    BitRateMax = quality.BitRateMax,
+                    Fps = quality.Fps,
+                    Width = quality.Width,
+                    Height = quality.Height,
+                    CodecType = quality.CodecType,
+                    StreamStrategy = quality.StreamStrategy,
+                    EnableImageEnhancement = quality.EnableImageEnhancement,
+                    Dpi = quality.DPI
                 }
             );
         }
@@ -55,14 +56,20 @@ namespace Haiyu.ViewModel.GameViewModels
                 return false;
             }
 
+            var json = methodName switch
+            {
+                "requestExit" => string.Empty,
+                "setVolume" => JsonSerializer.Serialize(args.ElementAtOrDefault(0), CloudGameContext.Default.Int32),
+                "setMuted" => JsonSerializer.Serialize(args.ElementAtOrDefault(0), CloudGameContext.Default.Boolean),
+                "setImageEnhancement" => JsonSerializer.Serialize(args.ElementAtOrDefault(0), CloudGameContext.Default.Boolean),
+                "applyQualityProfile" => JsonSerializer.Serialize((ApplyQualityProfilePayload)args.ElementAtOrDefault(0)!, CloudGameContext.Default.ApplyQualityProfilePayload),
+                _ => throw new NotSupportedException($"不支持的串流控制方法: {methodName}")
+            };
+
             var script = methodName switch
             {
                 "requestExit" => "window.__KURO_STREAM_CONTROL__?.requestExit?.()",
-                "setVolume" => $"window.__KURO_STREAM_CONTROL__?.setVolume?.({JsonSerializer.Serialize(args.ElementAtOrDefault(0))})",
-                "setMuted" => $"window.__KURO_STREAM_CONTROL__?.setMuted?.({JsonSerializer.Serialize(args.ElementAtOrDefault(0))})",
-                "setImageEnhancement" => $"window.__KURO_STREAM_CONTROL__?.setImageEnhancement?.({JsonSerializer.Serialize(args.ElementAtOrDefault(0))})",
-                "applyQualityProfile" => $"window.__KURO_STREAM_CONTROL__?.applyQualityProfile?.({JsonSerializer.Serialize(args.ElementAtOrDefault(0))})",
-                _ => throw new NotSupportedException($"不支持的串流控制方法: {methodName}")
+                _ => $"window.__KURO_STREAM_CONTROL__?.{methodName}?.({json})"
             };
 
             try

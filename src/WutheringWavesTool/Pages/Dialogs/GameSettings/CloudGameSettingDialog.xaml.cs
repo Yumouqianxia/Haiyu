@@ -11,6 +11,7 @@ public sealed partial class CloudGameSettingDialog : ContentDialog,IDialog
     {
         InitializeComponent();
         this.ViewModel = Instance.Host.Services.GetRequiredService<CloudGameSettingViewModel>();
+        this.RequestedTheme = Instance.Host.Services.GetRequiredService<IThemeService>().CurrentTheme;
     }
 
     public CloudGameSettingViewModel ViewModel { get; }

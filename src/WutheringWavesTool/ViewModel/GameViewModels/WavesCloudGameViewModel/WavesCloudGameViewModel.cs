@@ -71,7 +71,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
             {
                 BottomText = $"正在游戏";
                 StartGameText = "停止游戏";
-                if (state.WindowHandle != null || !string.IsNullOrWhiteSpace(state.WindowTitleKey))
+                if ((state.WindowHandle!=null && state.WindowHandle!= nint.MinValue) || !string.IsNullOrWhiteSpace(state.WindowTitleKey))
                 {
                     //防止重复启动
                     return;
@@ -92,7 +92,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
             }
             else
             {
-                if(state.WindowHandle == null || string.IsNullOrWhiteSpace(state.WindowTitleKey))
+                if (!(state.WindowHandle != null && state.WindowHandle != nint.MinValue) || !string.IsNullOrWhiteSpace(state.WindowTitleKey))
                 {
                     this._startBthActive = CloudGameUIActive.StartGame;
                     StartGameText = "进入游戏";
@@ -103,12 +103,9 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
                     Span<char> buffer = new char[512];
                     var len = Windows.Win32.PInvoke.GetWindowText(new HWND((IntPtr)state.WindowHandle), buffer);
                     var text = new string(buffer[..len]) ?? "";
-                    if (text == state.WindowTitleKey)
-                    {
-                        StartGameText = "终止游戏";
-                        BottomText = "游戏中";
-                        this._startBthActive = CloudGameUIActive.StopGame;
-                    }
+                    StartGameText = "终止游戏";
+                    BottomText = "游戏中";
+                    this._startBthActive = CloudGameUIActive.StopGame;
                 }
             }
         });
@@ -176,41 +173,52 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     [RelayCommand]
     async Task InvokeTask()
     {
-        var wallData =
+        if (this._startBthActive == CloudGameUIActive.StartGame)
+        {
+            var wallData =
             await this.KuroCloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.GetWalletDataAsync(
                 this.SelectLogin,
                 this.CTS.Token
             );
 
-        if (wallData == null || wallData.Data == null)
-        {
-            await TipShow.ShowMessageAsync(wallData.Msg ?? "获取余额失败！", Symbol.Clear);
-            return;
-        }
-        var result = await DialogManager.ShowSelectGameNodeAsync(
-            this.SelectLogin.OrginData.Username + this.SelectLogin.OrginData.Sdkuserid
-        );
+            if (wallData == null || wallData.Data == null)
+            {
+                await TipShow.ShowMessageAsync(wallData.Msg ?? "获取余额失败！", Symbol.Clear);
+                return;
+            }
+            var result = await DialogManager.ShowSelectGameNodeAsync(
+                this.SelectLogin.OrginData.Username + this.SelectLogin.OrginData.Sdkuserid
+            );
 
-        if (result == null || result.SelectNode == null)
-        {
-            await TipShow.ShowMessageAsync("请选择节点或节点失效", Symbol.Clear);
-            return;
+            if (result == null || result.SelectNode == null)
+            {
+                await TipShow.ShowMessageAsync("请选择节点或节点失效", Symbol.Clear);
+                return;
+            }
+            var qualityOpt = await this.GetOptionsAsync();
+            if (qualityOpt == null)
+            {
+                await TipShow.ShowMessageAsync("构建清晰度失败，日志已记录", Symbol.Clear);
+                return;
+            }
+            _ = Task.Run(async () =>
+                await this.KuroCloudGameContext.StartGameAsync(
+                    this.SelectLogin,
+                    result.Nodes,
+                    result.SelectNode,
+                    qualityOpt,
+                    this.GetDefaultPayType(wallData.Data)
+                )
+            );
         }
-        var qualityOpt = await this.GetOptionsAsync();
-        if (qualityOpt == null)
+        else if (_startBthActive == CloudGameUIActive.QueueUp)
         {
-            await TipShow.ShowMessageAsync("构建清晰度失败，日志已记录", Symbol.Clear);
-            return;
+            await this.KuroCloudGameContext.StopQueueAsync();
         }
-        _ = Task.Run(async () =>
-            await this.KuroCloudGameContext.StartGameAsync(
-                this.SelectLogin,
-                result.Nodes,
-                result.SelectNode,
-                qualityOpt,
-                this.GetDefaultPayType(wallData.Data)
-            )
-        );
+        else if (_startBthActive == CloudGameUIActive.StopGame)
+        {
+            this.KuroCloudGameContext.CloudGameEventPublisher.Publish(new(CloudCoreType.ReqExit));
+        }
     }
 
     public uint GetDefaultPayType(WalletData walletInfo)

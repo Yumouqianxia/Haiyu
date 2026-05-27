@@ -33,5 +33,12 @@ public enum CloudCoreType:uint
     /// 消息通知
     /// </summary>
     Message = 10,
-    None = 11
+    /// <summary>
+    /// 刷新主页
+    /// </summary>
+    None = 11,
+    /// <summary>
+    /// 退出游戏请求
+    /// </summary>
+    ReqExit = 12
 }

@@ -152,7 +152,6 @@ public class KuroCloudGameContext : IKuroCloudGameContext
     public async Task StopQueueAsync()
     {
         await ClearActiveAsync();
-        this.CloudGameEventPublisher.Publish(new(CloudCoreType.None));
     }
 
     /// <summary>
@@ -302,7 +301,7 @@ public class KuroCloudGameContext : IKuroCloudGameContext
 
     public void ClearWindow()
     {
-        this.GameingWindow = 0;
+        this.GameingWindow = null;
         this.GameTitleKey = null;
     }
 }

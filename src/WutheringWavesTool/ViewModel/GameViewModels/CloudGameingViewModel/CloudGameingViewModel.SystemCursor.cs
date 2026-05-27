@@ -279,7 +279,6 @@ partial class CloudGameingViewModel
         {
             var altDown = (GetAsyncKeyState(0x12) & 0x8000) != 0;
             var qDown = (GetAsyncKeyState(0x51) & 0x8000) != 0;
-
             if (altDown && qDown && !_altQWasDown)
             {
                 _altQWasDown = true;

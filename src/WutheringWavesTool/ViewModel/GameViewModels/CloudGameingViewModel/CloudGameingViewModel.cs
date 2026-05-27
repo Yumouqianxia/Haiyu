@@ -20,6 +20,21 @@ public sealed partial class CloudGameingViewModel:ViewModelBase
     public CloudGameingViewModel([FromKeyedServices(nameof(KuroCloudGameContext))] IKuroCloudGameContext kuroCloudGameContext)
     {
         this.KuroCloudGameContext = kuroCloudGameContext;
+        this.KuroCloudGameContext.CloudGameProcessTracker.OnProgressChanged += CloudGameProcessTracker_OnProgressChanged;
+    }
+
+    private void CloudGameProcessTracker_OnProgressChanged(Waves.Core.Services.CloudGameServices.CloudGameProcessTracker obj)
+    {
+        //终止游戏
+        if(obj.CoreType == Waves.Core.Models.Enums.CloudCoreType.ReqExit)
+        {
+            this.Window.DispatcherQueue.TryEnqueue(() =>
+            {
+                this.WebView2.Close();
+                Window.Close();
+            });
+            this.KuroCloudGameContext.CloudGameEventPublisher.Publish(new( Waves.Core.Models.Enums.CloudCoreType.None));
+        }
     }
 
     public void SetWebView(WebView2 webView2, Window window, BrowserSessionLaunchOptions option)
@@ -38,6 +53,7 @@ public sealed partial class CloudGameingViewModel:ViewModelBase
         await RequestExitAsync();
         this.KuroCloudGameContext.ClearWindow();
         this.KuroCloudGameContext.CloudGameEventPublisher.Publish(new(Waves.Core.Models.Enums.CloudCoreType.None));
+        this.KuroCloudGameContext.CloudGameProcessTracker.OnProgressChanged -= CloudGameProcessTracker_OnProgressChanged;
         this.ShowSystemCursor();
     }
 

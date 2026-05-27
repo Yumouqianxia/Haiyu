@@ -13,6 +13,7 @@ public sealed partial class CloudGameWindows : Window
     {
         InitializeComponent();
         this.ExtendsContentIntoTitleBar = true;
+        this.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         this.ViewModel = Instance.Host.Services.GetRequiredService<CloudGameingViewModel>();
         ViewModel.SetWebView(this._browser, this, option);
         this.AppWindow.Closing += CloudGameWindows_Closing;

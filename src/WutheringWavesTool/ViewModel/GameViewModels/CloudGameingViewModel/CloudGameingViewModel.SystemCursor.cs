@@ -275,14 +275,19 @@ partial class CloudGameingViewModel
         {
             Interval = TimeSpan.FromMilliseconds(100)
         };
-        _hotkeyTimer.Tick += (_, _) =>
+        _hotkeyTimer.Tick += async(_, _) =>
         {
             var altDown = (GetAsyncKeyState(0x12) & 0x8000) != 0;
             var qDown = (GetAsyncKeyState(0x51) & 0x8000) != 0;
+            var f11Down = (GetAsyncKeyState(0x7A) & 0x8000) != 0;
             if (altDown && qDown && !_altQWasDown)
             {
                 _altQWasDown = true;
                 ToggleSystemCursor();
+            }
+            if (f11Down)
+            {
+                await ToggleFullScreenAsync();
             }
             else if (!altDown || !qDown)
             {
@@ -292,7 +297,26 @@ partial class CloudGameingViewModel
         _hotkeyTimer.Start();
     }
 
-
+    private async Task ToggleFullScreenAsync()
+    {
+        if(this.Window.AppWindow == null)
+        {
+            return;
+        }
+        if(this.Window.AppWindow.Presenter.Kind == AppWindowPresenterKind.Overlapped)
+        {
+            this.Window.SetWindowPresenter(AppWindowPresenterKind.FullScreen);
+            this.Window.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Collapsed;
+            this.TitleBarVisiblity = Visibility.Collapsed;
+        }
+        else
+        {
+            this.Window.SetWindowPresenter(AppWindowPresenterKind.Overlapped);
+            this.Window.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
+            this.TitleBarVisiblity = Visibility.Visible;
+        }
+        await SyncBridgeResolutionAsync();
+    }
 
     private void TryInstallWebViewCursorSubclass()
     {

@@ -45,6 +45,9 @@ namespace Haiyu.ViewModel.GameViewModels
                 }
             );
         }
+
+        
+
         private async Task<bool> InvokeStreamControlAsync(string methodName, params object[] args)
         {
             if (WebView2?.CoreWebView2 is null)

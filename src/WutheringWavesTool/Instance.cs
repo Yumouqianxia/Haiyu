@@ -147,7 +147,6 @@ public static class InstanceBuilderExtensions
                     .AddTransient<SelectDownoadGameDialog>()
                     .AddTransient<SelectDownoadGameDialogV2>()
                     .AddTransient<SelectDownloadGameViewModel>()
-                    .AddTransient<SelectGameFolderViewModelV2>()
                     .AddTransient<QRLoginDialog>()
                     .AddTransient<QrLoginViewModel>()
                     .AddTransient<UpdateGameDialog>()

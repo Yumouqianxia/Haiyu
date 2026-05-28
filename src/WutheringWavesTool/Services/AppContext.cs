@@ -49,47 +49,6 @@ public class AppContext<T> : IAppContext<T>
             {
                 await Instance.Host.Services.GetRequiredService<XBoxService>().StartAsync();
             }
-            await Instance.Host.Services.GetRequiredService<IKuroClient>().InitAsync();
-            await Instance
-                .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                    nameof(PunishMainGameContextV2)
-                )
-                .InitAsync();
-            await Instance
-                .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                    nameof(PunishBiliBiliGameContextV2)
-                )
-                .InitAsync();
-            await Instance
-                .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                    nameof(PunishGlobalGameContextV2)
-                )
-                .InitAsync();
-            await Instance
-                .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                    nameof(PunishTwGameContextV2)
-                )
-                .InitAsync();
-            await Instance
-                .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                    nameof(WavesMainGameContextV2)
-                )
-                .InitAsync();
-            await Instance
-                .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                    nameof(WavesBiliBiliGameContextV2)
-                )
-                .InitAsync();
-            await Instance
-                .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                    nameof(WavesGlobalGameContextV2)
-                )
-                .InitAsync();
-            await Instance
-                .Host.Services!.GetRequiredKeyedService<IKuroCloudGameContext>(
-                    nameof(Waves.Core.Services.KuroCloudGameContext)
-                )
-                .InitAsync();
             this.App = app;
             var win = new MainWindow();
             #region Mirror
@@ -147,6 +106,7 @@ public class AppContext<T> : IAppContext<T>
             this.App.MainWindow.Activate();
             (win.AppWindow.Presenter as OverlappedPresenter)!.SetBorderAndTitleBar(true, false);
             this.App.MainWindow.AppWindow.Closing += AppWindow_Closing;
+            await InitCoreAsync();
         }
         catch (Exception ex)
         {
@@ -167,6 +127,51 @@ public class AppContext<T> : IAppContext<T>
             );
             Process.GetCurrentProcess().Kill();
         }
+    }
+
+    async Task InitCoreAsync()
+    {
+        await Instance.Host.Services.GetRequiredService<IKuroClient>().InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(PunishMainGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(PunishBiliBiliGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(PunishGlobalGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(PunishTwGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(WavesMainGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(WavesBiliBiliGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(WavesGlobalGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IKuroCloudGameContext>(
+                nameof(Waves.Core.Services.KuroCloudGameContext)
+            )
+            .InitAsync();
     }
 
     private void AppWindow_Closing(

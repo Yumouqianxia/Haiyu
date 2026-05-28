@@ -175,6 +175,11 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     {
         if (this._startBthActive == CloudGameUIActive.StartGame)
         {
+            if(this.SelectLogin == null)
+            {
+                await TipShow.ShowMessageAsync("请在左侧卡片登录一个账号", Symbol.Clear);
+                return;
+            }
             var wallData =
             await this.KuroCloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.GetWalletDataAsync(
                 this.SelectLogin,

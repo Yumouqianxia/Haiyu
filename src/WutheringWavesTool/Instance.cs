@@ -12,7 +12,9 @@ using Haiyu.ViewModel.WikiViewModels;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Waves.Api.Models.Rpc;
+using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Services;
+using Waves.Core.Services.CloudGameServices;
 using Waves.Core.Settings;
 
 namespace Haiyu;
@@ -83,6 +85,8 @@ public static class InstanceBuilderExtensions
                     .AddTransient<CommunityViewModel>()
                     .AddTransient<GameEnhancedDialog>()
                     .AddTransient<GameEnhancedViewModel>()
+                    .AddTransient<CloudSelectNodeDialog>()
+                    .AddTransient<CloudSelectNodeViewModel>()
                     .AddTransient<GameResourceDialog>()
                     .AddTransient<GameResourceViewModel>()
                     .AddTransient<DeviceInfoPage>()
@@ -97,11 +101,13 @@ public static class InstanceBuilderExtensions
                     .AddTransient<AnalysisRecordPage>()
                     .AddTransient<HomeViewModel>()
                     .AddTransient<LanguageSelectViewModel>()
+                    .AddTransient<CloudGameingViewModel>()
                     #region ColorGame
                     #endregion
                     #region GameContext
                     .AddTransient<PunishV2GameContextViewModel>()
                     .AddTransient<WavesV2GameContextViewModel>()
+                    .AddTransient<WavesCloudGameViewModel>()
                     #endregion
                     #region Wiki
                     .AddTransient<WavesWikiViewModel>()
@@ -141,7 +147,6 @@ public static class InstanceBuilderExtensions
                     .AddTransient<SelectDownoadGameDialog>()
                     .AddTransient<SelectDownoadGameDialogV2>()
                     .AddTransient<SelectDownloadGameViewModel>()
-                    .AddTransient<SelectGameFolderViewModelV2>()
                     .AddTransient<QRLoginDialog>()
                     .AddTransient<QrLoginViewModel>()
                     .AddTransient<UpdateGameDialog>()
@@ -156,6 +161,8 @@ public static class InstanceBuilderExtensions
                     .AddTransient<GameResourceViewModelV2>()
                     .AddTransient<UpdateAppDialog>()
                     .AddTransient<UpdateAppViewModel>()
+                    .AddTransient<CloudGameSettingViewModel>()
+                    .AddTransient<CloudGameSettingDialog>()
                 #endregion
                 #endregion
                 #region More
@@ -165,6 +172,7 @@ public static class InstanceBuilderExtensions
                     .AddKeyedTransient<ITipShow, PageTipShow>("Cache")
                     .AddKeyedTransient<IDialogManager, MainDialogService>("Cache")
                     .AddTransient<IColorGameManager, ColorGameManager>()
+                    .AddSingleton<IWavesCloudGameService,WavesCloudGameService>()
                     .AddKeyedSingleton<IUpdateService,GithubUpdateService>("GitHub")
                     .AddKeyedSingleton<IUpdateService,MirrorUpdateService>("Mirror")
                     #endregion

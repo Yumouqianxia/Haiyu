@@ -1,0 +1,44 @@
+﻿
+using Haiyu.ViewModel.GameViewModels;
+using Waves.Core.Models.CloudGame;
+
+namespace Haiyu.WindowModels;
+
+
+public sealed partial class CloudGameWindows : Window
+{
+    public CloudGameingViewModel ViewModel { get; }
+
+    public CloudGameWindows(BrowserSessionLaunchOptions option)
+    {
+        InitializeComponent();
+        this.ExtendsContentIntoTitleBar = true;
+        this.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
+        this.ViewModel = Instance.Host.Services.GetRequiredService<CloudGameingViewModel>();
+        ViewModel.SetWebView(this._browser, this, option);
+        this.AppWindow.Closing += CloudGameWindows_Closing;
+        this.Closed += CloudGameWindows_Closed;
+        this.grid.RequestedTheme = Instance.Host.Services.GetRequiredService<IThemeService>().CurrentTheme;
+        this._browser.RequestedTheme = Instance.Host.Services.GetRequiredService<IThemeService>().CurrentTheme;
+    }
+
+    
+    private async void CloudGameWindows_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+       
+        //ShowSystemCursor();
+        Close();
+    }
+
+    private void CloudGameWindows_Closed(object sender, WindowEventArgs args)
+    {
+        //RemoveWindowMessageSubclass();
+        //RemoveWebViewCursorSubclass();
+        //ShowSystemCursor();
+    }
+
+    private void TitleBar_PaneToggleRequested(Microsoft.UI.Xaml.Controls.TitleBar sender, object args)
+    {
+        this.view.IsPaneOpen = !this.view.IsPaneOpen;
+    }
+}

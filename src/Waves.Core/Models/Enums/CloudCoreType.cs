@@ -1,0 +1,44 @@
+﻿namespace Waves.Core.Models.Enums;
+
+/// <summary>
+/// 云游戏核心消息类型
+/// </summary>
+public enum CloudCoreType:uint
+{
+    /// <summary>
+    /// 正在排队
+    /// </summary>
+    QueueUp = 4,
+    /// <summary>
+    /// 正在打开串流窗口
+    /// </summary>
+    OpeningWeb = 5,
+    /// <summary>
+    /// 可以准备游戏
+    /// </summary>
+    GameActive = 6,
+    /// <summary>
+    /// 正在游戏中
+    /// </summary>
+    InGameing = 7,
+    /// <summary>
+    /// 有错误
+    /// </summary>
+    ErrorFlage = 8,
+    /// <summary>
+    /// 账户变动
+    /// </summary>
+    UserChanged = 9,
+    /// <summary>
+    /// 消息通知
+    /// </summary>
+    Message = 10,
+    /// <summary>
+    /// 刷新主页
+    /// </summary>
+    None = 11,
+    /// <summary>
+    /// 退出游戏请求
+    /// </summary>
+    ReqExit = 12
+}

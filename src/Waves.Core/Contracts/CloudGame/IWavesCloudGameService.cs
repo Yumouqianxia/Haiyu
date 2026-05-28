@@ -1,0 +1,89 @@
+﻿using Waves.Api.Models.CloudGame;
+using Waves.Core.Common;
+using Waves.Core.Models.CloudGame;
+
+namespace Waves.Core.Contracts.CloudGame;
+
+public interface IWavesCloudGameService
+{
+    CloudConfigManager ConfigManager { get; }
+
+    CloudNetworkSpeedTestService CloudNetworkSpeedTestService { get; }
+
+    Task<Tuple<CloudSendSMS?, CloudGameLoginSnapshot>> GetPhoneSMSAsync(
+        string phone,
+        string geetestCaptchaOutput,
+        string geetestPassToken,
+        string geetestGenTime,
+        string geetestLotNumber,
+        CancellationToken token = default
+    );
+
+    Task<CloudApiResponse<CloudGameLoginData>?> LoginAsync(
+        CloudGameLoginSnapshot snapshot,
+        string phone,
+        string code,
+        CancellationToken token = default
+    );
+
+    Task<CloudApiResponse<PhoneTokenData>?> RefreshPhoneTokenAsync(
+        CloudGameLoginData data,
+        CancellationToken ct = default
+    );
+
+    Task<CloudApiResponse<AccessData>?> GetAccessToken(
+        CloudGameLoginData data,
+        string refreshPhoneToken,
+        CancellationToken ct = default
+    );
+
+    Task<CloudApiResponse<EndLoginData>?> GetTokenAsync(
+        CloudGameLoginData data,
+        string accessToken,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// 保活消息
+    /// </summary>
+    /// <param name="session"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
+    Task<CloudApiResponse<bool?>> FetchMesageAsync(
+        CloudGameLoginSession session,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// 云鸣潮计费
+    /// </summary>
+    /// <param name="session"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
+    Task<CloudApiResponse<WalletData>?> GetWalletDataAsync(
+        CloudGameLoginSession session,
+        CancellationToken ct = default
+    );
+
+    /// <summary>
+    /// 获取节点
+    /// </summary>
+    /// <param name="session"></param>
+    /// <param name="ct"></param>
+    /// <returns></returns>
+    Task<CloudApiResponse<List<CloudGameNode>>?> GetPingGameNodeAsync(
+        CloudGameLoginSession session,
+        CancellationToken ct = default
+    );
+
+    Task<CloudApiResponse<CommStartReponse>?> CommonStartGameAsync(
+        HttpClient client,
+        CloudGameLoginSession session,
+        WelinkStartParameters startParameters,
+        uint payType
+    );
+
+    Task CancelQueqeAsync(HttpClient client, CloudGameLoginSession session);
+
+    Task<CloudApiResponse<CommonQueueInfo>?> CommonQueueInfoAsync(HttpClient client, CloudGameLoginSession session);
+}

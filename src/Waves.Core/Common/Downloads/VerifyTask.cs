@@ -237,7 +237,7 @@ public static class VerifyTask
         }
         catch (OperationCanceledException)
         {
-            throw new OperationCanceledException();
+            return false;
         }
         catch (IOException ex)
         {
@@ -361,7 +361,7 @@ public static class VerifyTask
             }
             catch (OperationCanceledException)
             {
-                throw new OperationCanceledException();
+                return false;
             }
             finally
             {

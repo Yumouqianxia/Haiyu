@@ -2,6 +2,7 @@
 using Haiyu.Plugin.Contracts;
 using Haiyu.Services.DialogServices;
 using Microsoft.UI.Dispatching;
+using Waves.Core.Contracts.CloudGame;
 using Waves.Core.GameContext.ContextsV2;
 using Waves.Core.GameContext.ContextsV2.Punish;
 using Waves.Core.GameContext.ContextsV2.Waves;
@@ -48,27 +49,13 @@ public class AppContext<T> : IAppContext<T>
             {
                 await Instance.Host.Services.GetRequiredService<XBoxService>().StartAsync();
             }
-            await Instance.Host.Services.GetRequiredService<IKuroClient>().InitAsync();
-            await Instance.Host.Services!.GetRequiredKeyedService<IGameContextV2>(nameof(PunishMainGameContextV2))
-                .InitAsync();
-            await Instance.Host.Services!.GetRequiredKeyedService<IGameContextV2>(nameof(PunishBiliBiliGameContextV2))
-                .InitAsync();
-            await Instance.Host.Services!.GetRequiredKeyedService<IGameContextV2>(nameof(PunishGlobalGameContextV2))
-                .InitAsync();
-            await Instance.Host.Services!.GetRequiredKeyedService<IGameContextV2>(nameof(PunishTwGameContextV2))
-                .InitAsync();
-            #region 新核心测试
-            await Instance.Host.Services!.GetRequiredKeyedService<IGameContextV2>(nameof(WavesMainGameContextV2))
-                .InitAsync();
-            await Instance.Host.Services!.GetRequiredKeyedService<IGameContextV2>(nameof(WavesBiliBiliGameContextV2))
-                .InitAsync();
-            await Instance.Host.Services!.GetRequiredKeyedService<IGameContextV2>(nameof(WavesGlobalGameContextV2))
-                .InitAsync();
-            #endregion
             this.App = app;
             var win = new MainWindow();
             #region Mirror
-            if (Instance.Host.Services.GetRequiredKeyedService<IUpdateService>("Mirror") is IMirrorUpdateService mirror)
+            if (
+                Instance.Host.Services.GetRequiredKeyedService<IUpdateService>("Mirror")
+                is IMirrorUpdateService mirror
+            )
             {
                 mirror.SetMirrorKey(AppSettings.MirrorKey);
             }
@@ -113,23 +100,78 @@ public class AppContext<T> : IAppContext<T>
                 page.titlebar.Window = win;
                 win.Content = page;
             }
-            catch(Exception ex)
-            {
-            }
+            catch (Exception ex) { }
 
             this.App.MainWindow = win;
             this.App.MainWindow.Activate();
             (win.AppWindow.Presenter as OverlappedPresenter)!.SetBorderAndTitleBar(true, false);
             this.App.MainWindow.AppWindow.Closing += AppWindow_Closing;
+            await InitCoreAsync();
         }
         catch (Exception ex)
         {
             LoggerService.WriteError(ex.Message);
-            WindowExtension.MessageBox(IntPtr.Zero,"出现故障性错误，请检查网络连接和日志！关闭当前消息自动打开日志文件夹","Haiyu",0);
-            WindowExtension.ShellExecute(IntPtr.Zero, "open", AppSettings.BassFolder+"\\appLogs", null, null, WindowExtension.SW_SHOWNORMAL);
+            WindowExtension.MessageBox(
+                IntPtr.Zero,
+                "出现故障性错误，请检查网络连接和日志！关闭当前消息自动打开日志文件夹",
+                "Haiyu",
+                0
+            );
+            WindowExtension.ShellExecute(
+                IntPtr.Zero,
+                "open",
+                AppSettings.BassFolder + "\\appLogs",
+                null,
+                null,
+                WindowExtension.SW_SHOWNORMAL
+            );
             Process.GetCurrentProcess().Kill();
         }
+    }
 
+    async Task InitCoreAsync()
+    {
+        await Instance.Host.Services.GetRequiredService<IKuroClient>().InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(PunishMainGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(PunishBiliBiliGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(PunishGlobalGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(PunishTwGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(WavesMainGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(WavesBiliBiliGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
+                nameof(WavesGlobalGameContextV2)
+            )
+            .InitAsync();
+        await Instance
+            .Host.Services!.GetRequiredKeyedService<IKuroCloudGameContext>(
+                nameof(Waves.Core.Services.KuroCloudGameContext)
+            )
+            .InitAsync();
     }
 
     private void AppWindow_Closing(
@@ -150,7 +192,6 @@ public class AppContext<T> : IAppContext<T>
             )
             .ConfigureAwait(false);
     }
-
 
     async Task SafeInvokeAsync(
         DispatcherQueue dispatcher,
@@ -225,7 +266,7 @@ public class AppContext<T> : IAppContext<T>
         this.App.MainWindow.Hide();
     }
 
-    public async Task UpdateAppAsync(bool isApply=false, CancellationToken token = default)
+    public async Task UpdateAppAsync(bool isApply = false, CancellationToken token = default)
     {
         try
         {
@@ -236,11 +277,17 @@ public class AppContext<T> : IAppContext<T>
             IUpdateService? service = null;
             if (AppSettings.UpdateType == "Github")
             {
-                service = Instance.Host.Services.GetKeyedService<Haiyu.Plugin.Contracts.IUpdateService>("GitHub");
+                service =
+                    Instance.Host.Services.GetKeyedService<Haiyu.Plugin.Contracts.IUpdateService>(
+                        "GitHub"
+                    );
             }
             else
             {
-                service = Instance.Host.Services.GetKeyedService<Haiyu.Plugin.Contracts.IUpdateService>("Mirror");
+                service =
+                    Instance.Host.Services.GetKeyedService<Haiyu.Plugin.Contracts.IUpdateService>(
+                        "Mirror"
+                    );
             }
             if (service == null)
                 return;
@@ -263,14 +310,14 @@ public class AppContext<T> : IAppContext<T>
             }
             else
             {
-                await Instance.Host.Services.GetService<ITipShow>().ShowMessageAsync("当前已是最新版本",Symbol.Accept);
+                await Instance
+                    .Host.Services.GetService<ITipShow>()
+                    .ShowMessageAsync("当前已是最新版本", Symbol.Accept);
             }
         }
         catch (Exception)
         {
-
             throw;
         }
-        
     }
 }

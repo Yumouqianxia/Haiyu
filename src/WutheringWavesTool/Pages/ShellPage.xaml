@@ -19,13 +19,9 @@
     xmlns:ui="using:Haiyu.Controls"
     xmlns:wrapper="using:Haiyu.Models.Wrapper"
     xmlns:wui="using:CommunityToolkit.WinUI"
+    Background="Transparent"
     mc:Ignorable="d">
-    <Page.Resources>
-        <media:AttachedCardShadow
-            x:Key="PanelEffect"
-            BlurRadius="5"
-            Color="{ThemeResource TextFillColorPrimary}" />
-    </Page.Resources>
+
     <i:Interaction.Behaviors>
         <i:EventTriggerBehavior EventName="Loaded">
             <i:InvokeCommandAction Command="{x:Bind ViewModel.LoadedCommand}" />
@@ -105,7 +101,6 @@
                             Padding="5"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Center"
-                            cui:Effects.Shadow="{StaticResource PanelEffect}"
                             CornerRadius="48"
                             Style="{ThemeResource TransparentButtonStyle}">
                             <ui:ImageEx CornerRadius="40">
@@ -146,6 +141,7 @@
                         <Button
                             Grid.Column="3"
                             Width="40"
+                            Margin="5"
                             VerticalAlignment="Center"
                             CornerRadius="5"
                             Style="{ThemeResource TransparentButtonStyle}"
@@ -311,6 +307,14 @@
                         </NavigationViewItem.InfoBadge>
                         <NavigationViewItem.Icon>
                             <ImageIcon Source="ms-appx:///Assets/GameIcons/global.ico" />
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
+                    <NavigationViewItem property:NavigationItemClickHelper.NavigationKey="Haiyu.ViewModel.GameViewModels.WavesCloudGameViewModel" Content="云鸣潮">
+                        <NavigationViewItem.InfoBadge>
+                            <InfoBadge Value="2" />
+                        </NavigationViewItem.InfoBadge>
+                        <NavigationViewItem.Icon>
+                            <ImageIcon Source="ms-appx:///Assets/GameIcons/wavescloud.ico" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
                     <NavigationViewItem

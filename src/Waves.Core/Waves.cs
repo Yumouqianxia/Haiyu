@@ -1,11 +1,13 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Waves.Core.Contracts;
+using Waves.Core.Contracts.CloudGame;
 using Waves.Core.GameContext;
 using Waves.Core.GameContext.ContextsV2;
 using Waves.Core.GameContext.ContextsV2.Punish;
 using Waves.Core.GameContext.ContextsV2.Waves;
 using Waves.Core.Services;
+using Waves.Core.Services.CloudGameServices;
 
 namespace Waves.Core;
 
@@ -115,6 +117,21 @@ public static class Waves
                     context.GameEventPublisher =
                         provider.GetRequiredKeyedService<GameEventPublisher>(
                             nameof(WavesGlobalGameContextV2)
+                        );
+                    return context;
+                }
+            )
+            .AddSingleton<WavesCloudSurvivalService>()
+            .AddKeyedSingleton<CloudGameEventPublisher>(nameof(KuroCloudGameContext))
+            .AddKeyedSingleton<IKuroCloudGameContext, KuroCloudGameContext>(
+                nameof(KuroCloudGameContext),
+                (provider, c) =>
+                {
+                    var context = new KuroCloudGameContext(provider.GetRequiredService<WavesCloudSurvivalService>());
+                    context.GamerConfigPath = GameContextFactory.GameBassPath + "\\WavesCloudConfig";
+                    context.CloudGameEventPublisher =
+                        provider.GetRequiredKeyedService<CloudGameEventPublisher>(
+                            nameof(KuroCloudGameContext)
                         );
                     return context;
                 }

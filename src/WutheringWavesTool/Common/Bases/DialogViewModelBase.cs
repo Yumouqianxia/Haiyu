@@ -13,6 +13,12 @@ public abstract partial class DialogViewModelBase : ViewModelBase
         this.Logger = Instance.Host.Services.GetKeyedService<LoggerService>("AppLog");
     }
 
+    public DialogViewModelBase()
+    {
+        DialogManager = Instance.Host.Services.GetRequiredKeyedService<IDialogManager>(nameof(MainDialogService));
+        this.Logger = Instance.Host.Services.GetKeyedService<LoggerService>("AppLog");
+    }
+
     public ContentDialogResult? Result { get; set; }
     public IDialogManager DialogManager { get; }
     public LoggerService Logger { get; }

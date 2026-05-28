@@ -1,0 +1,13 @@
+﻿using Waves.Core.Contracts.Events;
+using Waves.Core.Contracts.Events.CloudGame;
+
+namespace Waves.Core.Contracts.CloudGame;
+
+/// <summary>
+/// 云游戏通用接口
+/// </summary>
+public interface ICloudGameContext
+{
+
+    public ICloudGameEventPublisher GameEventPublisher { get; }
+}

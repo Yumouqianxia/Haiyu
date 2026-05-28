@@ -1,5 +1,4 @@
-﻿using Astronomical;
-using Haiyu.Models.Wrapper;
+﻿using Haiyu.Models.Wrapper;
 using Haiyu.Plugin.Contracts;
 using Haiyu.Services.DialogServices;
 using Microsoft.UI.Xaml;

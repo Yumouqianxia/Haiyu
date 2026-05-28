@@ -1,8 +1,0 @@
-uid=1_0 RootWebArea "云·鸣潮 - Wuthering Waves" url="https://mc.kurogames.com/cloud/index.html#/"
-  uid=7_37 Video focusable focused
-  uid=8_0 StaticText "延迟：19ms"
-  uid=8_1 StaticText "丢包率：0%"
-  uid=8_2 StaticText "带宽：0.27MB/s"
-  uid=8_3 StaticText "FPS：61"
-  uid=7_107 StaticText "1"
-  uid=1_53 image "Background image" url="https://aki-gm-resources-back.aki-game.com/pv/cg/login.webp"

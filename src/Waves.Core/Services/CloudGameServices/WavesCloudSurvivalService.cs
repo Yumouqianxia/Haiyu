@@ -142,9 +142,17 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
             if (fetchResult.Code != 0)
             {
                 Cache.TryRemove(data);
-                await this.WavesCloudGameService.ConfigManager.DeleteUserAsync(data.Sdkuserid);
-                this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
-                return;
+                if (fetchResult.Code == 320)
+                {
+                    this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
+                }
+                else
+                {
+                    Cache.TryRemove(data);
+                    await this.WavesCloudGameService.ConfigManager.DeleteUserAsync(data.Sdkuserid);
+                    this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
+                    return;
+                }
             }
         }
         catch (Exception ex)  

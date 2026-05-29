@@ -61,4 +61,9 @@ public sealed partial class ShellPage : Page
     {
         this.ViewModel.ShowWindowCommand.Execute(null);
     }
+
+    private void OpenMessagePane(object sender, RoutedEventArgs e)
+    {
+        view.IsPaneOpen = !view.IsPaneOpen;
+    }
 }

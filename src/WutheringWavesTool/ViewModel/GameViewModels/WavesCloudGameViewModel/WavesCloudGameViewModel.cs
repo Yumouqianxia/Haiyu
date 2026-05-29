@@ -121,6 +121,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         CloudMessageArgs session
     )
     {
+        await Task.Delay(500);
         if (session.Type == Waves.Core.Models.Enums.CloudCoreType.UserChanged)
         {
             await this.RefreshUserAsync();

@@ -641,7 +641,7 @@
                                 CornerRadius="70"
                                 Style="{ThemeResource TransparentButtonStyle}">
                                 <ToolTipService.ToolTip>
-                                    <Grid Width="210" Height="160">
+                                    <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition />
                                             <RowDefinition />
@@ -651,7 +651,7 @@
                                             <ColumnDefinition />
                                         </Grid.ColumnDefinitions>
                                         <TextBlock Text="下载步骤" />
-                                        <TextBlock Text="{x:Bind ViewModel.PreSetupHeaderText, Mode=OneWay}" />
+                                        <TextBlock Grid.Column="1" Text="{x:Bind ViewModel.PreSetupHeaderText, Mode=OneWay}" />
                                         <TextBlock Grid.Row="1" Text="处理速度" />
                                         <TextBlock
                                             Grid.Row="1"

@@ -1,4 +1,4 @@
-namespace HaiyuServer;
+﻿namespace HaiyuServer;
 
 public class Program
 {

@@ -179,7 +179,23 @@
                 </StackPanel>
             </ui:TitleBar.Header>
             <ui:TitleBar.Footer>
-                <StackPanel Orientation="Horizontal">
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <Button
+                        Width="37"
+                        Height="37"
+                        Click="OpenMessagePane"
+                        CornerRadius="40"
+                        Style="{ThemeResource DefaultAcrylicButtonStyle}"
+                        ToolTipService.ToolTip="系统消息">
+                        <Grid>
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="12"
+                                Glyph="&#xF716;" />
+                            <InfoBadge HorizontalAlignment="Right" Value="5" />
+
+                        </Grid>
+                    </Button>
                     <Button
                         Width="37"
                         Height="37"
@@ -193,7 +209,6 @@
                             Glyph="&#xE72C;" />
                     </Button>
                     <Button
-                        Margin="5,0,0,0"
                         BorderBrush="{ThemeResource AccentAAFillColorDisabled}"
                         BorderThickness="1"
                         CornerRadius="5"
@@ -233,7 +248,6 @@
                     <Button
                         Width="37"
                         Height="37"
-                        Margin="5,5,5,5"
                         Command="{x:Bind ViewModel.MinCommand}"
                         CornerRadius="40"
                         Style="{ThemeResource DefaultAcrylicButtonStyle}"
@@ -247,7 +261,7 @@
                     <Button
                         Width="37"
                         Height="37"
-                        Margin="0,5,5,5"
+                        Margin="0,0,5,0"
                         Command="{x:Bind ViewModel.CloseWindowCommand}"
                         CornerRadius="40"
                         Style="{ThemeResource DefaultAcrylicButtonStyle}"
@@ -363,6 +377,24 @@
                     <Frame x:Name="frame" />
                 </Grid>
             </NavigationView>
+            <SplitView
+                x:Name="view"
+                HorizontalAlignment="Right"
+                CornerRadius="5"
+                DisplayMode="Overlay"
+                OpenPaneLength="230"
+                PaneBackground="Transparent"
+                PanePlacement="Right">
+                <SplitView.Pane>
+                    <Grid>
+                        <SystemBackdropElement CornerRadius="5">
+                            <SystemBackdropElement.SystemBackdrop>
+                                <DesktopAcrylicBackdrop />
+                            </SystemBackdropElement.SystemBackdrop>
+                        </SystemBackdropElement>
+                    </Grid>
+                </SplitView.Pane>
+            </SplitView>
         </Grid>
 
 

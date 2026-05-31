@@ -29,7 +29,7 @@ namespace Waves.Core.Models.CloudGame
 
         public IReadOnlyList<string> HeaderHostPatterns { get; init; } = new List<string>();
 
-        public StreamQualityOptions Quality { get; init; } = StreamQualityOptions.Default;
+        public StreamQualityOptions Quality { get; init; }
 
         public int StreamDpi { get; init; } = 120;
 
@@ -69,14 +69,12 @@ public sealed record StreamQualityOptions(
     string StreamStrategy,
     bool EnableImageEnhancement,
     int DPI,
-    CloudQualityType Type = CloudQualityType.Native
+    CloudQualityType Type = CloudQualityType.Clarity
 )
 {
     public const string SmoothPreset = "smooth";
 
     public const string ClearPreset = "clear";
-
-    public static readonly StreamQualityOptions Default = FromOfficialPreset(ClearPreset, 60, true);
 
     public string ResolutionKey => $"{Width}x{Height}";
 
@@ -84,44 +82,5 @@ public sealed record StreamQualityOptions(
 
     public CloudQualityType OfficialPreset => Type;
 
-    public static StreamQualityOptions FromOfficialPreset(
-        string? preset,
-        int fps,
-        bool enableImageEnhancement = false
-    )
-    {
-        var normalizedFps = fps == 30 ? 30 : 60;
-        var effectivePreset = string.Equals(
-            preset,
-            SmoothPreset,
-            StringComparison.OrdinalIgnoreCase
-        )
-            ? SmoothPreset
-            : ClearPreset;
-        return string.Equals(effectivePreset, ClearPreset, StringComparison.OrdinalIgnoreCase)
-            ? new StreamQualityOptions(
-                18000,
-                8000,
-                normalizedFps,
-                1920,
-                1080,
-                21,
-                "0",
-                enableImageEnhancement,
-                128,
-                CloudQualityType.Clarity
-            )
-            : new StreamQualityOptions(
-                5000,
-                2500,
-                normalizedFps,
-                1280,
-                720,
-                21,
-                "0",
-                enableImageEnhancement,
-                128,
-                CloudQualityType.Native
-            );
-    }
+    
 }

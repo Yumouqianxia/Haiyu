@@ -8,6 +8,7 @@ namespace Haiyu.WindowModels;
 public sealed partial class CloudGameWindows : Window
 {
     public CloudGameingViewModel ViewModel { get; }
+    public CloudGameSettingViewModel CloudSettingModel { get; }
 
     public CloudGameWindows(BrowserSessionLaunchOptions option)
     {
@@ -15,6 +16,7 @@ public sealed partial class CloudGameWindows : Window
         this.ExtendsContentIntoTitleBar = true;
         this.AppWindow.TitleBar.PreferredHeightOption = TitleBarHeightOption.Tall;
         this.ViewModel = Instance.Host.Services.GetRequiredService<CloudGameingViewModel>();
+        this.CloudSettingModel = Instance.Host.Services.GetRequiredService<CloudGameSettingViewModel>();
         ViewModel.SetWebView(this._browser, this, option);
         this.AppWindow.Closing += CloudGameWindows_Closing;
         this.Closed += CloudGameWindows_Closed;

@@ -21,4 +21,5 @@ public class CloudGameLocalSettingName
     /// 网络面板
     /// </summary>
     public const string EnableNetworkPanel = nameof(EnableNetworkPanel);
+
 }

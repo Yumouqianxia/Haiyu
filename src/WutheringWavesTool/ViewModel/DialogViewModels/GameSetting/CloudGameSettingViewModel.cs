@@ -12,7 +12,12 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
     [ObservableProperty]
     public partial ObservableCollection<QualityWrapper> Qualitys { get; set; } =
         QualityWrapper.Create();
+    [ObservableProperty]
+    public partial ObservableCollection<int> Fps { get; set; } = [30, 60];
 
+    [ObservableProperty]
+    public partial int SelectFps { get; set; }
+    
     [ObservableProperty]
     public partial QualityWrapper? SelectQualitys { get; set; }
 
@@ -53,6 +58,20 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
         }
 
         if (
+            int.TryParse(
+                (
+                    await this.CloudGameContext.GameLocalConfig.GetConfigAsync(
+                        CloudGameLocalSettingName.Fps
+                    )
+                ),
+                out var fps
+            )
+        )
+        {
+            this.SelectFps = fps;
+        }
+
+        if (
             bool.TryParse(
                 await this.CloudGameContext.GameLocalConfig.GetConfigAsync(
                     CloudGameLocalSettingName.EnableImageEnhancement
@@ -63,6 +82,8 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
         {
             this.Enable = enable;
         }
+
+
         if (
             bool.TryParse(
                 await this.CloudGameContext.GameLocalConfig.GetConfigAsync(
@@ -74,6 +95,8 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
         {
             this.ShowNetworkState = enable;
         }
+
+
     }
 
     async partial void OnSelectQualitysChanged(QualityWrapper? value)
@@ -83,6 +106,17 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
         await CloudGameContext.GameLocalConfig.SaveConfigAsync(
             CloudGameLocalSettingName.QualityType,
             Enum.GetName(value.Type!),
+            this.CTS.Token
+        );
+    }
+
+    async partial void OnSelectFpsChanged(int value)
+    {
+        if (value == 0 || value == null)
+            return;
+        await CloudGameContext.GameLocalConfig.SaveConfigAsync(
+            CloudGameLocalSettingName.Fps,
+            value.ToString(),
             this.CTS.Token
         );
     }
@@ -108,6 +142,17 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
             this.CTS.Token
         );
     }
+
+    public void SeedUpdateQuality()
+    {
+        WeakReferenceMessenger.Default.Send<CloudQualityUpdateModel>(new()
+        {
+            Type =this.SelectQualitys.Type,
+            Fps = this.SelectFps,
+            NetworkShow = this.ShowNetworkState,
+            QaulityEnable = this.Enable
+        });
+    }
 }
 
 public class QualityWrapper
@@ -118,7 +163,7 @@ public class QualityWrapper
 
     public static ObservableCollection<QualityWrapper> Create() =>
         [
-            new QualityWrapper() { Type = CloudQualityType.Clarity, DisplayName = "流畅" },
-            new QualityWrapper() { Type = CloudQualityType.Native, DisplayName = "原生" },
+            new QualityWrapper() { Type = CloudQualityType.Smooth, DisplayName = "流畅" },
+            new QualityWrapper() { Type = CloudQualityType.Clarity, DisplayName = "原生" },
         ];
 }

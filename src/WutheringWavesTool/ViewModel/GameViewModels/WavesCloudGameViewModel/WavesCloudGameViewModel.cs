@@ -268,7 +268,12 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
             var quality = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
                 CloudGameLocalSettingName.QualityType
             );
-            var fps = 60;
+            var fps = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(CloudGameLocalSettingName.Fps);
+            if(!int.TryParse(fps,out var targetFps))
+            {
+                await this.TipShow.ShowMessageAsync("FPS配置无效",Symbol.Clear);
+                return null;
+            }
             var enable = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
                 CloudGameLocalSettingName.EnableImageEnhancement
             );
@@ -282,7 +287,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
                 var mode = new StreamQualityOptions(
                     CloudGameMethod.DefaultBitRate,
                     CloudGameMethod.MinBitRate,
-                    fps,
+                    targetFps,
                     area.Width,
                     area.Height,
                     CloudGameMethod.DefaultCodecType,

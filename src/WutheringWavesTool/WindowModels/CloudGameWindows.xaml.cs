@@ -7,7 +7,7 @@ namespace Haiyu.WindowModels;
 
 public sealed partial class CloudGameWindows : Window
 {
-    public CloudGameingViewModel ViewModel { get; }
+    public CloudGameingViewModel ViewModel { get; private set; }
     public CloudGameSettingViewModel CloudSettingModel { get; }
 
     public CloudGameWindows(BrowserSessionLaunchOptions option)
@@ -19,7 +19,6 @@ public sealed partial class CloudGameWindows : Window
         this.CloudSettingModel = Instance.Host.Services.GetRequiredService<CloudGameSettingViewModel>();
         ViewModel.SetWebView(this._browser, this, option);
         this.AppWindow.Closing += CloudGameWindows_Closing;
-        this.Closed += CloudGameWindows_Closed;
         this.grid.RequestedTheme = Instance.Host.Services.GetRequiredService<IThemeService>().CurrentTheme;
         this._browser.RequestedTheme = Instance.Host.Services.GetRequiredService<IThemeService>().CurrentTheme;
     }
@@ -27,16 +26,11 @@ public sealed partial class CloudGameWindows : Window
     
     private async void CloudGameWindows_Closing(AppWindow sender, AppWindowClosingEventArgs args)
     {
-       
-        //ShowSystemCursor();
+        ViewModel.ShowSystemCursor();
+        this.ViewModel.Dispose();
+        this.ViewModel = null;
         Close();
-    }
-
-    private void CloudGameWindows_Closed(object sender, WindowEventArgs args)
-    {
-        //RemoveWindowMessageSubclass();
-        //RemoveWebViewCursorSubclass();
-        //ShowSystemCursor();
+        GC.Collect();
     }
 
     private void TitleBar_PaneToggleRequested(Microsoft.UI.Xaml.Controls.TitleBar sender, object args)

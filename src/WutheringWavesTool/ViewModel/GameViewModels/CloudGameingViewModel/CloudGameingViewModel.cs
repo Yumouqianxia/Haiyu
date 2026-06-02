@@ -21,6 +21,24 @@ public sealed partial class CloudGameingViewModel:ViewModelBase
     {
         this.KuroCloudGameContext = kuroCloudGameContext;
         this.KuroCloudGameContext.CloudGameProcessTracker.OnProgressChanged += CloudGameProcessTracker_OnProgressChanged;
+        RegisterMessanger();
+    }
+
+    private void RegisterMessanger()
+    {
+        this.Messenger.Register<CloudQualityUpdateModel>(this,QualityUpdateChanged);
+    }
+
+    private async void QualityUpdateChanged(object recipient, CloudQualityUpdateModel message)
+    {
+        if (WebView2.CoreWebView2 == null)
+            return;
+        var dpi = (int)HwndExtensions.GetDpiForWindow(Window.GetWindowHandle());
+        var area = DisplayArea.Primary.OuterBounds;
+        var option =  await KuroCloudGameContext.GetOptionsAsync(dpi, area.Width, area.Height);
+        var script = CloudGameBuilder.BuildUpdateQalityScript(option);
+        await WebView2.CoreWebView2.ExecuteScriptAsync(script);
+
     }
 
     private void CloudGameProcessTracker_OnProgressChanged(Waves.Core.Services.CloudGameServices.CloudGameProcessTracker obj)
@@ -260,6 +278,8 @@ public sealed partial class CloudGameingViewModel:ViewModelBase
 
         return CloudGameBuilder.BuildDefaultBridgeHtml(scriptUrlJson, dispatchMessageJson, bridgeConfigJson, storageItemsJson);
     }
+
+
 
     private void CoreWebView2_WebMessageReceived(CoreWebView2 sender, CoreWebView2WebMessageReceivedEventArgs args)
     {

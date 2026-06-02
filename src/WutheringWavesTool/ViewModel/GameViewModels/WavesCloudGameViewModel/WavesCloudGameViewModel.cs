@@ -265,44 +265,9 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     {
         try
         {
-            var quality = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
-                CloudGameLocalSettingName.QualityType
-            );
-            var fps = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(CloudGameLocalSettingName.Fps);
-            if(!int.TryParse(fps,out var targetFps))
-            {
-                await this.TipShow.ShowMessageAsync("FPS配置无效",Symbol.Clear);
-                return null;
-            }
-            var enable = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
-                CloudGameLocalSettingName.EnableImageEnhancement
-            );
             var dpi = (int)HwndExtensions.GetDpiForWindow(App.App.MainWindow.GetWindowHandle());
             var area = DisplayArea.Primary.OuterBounds;
-            if (
-                bool.TryParse(enable, out var enableImage)
-                && Enum.TryParse<CloudQualityType>(quality, out var quEnum)
-            )
-            {
-                var mode = new StreamQualityOptions(
-                    CloudGameMethod.DefaultBitRate,
-                    CloudGameMethod.MinBitRate,
-                    targetFps,
-                    area.Width,
-                    area.Height,
-                    CloudGameMethod.DefaultCodecType,
-                    "0",
-                    enableImage,
-                    dpi,
-                    quEnum
-                );
-                return CloudGameDataHelper.ScaleQualityToPhysical(mode, false);
-            }
-            else
-            {
-                Logger.WriteError($"游戏设置内容有错误:{quality}-{enable}");
-                return null;
-            }
+            return await KuroCloudGameContext.GetOptionsAsync(dpi, area.Width, area.Height);
         }
         catch (Exception ex)
         {

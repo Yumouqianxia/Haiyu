@@ -16,6 +16,7 @@
         <i:Interaction.Behaviors>
             <i:EventTriggerBehavior EventName="Loaded">
                 <i:InvokeCommandAction Command="{x:Bind ViewModel.LoadedCommand}" />
+                <i:InvokeCommandAction Command="{x:Bind CloudSettingModel.LoadedCommand}" />
             </i:EventTriggerBehavior>
             <i:EventTriggerBehavior EventName="SizeChanged">
                 <i:InvokeCommandAction Command="{x:Bind ViewModel.SizeChangedCommand}" />
@@ -45,71 +46,66 @@
                             <DesktopAcrylicBackdrop />
                         </SystemBackdropElement.SystemBackdrop>
                     </SystemBackdropElement>
-                    <Grid ColumnSpacing="10" RowSpacing="5">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="auto" />
-                            <ColumnDefinition />
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition />
-                            <RowDefinition Height="auto" />
-                        </Grid.RowDefinitions>
-                        <TextBlock VerticalAlignment="Center" Text="清晰度选择" />
-                        <ComboBox
-                            Grid.Column="1"
-                            HorizontalAlignment="Stretch"
-                            VerticalAlignment="Center"
-                            ItemsSource="{x:Bind CloudSettingModel.Qualitys, Mode=OneWay}"
-                            SelectedItem="{x:Bind CloudSettingModel.SelectQualitys, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate x:DataType="vm:QualityWrapper">
-                                    <TextBlock Text="{x:Bind DisplayName}" />
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                        <TextBlock
-                            Grid.Row="1"
-                            VerticalAlignment="Center"
-                            Text="帧率" />
-                        <ComboBox
-                            Grid.Row="1"
-                            Grid.Column="1"
-                            HorizontalAlignment="Stretch"
-                            ItemsSource="{x:Bind CloudSettingModel.Fps, Mode=OneWay}"
-                            SelectedItem="{x:Bind CloudSettingModel.SelectFps, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                        <TextBlock
-                            Grid.Row="2"
-                            VerticalAlignment="Center"
-                            Text="画质增强" />
-                        <ToggleSwitch
-                            Grid.Row="2"
-                            Grid.Column="1"
-                            VerticalAlignment="Center"
-                            IsOn="{x:Bind CloudSettingModel.Enable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            OffContent="关"
-                            OnContent="开" />
+                    <Grid Padding="20" VerticalAlignment="Top">
+                        <Grid ColumnSpacing="10" RowSpacing="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition Height="auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock VerticalAlignment="Center" Text="清晰度选择" />
+                            <ComboBox
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                ItemsSource="{x:Bind CloudSettingModel.Qualitys, Mode=OneWay}"
+                                SelectedItem="{x:Bind CloudSettingModel.SelectQualitys, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:QualityWrapper">
+                                        <TextBlock Text="{x:Bind DisplayName}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <TextBlock
+                                Grid.Row="1"
+                                VerticalAlignment="Center"
+                                Text="帧率" />
+                            <ComboBox
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                ItemsSource="{x:Bind CloudSettingModel.Fps, Mode=OneWay}"
+                                SelectedItem="{x:Bind CloudSettingModel.SelectFps, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock
+                                Grid.Row="2"
+                                VerticalAlignment="Center"
+                                Text="画质增强" />
+                            <ToggleSwitch
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                IsOn="{x:Bind CloudSettingModel.Enable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                OffContent="关"
+                                OnContent="开" />
 
-                        <TextBlock
-                            Grid.Row="3"
-                            VerticalAlignment="Center"
-                            Text="是否显示网络状态" />
-                        <ToggleSwitch
-                            Grid.Row="3"
-                            Grid.Column="1"
-                            VerticalAlignment="Center"
-                            IsOn="{x:Bind CloudSettingModel.ShowNetworkState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                            OffContent="关"
-                            OnContent="开" />
-                        <Button
-                            Grid.Row="4"
-                            Grid.ColumnSpan="2"
-                            Width="80"
-                            HorizontalAlignment="Center"
-                            Command="{x:Bind CloudSettingModel.CloseCommand}"
-                            Content="关闭" />
+                            <TextBlock
+                                Grid.Row="3"
+                                VerticalAlignment="Center"
+                                Text="是否显示网络状态" />
+                            <ToggleSwitch
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                IsOn="{x:Bind CloudSettingModel.ShowNetworkState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                OffContent="关"
+                                OnContent="开" />
+                        </Grid>
                     </Grid>
                 </Grid>
             </SplitView.Pane>

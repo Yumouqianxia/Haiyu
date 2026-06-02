@@ -1,4 +1,6 @@
 ﻿using Microsoft.VisualBasic.FileIO;
+using Serilog.Core;
+using System.Collections;
 using System.Diagnostics;
 using System.Text.Json;
 using Waves.Api.Models;
@@ -303,5 +305,50 @@ public class KuroCloudGameContext : IKuroCloudGameContext
     {
         this.GameingWindow = null;
         this.GameTitleKey = null;
+    }
+
+    public async Task<StreamQualityOptions?> GetOptionsAsync(int dpi,int width,int height)
+    {
+        try
+        {
+            var quality = await this.GameLocalConfig.GetConfigAsync(
+                CloudGameLocalSettingName.QualityType
+            );
+            var fps = await this.GameLocalConfig.GetConfigAsync(CloudGameLocalSettingName.Fps);
+            if (!int.TryParse(fps, out var targetFps))
+            {
+                return null;
+            }
+            var enable = await this.GameLocalConfig.GetConfigAsync(
+                CloudGameLocalSettingName.EnableImageEnhancement
+            );
+            if (
+                bool.TryParse(enable, out var enableImage)
+                 && Enum.TryParse<CloudQualityType>(quality, out var quEnum)
+            )
+            {
+                var mode = new StreamQualityOptions(
+                    CloudGameMethod.DefaultBitRate,
+                    CloudGameMethod.MinBitRate,
+                    targetFps,
+                    width,
+                    height,
+                    CloudGameMethod.DefaultCodecType,
+                    "0",
+                    enableImage,
+                    dpi,
+                    quEnum
+                );
+                return CloudGameDataHelper.ScaleQualityToPhysical(mode, false);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
     }
 }

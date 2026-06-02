@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Models.Enums;
+using Waves.Core.Services;
 using Waves.Core.Services.CloudGameServices;
 
 namespace Haiyu.ViewModel.DialogViewModels;
@@ -12,6 +13,7 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
     [ObservableProperty]
     public partial ObservableCollection<QualityWrapper> Qualitys { get; set; } =
         QualityWrapper.Create();
+
     [ObservableProperty]
     public partial ObservableCollection<int> Fps { get; set; } = [30, 60];
 
@@ -19,7 +21,7 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
     public partial int SelectFps { get; set; }
     
     [ObservableProperty]
-    public partial QualityWrapper? SelectQualitys { get; set; }
+    public partial QualityWrapper SelectQualitys { get; set; }
 
     [ObservableProperty]
     public partial bool Enable { get; set; }
@@ -31,6 +33,11 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
     public partial int CodeType { get; set; } = CloudGameMethod.DefaultCodecType;
 
     public IKuroCloudGameContext CloudGameContext { get; internal set; }
+
+    public CloudGameSettingViewModel([FromKeyedServices(nameof(KuroCloudGameContext))]IKuroCloudGameContext  cloudGameContext)
+    {
+        this.CloudGameContext = cloudGameContext;
+    }
 
     [RelayCommand]
     async Task Loaded()
@@ -108,6 +115,7 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
             Enum.GetName(value.Type!),
             this.CTS.Token
         );
+        SeedUpdateQuality();
     }
 
     async partial void OnSelectFpsChanged(int value)
@@ -119,6 +127,7 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
             value.ToString(),
             this.CTS.Token
         );
+        SeedUpdateQuality();
     }
 
     async partial void OnEnableChanged(bool value)
@@ -130,6 +139,7 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
             value.ToString(),
             this.CTS.Token
         );
+        SeedUpdateQuality();
     }
 
     async partial void OnShowNetworkStateChanged(bool value)
@@ -145,6 +155,7 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
 
     public void SeedUpdateQuality()
     {
+
         WeakReferenceMessenger.Default.Send<CloudQualityUpdateModel>(new()
         {
             Type =this.SelectQualitys.Type,

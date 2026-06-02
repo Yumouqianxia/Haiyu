@@ -35,6 +35,7 @@ public interface IKuroCloudGameContext
 
     Task<KuroCLoudGameCoreState> GetCloudStateAsync();
 
+    public Task<StreamQualityOptions?> GetOptionsAsync(int dpi, int width, int height);
 
     /// <summary>
     /// 取消当前活动排队

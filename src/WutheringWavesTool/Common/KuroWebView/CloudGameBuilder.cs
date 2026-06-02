@@ -1499,4 +1499,21 @@ public static class CloudGameBuilder
 
         return bootstrapScript;
     }
+
+    public static string BuildUpdateQalityScript(StreamQualityOptions newQuality)
+    {
+        var script = $$"""
+window.__KURO_STREAM_CONTROL__?.applyQualityProfile?.({
+    bitRate: {{newQuality.BitRate}},
+    bitRateMin: {{newQuality.BitRateMin}},
+    bitRateMax: {{newQuality.BitRateMax}},
+    fps: {{newQuality.Fps}},
+    targetWidth: {{newQuality.Width}},
+    targetHeight: {{newQuality.Height}},
+    streamStrategy: "{{newQuality.StreamStrategy}}",
+    enableImageEnhancement: {{(newQuality.EnableImageEnhancement ? "true" : "false")}}
+});
+""";
+        return script;
+    }
 }

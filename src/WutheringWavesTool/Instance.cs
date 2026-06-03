@@ -81,6 +81,8 @@ public static class InstanceBuilderExtensions
                     .AddTransient<CommunityPage>()
                     .AddTransient<PlayerRecordPage>()
                     .AddTransient<PlayerRecordViewModel>()
+                    .AddTransient<WavesAnalysisRecordPage>()
+                    .AddTransient<WavesAnalysisRecordViewModel>()
                     .AddTransient<SettingViewModel>()
                     .AddTransient<CommunityViewModel>()
                     .AddTransient<GameEnhancedDialog>()

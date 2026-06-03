@@ -1,4 +1,5 @@
 ﻿using Waves.Api.Models.CloudGame;
+using Waves.Core.Models.CloudGame;
 
 namespace Haiyu.Services;
 
@@ -91,5 +92,10 @@ public class ViewFactorys : IViewFactorys
     public Window CreateAllowTransparent()
     {
         return new Window();
+    }
+
+    public WindowModelBase ShowAnalysisRecordV2(CloudGameLoginSession selectLogin)
+    {
+        return this.ShowWindowBase<WavesAnalysisRecordPage>(selectLogin);
     }
 }

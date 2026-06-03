@@ -32,10 +32,10 @@ public sealed partial class WavesAnalysisRecordPage : Page,IWindowPage
     public void SetWindow(Window window)
     {
         this.ViewModel.Initialization(window);
-        this.ViewModel.Window.AppWindow.Closing += AppWindow_Closing;
+        this.ViewModel.Window.Closed += Window_Closed;
     }
 
-    private void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+    private void Window_Closed(object sender, WindowEventArgs args)
     {
         this.Dispose();
     }

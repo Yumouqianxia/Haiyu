@@ -18,6 +18,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     public IDialogManager DialogManager { get; }
     public IAppContext<App> App { get; }
     public ITipShow TipShow { get; }
+    public IViewFactorys ViewFactorys { get; }
     public IWallpaperService WallpaperService { get; }
 
     [ObservableProperty]
@@ -43,7 +44,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
             IKuroCloudGameContext kuroCloudGameContext,
         [FromKeyedServices(nameof(MainDialogService))] IDialogManager dialogManager,
         IAppContext<App> app,
-        ITipShow tipShow
+        ITipShow tipShow,IViewFactorys viewFactorys
     )
     {
         WallpaperService = wallpaperService;
@@ -51,6 +52,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         DialogManager = dialogManager;
         App = app;
         TipShow = tipShow;
+        ViewFactorys = viewFactorys;
         KuroCloudGameContext.WavesCloudSurivivalService.MessageHandler +=
             WavesCloudSurivivalService_MessageHandler;
         KuroCloudGameContext.CloudGameProcessTracker.OnProgressChanged +=
@@ -286,6 +288,12 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     async Task OpenSettingsDialog()
     {
         await DialogManager.ShowWavesCloudSettingAsync(GameType.Waves);
+    }
+
+    [RelayCommand]
+    void ShowWavesAnalysis()
+    {
+        ViewFactorys.ShowAnalysisRecordV2(this.SelectLogin);
     }
 }
 

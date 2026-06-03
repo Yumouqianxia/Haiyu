@@ -1,4 +1,5 @@
 ﻿using Waves.Api.Models.CloudGame;
+using Waves.Core.Models.CloudGame;
 
 namespace Haiyu.Services.Contracts;
 
@@ -18,4 +19,5 @@ public interface IViewFactorys
     public TransparentWindow CreateTransperentWindow();
     public WindowModelBase ShowAdminDevice();
 
+    public WindowModelBase ShowAnalysisRecordV2(CloudGameLoginSession selectLogin);
 }

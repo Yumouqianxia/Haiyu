@@ -23,9 +23,7 @@ public sealed partial class PageService : IPageService
         this.RegisterView<WavesV2GamePage, WavesV2GameContextViewModel>();
         this.RegisterView<WavesCloudGamePage, WavesCloudGameViewModel>();
         #endregion
-        this.RegisterView<StatisticsPage, StatisticsViewModel>();
         this.RegisterView<GamerRoilsPage, GameRoilsViewModel>();
-        this.RegisterView<PluginPage, PluginViewModel>();
         this.RegisterView<GamerDockPage, GamerDockViewModel>();
         this.RegisterView<CloudGamePage, CloudGameViewModel>();
         this.RegisterView<GamerChallengePage, GamerChallengeViewModel>();
@@ -36,7 +34,6 @@ public sealed partial class PageService : IPageService
         this.RegisterView<ResourceBriefPage, ResourceBriefViewModel>();
 
         this.RegisterView<RecordItemPage, RecordItemViewModel>();
-        this.RegisterView<TestPage, TestViewModel>();
         #region Wiki
         this.RegisterView<WavesWikiPage, WavesWikiViewModel>();
         this.RegisterView<PunishWikiPage, PunishWikiViewModel>();

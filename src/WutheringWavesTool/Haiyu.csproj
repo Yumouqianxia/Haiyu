@@ -255,6 +255,9 @@
 		<None Update="Assets\HpatchzResource\hpatchz.exe">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<Page Update="Pages\WavesAnalysisRecordPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 		<Page Update="WindowModels\CloudGameWindows.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
@@ -309,13 +312,7 @@
 		<Page Update="Controls\Styles\CardSwitcher.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
-		<Page Update="Pages\PluginPage.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
 		<Page Update="Controls\Styles\Shimmer.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Pages\XboxDisplayPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
 		<Page Update="Pages\Dialogs\GameEnhancedDialog.xaml">
@@ -369,6 +366,7 @@
 	  <None Remove="Pages\Dialogs\CloudSelectNodeDialog.xaml" />
 	  <None Remove="Pages\Dialogs\GameSettings\CloudGameSettingDialog.xaml" />
 	  <None Remove="Pages\GamePages\WavesCloudGamePage.xaml" />
+	  <None Remove="Pages\WavesAnalysisRecordPage.xaml" />
 	  <None Remove="WindowModels\CloudGameWindows.xaml" />
 	</ItemGroup>
 	<Target Name="CopyXamlResourcesForAot" AfterTargets="Publish" Condition="'$(PublishAot)' == 'true'">

@@ -18,6 +18,4 @@ public interface IViewFactorys
     public TransparentWindow CreateTransperentWindow();
     public WindowModelBase ShowAdminDevice();
 
-    public WindowModelBase ShowStartColorGame();
-    public WindowModelBase ShowColorGame();
 }

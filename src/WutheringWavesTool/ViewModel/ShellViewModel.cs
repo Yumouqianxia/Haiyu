@@ -151,27 +151,8 @@ public sealed partial class ShellViewModel : ViewModelBase
         );
     }
 
-    [RelayCommand]
-    void OpenColorGame()
-    {
-        var result = this.ViewFactorys.ShowColorGame();
-        result.Manager.MaxHeight = 600;
-        result.Manager.MaxWidth = 1000;
-        result.Manager.Height = 600;
-        result.Manager.Width = 1000;
-        result.Activate();
-    }
+    
 
-    [RelayCommand]
-    void OpenStartColorGame()
-    {
-        var result = this.ViewFactorys.ShowStartColorGame();
-        result.Manager.MaxHeight = 600;
-        result.Manager.MaxWidth = 1000;
-        result.Manager.Height = 600;
-        result.Manager.Width = 1000;
-        result.Activate();
-    }
 
     [RelayCommand]
     async Task ShowOpenLocalUser()
@@ -230,15 +211,7 @@ public sealed partial class ShellViewModel : ViewModelBase
         var result = await DialogManager.GetQRLoginResultAsync();
     }
 
-    [RelayCommand]
-    void OpenTest()
-    {
-        this.HomeNavigationService.NavigationTo<TestViewModel>(
-            "Setting",
-            new DrillInNavigationTransitionInfo()
-        );
-    }
-
+   
     [RelayCommand]
     void OpenPlayerRecordWindow()
     {

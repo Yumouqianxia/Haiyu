@@ -15,6 +15,7 @@ public sealed partial class CloudGamePage : Page, IPage
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
+        this.Bindings.StopTracking();
         this.ViewModel.Dispose();
         base.OnNavigatedFrom(e);
     }

@@ -25,6 +25,12 @@ partial class WavesCloudGameViewModel
     async Task RefreshCardAsync()
     {
         IsRefreshing = true;
+        if (this.KuroCloudGameContext == null)
+        {
+            await TipShow.ShowMessageAsync("游戏核心为空！请尝试刷新页面",Symbol.Clear);
+            return;
+        }
+        await this.KuroCloudGameContext.WavesCloudSurivivalService.RefreshTaskAsync();
         await this.RefreshUserAsync();
         await this.RefreshCloudNodesAsync();
         IsRefreshing = false;

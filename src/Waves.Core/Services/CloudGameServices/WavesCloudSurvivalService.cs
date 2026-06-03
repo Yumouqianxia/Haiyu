@@ -94,9 +94,6 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
                     if (accessToken == null || accessToken.Code != 0)
                     {
                         Cache.TryRemove(data);
-                        await this.WavesCloudGameService.ConfigManager.DeleteUserAsync(
-                            data.Sdkuserid
-                        );
                         this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
                         return;
                     }
@@ -108,9 +105,6 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
                     if (cacheToken == null || cacheToken.Code != 0)
                     {
                         Cache.TryRemove(data);
-                        await this.WavesCloudGameService.ConfigManager.DeleteUserAsync(
-                            data.Sdkuserid
-                        );
                         this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
                         return;
                     }
@@ -132,8 +126,6 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
                 return;
             }
 
-            // 2301 means the character is not currently in a cloud-game session yet.
-            // That is expected while idle or still queueing, and should not invalidate login state.
             if (fetchResult.Code == 2301)
             {
                 return;

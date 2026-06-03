@@ -131,6 +131,12 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     private void RegisterMessager()
     {
         this.Messenger.Register<CloudLoginMessager>(this, CloudLoginMethod);
+        this.Messenger.Register<RefreshGamePageMessager>(this, RefreshGamePageMethod);
+    }
+
+    private async void RefreshGamePageMethod(object recipient, RefreshGamePageMessager message)
+    {
+        await this.Loaded();
     }
 
     private async void CloudLoginMethod(object recipient, CloudLoginMessager message)

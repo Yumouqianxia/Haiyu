@@ -76,6 +76,14 @@ public interface IWavesCloudGameService
         CancellationToken ct = default
     );
 
+    /// <summary>
+    /// 开始排队
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="session"></param>
+    /// <param name="startParameters"></param>
+    /// <param name="payType"></param>
+    /// <returns></returns>
     Task<CloudApiResponse<CommStartReponse>?> CommonStartGameAsync(
         HttpClient client,
         CloudGameLoginSession session,
@@ -83,7 +91,50 @@ public interface IWavesCloudGameService
         uint payType
     );
 
+    /// <summary>
+    /// 取消排队
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="session"></param>
+    /// <returns></returns>
     Task CancelQueqeAsync(HttpClient client, CloudGameLoginSession session);
 
-    Task<CloudApiResponse<CommonQueueInfo>?> CommonQueueInfoAsync(HttpClient client, CloudGameLoginSession session);
+    /// <summary>
+    /// 排队信息
+    /// </summary>
+    /// <param name="client"></param>
+    /// <param name="session"></param>
+    /// <returns></returns>
+    Task<CloudApiResponse<CommonQueueInfo>?> CommonQueueInfoAsync(
+        HttpClient client,
+        CloudGameLoginSession session
+    );
+
+    /// <summary>
+    /// 获取抽卡ID
+    /// </summary>
+    /// <param name="session"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    Task<CloudApiResponse<RecordData>?> GetRecordAsync(
+        CloudGameLoginSession session,
+        CancellationToken token = default
+    );
+
+    /// <summary>
+    /// 获取抽卡信息
+    /// </summary>
+    /// <param name="session"></param>
+    /// <param name="recordId"></param>
+    /// <param name="userId"></param>
+    /// <param name="poolType"></param>
+    /// <param name="token"></param>
+    /// <returns></returns>
+    Task<PlayerReponse?> GetGameRecordResource(
+        CloudGameLoginSession session,
+        string recordId,
+        string userId,
+        int poolType,
+        CancellationToken token = default
+    );
 }

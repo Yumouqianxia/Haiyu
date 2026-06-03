@@ -38,6 +38,7 @@ namespace Waves.Api.Models;
 [JsonSerializable(typeof(CommStartModel))]
 [JsonSerializable(typeof(CloudApiResponse<CommStartReponse>))]
 [JsonSerializable(typeof(CloudApiResponse<CommonQueueInfo>))]
+[JsonSerializable(typeof(CloudApiResponse<RecordData>))]
 [JsonSerializable(typeof(CloudBootstrapScript))]
 [JsonSerializable(typeof(CloudGameAppStore))]
 [JsonSerializable(typeof(CloudSdkLoginInfo))]

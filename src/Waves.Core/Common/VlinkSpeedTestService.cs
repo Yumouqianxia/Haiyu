@@ -140,10 +140,9 @@ public class CloudNetworkSpeedTestService : IDisposable
         var results = new ConcurrentBag<CloudNetworkDelayItem>();
         var failedCount = 0;
 
-        // Parallel.ForEachAsync 默认并发度=Environment.ProcessorCount，可手动指定
         var parallelOptions = new ParallelOptions
         {
-            MaxDegreeOfParallelism = 3, // 最多3个并发WS连接
+            MaxDegreeOfParallelism = 3,
             CancellationToken = ct,
         };
 

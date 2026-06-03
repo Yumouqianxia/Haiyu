@@ -155,10 +155,10 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
 
     public void SeedUpdateQuality()
     {
-
+       
         WeakReferenceMessenger.Default.Send<CloudQualityUpdateModel>(new()
         {
-            Type =this.SelectQualitys.Type,
+            Type =this.SelectQualitys==null? CloudQualityType.Clarity:this.SelectQualitys.Type,
             Fps = this.SelectFps,
             NetworkShow = this.ShowNetworkState,
             QaulityEnable = this.Enable

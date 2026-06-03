@@ -1,17 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http.Json;
-using System.Text;
-using System.Text.Json;
-using Serilog.Core;
-using Waves.Api.Models;
-using Waves.Api.Models.Launcher;
-using Waves.Core.GameContext.ContextsV2.Punish;
-using Waves.Core.GameContext.ContextsV2.Waves;
-using Waves.Core.Models.CoreApi;
-using Waves.Core.Models.Downloader;
-using Waves.Core.Services;
-
 namespace Waves.Core.GameContext
 {
     partial class KuroGameContextBaseV2

@@ -1,8 +1,3 @@
-﻿using Waves.Core.Contracts.Events;
-using Waves.Core.Contracts.Events.CloudGame;
-using Waves.Core.Models;
-using Waves.Core.Models.CloudGame;
-
 namespace Waves.Core.Services;
 
 /// <summary>

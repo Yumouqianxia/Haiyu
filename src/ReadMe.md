@@ -1,3 +1,21 @@
+## 解决方案分级
+
+WutheringWavesTool.slnx-全部项目加载，跑整体构建与发布
+
+WutheringWavesTool.App-应用本体
+
+WutheringWavesTool.Core-核心
+
+WutheringWavesTool.Editor-多语言编辑器
+
+WutheringWavesTool.Server.slnx-后端
+
+WutheringWavesTool.Setup.slnx-安装包
+
+WutheringWavesTool.Tests.slnx-测试
+
+
+
 ## 发布方式
 
 ##### 1. Exe打包

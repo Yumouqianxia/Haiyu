@@ -1,5 +1,3 @@
-﻿using System.Text.Json.Serialization;
-
 namespace Waves.Core.Models.Downloader;
 
 public class IndexChunkInfo

@@ -14,45 +14,43 @@ using Windows.Foundation.Collections;
 using Windows.Foundation;
 using Waves.Core.Models.CloudGame;
 
-namespace Haiyu.Pages
+namespace Haiyu.Pages;
+
+/// <summary>
+/// 新抽卡页面，自动合并，自动分析并计算结果
+/// </summary>
+public sealed partial class WavesAnalysisRecordPage : Page,IWindowPage
 {
-    /// <summary>
-    /// An empty page that can be used on its own or navigated to within a Frame.
-    /// </summary>
-    public sealed partial class WavesAnalysisRecordPage : Page,IWindowPage
+    public WavesAnalysisRecordViewModel ViewModel { get; private set; }
+
+    public WavesAnalysisRecordPage()
     {
-        public WavesAnalysisRecordViewModel ViewModel { get; private set; }
-        public WavesAnalysisRecordPage()
+        InitializeComponent();
+        this.ViewModel = Instance.Host.Services.GetRequiredService<WavesAnalysisRecordViewModel>();
+    }
+
+    public void SetWindow(Window window)
+    {
+        this.ViewModel.Initialization(window);
+        this.ViewModel.Window.AppWindow.Closing += AppWindow_Closing;
+    }
+
+    private void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        this.Dispose();
+    }
+
+    public void SetData(object value)
+    {
+        if(value is CloudGameLoginSession session)
         {
-            InitializeComponent();
-            this.ViewModel = Instance.Host.Services.GetRequiredService<WavesAnalysisRecordViewModel>();
+            this.ViewModel.Session = session;
         }
+    }
 
-        public void SetWindow(Window window)
-        {
-            this.ViewModel.Initialization(window);
-            this.ViewModel.Window.AppWindow.Closing += AppWindow_Closing;
-        }
-
-
-
-        private void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
-        {
-            this.Dispose();
-        }
-
-        public void SetData(object value)
-        {
-            if(value is CloudGameLoginSession session)
-            {
-                this.ViewModel.Session = session;
-            }
-        }
-
-        public void Dispose()
-        {
-            this.ViewModel.Dispose();
-            this.ViewModel = null;
-        }
+    public void Dispose()
+    {
+        this.ViewModel.Dispose();
+        this.ViewModel = null;
     }
 }

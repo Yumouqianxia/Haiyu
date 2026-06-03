@@ -1,7 +1,3 @@
-﻿using Waves.Api.Models.CloudGame;
-using Waves.Core.Common;
-using Waves.Core.Models.CloudGame;
-
 namespace Waves.Core.Contracts.CloudGame;
 
 public interface IWavesCloudGameService

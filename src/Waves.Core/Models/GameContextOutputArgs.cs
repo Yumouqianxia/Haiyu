@@ -1,6 +1,3 @@
-﻿using System.Collections.Generic;
-using Waves.Core.Models.Enums;
-
 namespace Waves.Core.Models;
 
 public class GameContextOutputArgs

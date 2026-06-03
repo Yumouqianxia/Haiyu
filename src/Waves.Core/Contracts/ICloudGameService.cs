@@ -1,5 +1,3 @@
-﻿using Waves.Api.Models.CloudGame;
-
 namespace Waves.Core.Contracts;
 
 /// <summary>

@@ -1,5 +1,3 @@
-﻿using System.Diagnostics;
-
 namespace Waves.Core.Common;
 
 public class SpeedLimiter

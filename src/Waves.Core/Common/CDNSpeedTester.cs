@@ -1,12 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
-using System.Text;
-using Waves.Api.Models;
-using Waves.Api.Models.Communitys;
-using Waves.Core.Models.Downloader;
-
 namespace Haiyu.Common;
 
 public class CDNSpeedTester : IDisposable

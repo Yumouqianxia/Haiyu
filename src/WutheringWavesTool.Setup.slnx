@@ -1,0 +1,25 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="All" />
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Setup/">
+    <Project Path="Setup/Project.WPFSetup/Project.WPFSetup.csproj" Id="d1a8968f-7b15-40a9-8b30-4147ab764a6c">
+      <BuildType Solution="All|*" Project="Debug" />
+    </Project>
+    <Project Path="Setup/Project.WPFUninstaller/Project.WPFUninstaller.csproj" Id="46d6cea1-e534-4f16-a4f5-ba83fbccf067">
+      <BuildType Solution="All|*" Project="Debug" />
+    </Project>
+    <Project Path="Setup/FluentWPF/FluentWPF.csproj" Id="b4f5b2d2-75d2-4b13-8c7f-af79c36b5c56">
+      <BuildType Solution="All|*" Project="Debug" />
+      <Platform Solution="*|x86" Project="x86" />
+    </Project>
+    <Project Path="Setup/Msix.WPFSetup/Msix.WPFSetup.csproj" Id="19cf697b-3f35-49d1-b671-eac774f759e9">
+      <BuildType Solution="All|*" Project="Debug" />
+    </Project>
+  </Folder>
+</Solution>

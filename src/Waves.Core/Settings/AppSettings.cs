@@ -1,9 +1,3 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.Json;
-using Waves.Core.Adaptives;
-using Waves.Core.Common;
-using Waves.Core.Models;
-
 namespace Waves.Core.Settings;
 
 public class AppSettings : SettingBase

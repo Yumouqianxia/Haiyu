@@ -1,8 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Waves.Core.Models;
-
 namespace Waves.Core.Contracts.Events;
 
 /// <summary>

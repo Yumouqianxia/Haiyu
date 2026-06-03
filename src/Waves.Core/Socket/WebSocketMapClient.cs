@@ -1,7 +1,3 @@
-﻿using System.Diagnostics;
-using System.Net.WebSockets;
-using System.Text;
-
 namespace Waves.Core.Socket;
 
 public class WebSocketMapClient : IDisposable, IAsyncDisposable

@@ -1,10 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Channels;
-using Waves.Core.Models;
-using Waves.Core.Services;
-
 namespace Waves.Core.Contracts.Events
 {
     public abstract class EventPublishBase<EventArgs>

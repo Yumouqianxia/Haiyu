@@ -1,5 +1,3 @@
-﻿using Waves.Core.Contracts.Events;
-
 namespace Waves.Core.Models;
 
 /// <summary>

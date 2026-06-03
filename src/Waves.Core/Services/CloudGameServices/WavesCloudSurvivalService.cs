@@ -1,11 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Waves.Api.Models.CloudGame;
-using Waves.Core.Contracts.CloudGame;
-using Waves.Core.Models.CloudGame;
-using Waves.Core.Models.Enums;
-
 namespace Waves.Core.Services.CloudGameServices;
 
 public delegate void CloudSurivivalMessageHandler(object sender, CloudMessageArgs session);

@@ -1,5 +1,3 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-
 namespace Waves.Core.Models;
 
 public sealed partial class DownloadActiveFileItem:ObservableObject

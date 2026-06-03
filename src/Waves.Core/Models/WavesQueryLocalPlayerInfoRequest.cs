@@ -1,7 +1,3 @@
-﻿using System.Text.Json.Serialization;
-using Waves.Core.Contracts;
-using Waves.Core.Models.Enums;
-
 namespace Waves.Core.Models;
 
 public class WavesQueryLocalPlayerInfoRequest

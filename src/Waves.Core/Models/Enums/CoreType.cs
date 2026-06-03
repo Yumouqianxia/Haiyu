@@ -1,7 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
 namespace Waves.Core.Models.Enums;
 
 public enum CoreType:uint

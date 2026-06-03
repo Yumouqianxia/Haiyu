@@ -1,9 +1,3 @@
-﻿using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using Waves.Api.Models;
-using Waves.Api.Models.GameWikiiClient;
-using Waves.Core.Helpers;
-
 namespace Waves.Core.Services;
 
 partial class KuroClient

@@ -1,17 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net.Http.Json;
-using System.Reflection;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Unicode;
-using Waves.Api.Models;
-using Waves.Api.Models.Launcher;
-using Waves.Core.GameContext.ContextsV2.Punish;
-using Waves.Core.GameContext.ContextsV2.Waves;
-using Waves.Core.Models;
-
 namespace Waves.Core.GameContext;
 
 partial class KuroGameContextBase

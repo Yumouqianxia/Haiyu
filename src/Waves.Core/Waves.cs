@@ -1,14 +1,3 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.DependencyInjection.Extensions;
-using Waves.Core.Contracts;
-using Waves.Core.Contracts.CloudGame;
-using Waves.Core.GameContext;
-using Waves.Core.GameContext.ContextsV2;
-using Waves.Core.GameContext.ContextsV2.Punish;
-using Waves.Core.GameContext.ContextsV2.Waves;
-using Waves.Core.Services;
-using Waves.Core.Services.CloudGameServices;
-
 namespace Waves.Core;
 
 public static class Waves

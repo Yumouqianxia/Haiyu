@@ -1,5 +1,3 @@
-﻿using System.Text;
-
 namespace Waves.Core.Common;
 
 public class KrKeyHelper

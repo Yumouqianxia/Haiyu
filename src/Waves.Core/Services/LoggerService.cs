@@ -1,6 +1,3 @@
-﻿using Serilog;
-using Waves.Core.Models;
-
 namespace Waves.Core.Services;
 
 public delegate void LogMessageHandler(ILogger logger, LogMessage logMessage);

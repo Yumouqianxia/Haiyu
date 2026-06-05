@@ -1,23 +1,23 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Haiyu.Plugin.Models;
 
 public partial class DisplayVersionInfo:ObservableObject
 {
     [ObservableProperty]
-    public string Version { get; set; }
+    public partial string Version { get; set; }
 
     [ObservableProperty]
-    public string UpdateAt { get; set;  }
+    public partial string UpdateAt { get; set;  }
 
     [ObservableProperty]
-    public long Size { get; set;  }
+    public partial long Size { get; set;  }
 
     [ObservableProperty]
-    public string HelpLink { get; set;  }
+    public partial string HelpLink { get; set;  }
 
     [ObservableProperty]
-    public string DownloadLink { get; set; }
+    public partial string DownloadLink { get; set; }
 
     /// <summary>
     /// 是否显示跳过

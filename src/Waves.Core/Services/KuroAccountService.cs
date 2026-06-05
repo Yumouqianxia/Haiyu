@@ -1,4 +1,4 @@
-namespace Waves.Core.Services;
+﻿namespace Waves.Core.Services;
 
 public class KuroAccountService : IKuroAccountService
 {
@@ -59,7 +59,7 @@ public class KuroAccountService : IKuroAccountService
                     )
                 )
                 {
-                    var bytes = (await fs.ReadAsync(buffer));
+                    var bytes = await fs.ReadAsync(buffer);
                     var model = MemoryPackSerializer.Deserialize<LocalAccount>(
                         buffer.AsSpan(),
                         new MemoryPackSerializerOptions() { StringEncoding = StringEncoding.Utf8 }

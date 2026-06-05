@@ -11,8 +11,6 @@ namespace Haiyu.ViewModel;
 /// </summary>
 public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
 {
-    public Window Window { get; set; }
-
     public readonly IKuroCloudGameContext CloudGameContext;
     public CloudGameLoginSession Session { get; set; }
 

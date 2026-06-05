@@ -49,7 +49,7 @@ namespace Waves.Api.Models.CloudGame
         public string Ak { get; set; }
 
         [JsonPropertyName("sk")]
-        public string Sk { get; set; }
+        public required string Sk { get; set; }
 
         [JsonPropertyName("token")]
         public string Token { get; set; }

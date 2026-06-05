@@ -1,4 +1,4 @@
-﻿using Haiyu.ViewModel.OOBEViewModels;
+using Haiyu.ViewModel.OOBEViewModels;
 
 namespace Haiyu.ViewModel;
 
@@ -14,10 +14,10 @@ public sealed partial class OOBEViewModel:ViewModelBase
     public OOBEArgsMessager CurrentArgs { get; private set; }
 
     [ObservableProperty]
-    public bool IsNext { get; set;}
+    public partial bool IsNext { get; set;}
 
     [ObservableProperty]
-    public bool IsForward { get; set; }
+    public partial bool IsForward { get; set; }
 
     private void RegisterManager()
     {

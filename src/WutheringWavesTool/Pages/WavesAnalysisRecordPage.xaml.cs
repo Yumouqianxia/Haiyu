@@ -1,4 +1,4 @@
-using Microsoft.UI.Xaml;
+﻿using Microsoft.UI.Xaml;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.UI.Xaml.Controls.Primitives;
 using Microsoft.UI.Xaml.Data;
@@ -32,10 +32,10 @@ public sealed partial class WavesAnalysisRecordPage : Page,IWindowPage
     public void SetWindow(Window window)
     {
         this.ViewModel.Initialization(window);
-        this.ViewModel.Window.Closed += Window_Closed;
+        this.ViewModel.Window.AppWindow.Closing += AppWindow_Closing;
     }
 
-    private void Window_Closed(object sender, WindowEventArgs args)
+    private void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
     {
         this.Dispose();
     }

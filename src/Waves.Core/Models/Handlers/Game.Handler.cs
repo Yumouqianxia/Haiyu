@@ -1,4 +1,4 @@
-namespace Waves.Core.GameContext;
+﻿namespace Waves.Core.GameContext;
 
 public delegate void GameVerifyDelegate();
 

@@ -293,7 +293,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     [RelayCommand]
     void ShowWavesAnalysis()
     {
-        ViewFactorys.ShowAnalysisRecordV2(this.SelectLogin);
+        ViewFactorys.ShowAnalysisRecordV2(this.SelectLogin).AppWindow.Show();
     }
 }
 

@@ -1,4 +1,4 @@
-namespace Waves.Core.Helpers;
+﻿namespace Waves.Core.Helpers;
 
 public class HardwareIdGenerator
 {

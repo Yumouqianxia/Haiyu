@@ -1,4 +1,4 @@
-namespace Waves.Core.Common;
+﻿namespace Waves.Core.Common;
 
 /// <summary>
 /// 进程监控与扫描

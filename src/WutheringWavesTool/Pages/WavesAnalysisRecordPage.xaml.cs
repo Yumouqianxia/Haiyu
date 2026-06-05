@@ -44,7 +44,7 @@ public sealed partial class WavesAnalysisRecordPage : Page,IWindowPage
     {
         if(value is CloudGameLoginSession session)
         {
-            this.ViewModel.Session = session;
+            this.ViewModel.SetSessionAsync(session);
         }
     }
 

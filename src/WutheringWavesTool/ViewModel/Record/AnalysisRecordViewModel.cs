@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using HarfBuzzSharp;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.Kernel;

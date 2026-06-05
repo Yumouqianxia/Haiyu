@@ -1,4 +1,4 @@
-﻿using Haiyu.Plugin.Common.LegacyMessageBox;
+using Haiyu.Plugin.Common.LegacyMessageBox;
 using MemoryPack;
 using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Models.CloudGame;
@@ -38,7 +38,7 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
     {
         var path = Path.Combine(
             Waves.Core.Settings.AppSettings.RecordFolder,
-            $"{this.Session.OrginData.Username}"
+            $"{this.Session.OrginData.Username}.json"
         );
         using (
             var fs = new FileStream(
@@ -63,7 +63,11 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
         var result = this.CloudGameContext.WavesCloudSurivivalService.Cache.TryGet(
             session.OrginData.Username + session.OrginData.Sdkuserid
         );
-        LegacyMessageBox.ShowError("账号异常……");
-        this.Window.Close();
+        if(result == null)
+        {
+            LegacyMessageBox.ShowError("账号异常……");
+            this.Window.Close();
+        }
+        this.Session = session;
     }
 }

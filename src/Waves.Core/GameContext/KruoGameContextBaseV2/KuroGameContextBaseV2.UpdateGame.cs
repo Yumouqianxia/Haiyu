@@ -69,7 +69,7 @@ partial class KuroGameContextBaseV2
             return false;
         }
         #endregion
-        Task.Run(async () =>
+        _ = Task.Run(async () =>
             await StartDownloadUpdateGameResourceAsync(
                 _launcher,
                 currentVersion,
@@ -91,8 +91,12 @@ partial class KuroGameContextBaseV2
         var currentVersion = await GameLocalConfig.GetConfigAsync(
             GameLocalSettingName.LocalGameVersion
         );
-
-        Task.Run(async () =>
+        if(_launcher==null || currentVersion == null)
+        {
+            Logger.WriteError("启动预下载失败，游戏配置错误");
+            return false;
+        }
+        _ = Task.Run(async () =>
         {
             await StartProdDownloadGameResourceAsync(_launcher, currentVersion);
         });
@@ -151,7 +155,7 @@ partial class KuroGameContextBaseV2
             );
             return false;
         }
-        Task.Run(async () =>
+        _ = Task.Run(async () =>
             await StartDownloadUpdateGameResourceAsync(
                 _launcher,
                 currentVersion,
@@ -163,13 +167,19 @@ partial class KuroGameContextBaseV2
         return true;
     }
 
-    public DownloadState GetInitDownloadState(bool isProd = false)
+    public async Task<DownloadState> GetInitDownloadState(bool isProd = false)
     {
+        var speed = await this.GameLocalConfig.GetConfigAsync(GameLocalSettingName.LimitSpeed, this._downloadCts.Token);
+        
         if (isProd)
         {
             if (ProdDownloadState == null)
             {
                 this.ProdDownloadState = new DownloadState();
+                if(double.TryParse(speed,out var speedValue) && speedValue != 0)
+                {
+                    await this.ProdDownloadState.SetSpeedLimitAsync((long)speedValue*1024*1024);
+                }
                 this.ProdDownloadState.IsActive = true;
             }
             return this.ProdDownloadState;
@@ -179,6 +189,10 @@ partial class KuroGameContextBaseV2
             if (DownloadState == null)
             {
                 this.DownloadState = new DownloadState();
+                if (double.TryParse(speed, out var speedValue) && speedValue != 0)
+                {
+                    await this.DownloadState.SetSpeedLimitAsync((long) speedValue * 1024 * 1024);
+                }
                 this.DownloadState.IsActive = true;
             }
             return this.DownloadState;
@@ -208,7 +222,8 @@ partial class KuroGameContextBaseV2
             var baseFolder = await this.GameLocalConfig.GetConfigAsync(
                 GameLocalSettingName.GameLauncherBassFolder
             );
-            var state = GetInitDownloadState(isProd);
+            this._downloadCts = new();
+            var state = await GetInitDownloadState(isProd);
             if (isProd)
             {
                 _prodDownloadCts = new CancellationTokenSource();
@@ -407,28 +422,26 @@ partial class KuroGameContextBaseV2
                 );
                 await this.GameLocalConfig.SaveConfigAsync(
                     GameLocalSettingName.ProdDownloadVersion,
-                    _launcher.Predownload == null ? "3.2.1" : _launcher.Predownload.Version
+                   _launcher.Predownload.Version
                 );
-                this.GameEventPublisher.Publish(
-                    new GameContextOutputArgs() { Type = GameContextActionType.None, Prod = isProd }
-                );
+                await this.SetCurrentStateNull(true);
             }
             else
             {
                 await this.StartInstallGameResource(_launcher, previous, _patch);
             }
-            SetCurrentStateNull(isProd);
+            await SetCurrentStateNull(isProd);
             #endregion
             return true;
         }
         catch (TaskCanceledException)
         {
-            SetCurrentStateNull(isProd);
+            await SetCurrentStateNull(isProd);
             return false;
         }
         catch (Exception)
         {
-            SetCurrentStateNull(isProd);
+            await SetCurrentStateNull(isProd);
             return false;
         }
     }
@@ -520,7 +533,8 @@ partial class KuroGameContextBaseV2
 
         DownloadUpdateFolderConfig folderConfig = new();
         #region 初始化资源
-        var state = GetInitDownloadState(false); //安装更新不要用预下载状态
+        this._downloadCts = new();
+        var state = await GetInitDownloadState(false); //安装更新不要用预下载状态
         this._installGameResourceCts = new CancellationTokenSource();
         state.CancelToken = _installGameResourceCts;
         var downloadResource = new List<IndexResource>();
@@ -850,7 +864,7 @@ partial class KuroGameContextBaseV2
         #endregion
     }
 
-    private void SetCurrentStateNull(bool? isProd)
+    private async Task SetCurrentStateNull(bool? isProd)
     {
         if (isProd == null)
         {
@@ -869,6 +883,7 @@ partial class KuroGameContextBaseV2
         {
             ProgressState.ActiveFiles.TryRemove(item);
         }
+        await Task.Delay(100);
         this.GameEventPublisher.Publish(new()
         {
             Type = GameContextActionType.None
@@ -898,6 +913,11 @@ partial class KuroGameContextBaseV2
         var cdnUrl =
             launcher.ResourceDefault.CdnList.Where(x => x.P != 0).OrderBy(x => x.P).FirstOrDefault()
             ?? null;
+        if(cdnUrl == null)
+        {
+            Logger.WriteError("CDN地址配置错误，无法更新游戏");
+            return;
+        }
         var _patch = await GetPatchGameResourceAsync(cdnUrl.Url + previous.IndexFile);
         if (_patch == null)
         {

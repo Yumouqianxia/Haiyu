@@ -1,4 +1,4 @@
-﻿using Haiyu.Helpers;
+using Haiyu.Helpers;
 using Haiyu.Plugin.Contracts;
 using Haiyu.Plugin.Services;
 using Haiyu.ServiceHost;
@@ -161,6 +161,8 @@ public static class InstanceBuilderExtensions
                     .AddTransient<UpdateAppViewModel>()
                     .AddTransient<CloudGameSettingViewModel>()
                     .AddTransient<CloudGameSettingDialog>()
+                    .AddTransient<KuroGameSettingDialog>()
+                    .AddTransient<KuroGameSettingViewModel>()
                 #endregion
                 #endregion
                 #region More

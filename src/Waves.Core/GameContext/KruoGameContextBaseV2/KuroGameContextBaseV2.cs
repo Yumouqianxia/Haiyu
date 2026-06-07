@@ -275,6 +275,7 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
 
     public async Task SetDownloadSpeedAsync(long mbValue)
     {
+        await this.GameLocalConfig.SaveConfigAsync(GameLocalSettingName.LimitSpeed,mbValue.ToString());
         if (DownloadState == null)
             return;
         await DownloadState.SetSpeedLimitAsync(mbValue * 1024 * 1024);

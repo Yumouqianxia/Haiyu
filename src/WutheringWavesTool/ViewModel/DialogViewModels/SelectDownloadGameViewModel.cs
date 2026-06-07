@@ -1,4 +1,4 @@
-﻿using Haiyu.Services.DialogServices;
+using Haiyu.Services.DialogServices;
 
 namespace Haiyu.ViewModel.DialogViewModels;
 
@@ -55,10 +55,10 @@ public partial class SelectDownloadGameViewModel : DialogViewModelBase
     }
 
     [RelayCommand(CanExecute = nameof(GetIsDownload))]
-    void StartDownload()
+    async Task StartDownload()
     {
         this.Result = ContentDialogResult.Primary;
-        this.Close();
+        await this.Close();
     }
 
     internal void SetData(Type type)

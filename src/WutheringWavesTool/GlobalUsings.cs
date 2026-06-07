@@ -1,4 +1,4 @@
-﻿global using CommunityToolkit.Mvvm.ComponentModel;
+global using CommunityToolkit.Mvvm.ComponentModel;
 global using CommunityToolkit.Mvvm.Input;
 global using CommunityToolkit.Mvvm.Messaging;
 global using Haiyu.Common;
@@ -74,3 +74,4 @@ global using Windows.UI;
 global using WinRT.Interop;
 global using WinUIEx;
 global using static Haiyu.Common.Win32;
+global using Haiyu.Models.GameConfig;

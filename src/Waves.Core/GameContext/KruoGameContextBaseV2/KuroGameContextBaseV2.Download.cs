@@ -68,7 +68,7 @@ partial class KuroGameContextBaseV2
                 return false;
             HttpClientService?.BuildClient();
             _downloadCts = new CancellationTokenSource();
-            var state = GetInitDownloadState(false);
+            var state = await GetInitDownloadState(false);
             state.CancelToken = _downloadCts;
             state.IsActive = true;
             downloadMethod = new(this.Logger);
@@ -97,6 +97,7 @@ partial class KuroGameContextBaseV2
                 );
                 return false;
             }
+            
             var baseUrl = cdnResult.Value.url + launcher.ResourceDefault.Config.BaseUrl;
             downloadMethod.SetParam(
                 new Dictionary<string, object>()

@@ -237,27 +237,38 @@ public class WavesCloudGameService : IWavesCloudGameService
         CancellationToken ct = default
     )
     {
-        var pingNode = await this.CloudNetworkSpeedTestService.RunSpeedTestAsync(ct);
-        var nodeList = pingNode
-            .Select(x => new NodeList() { Delay = x.Delay, NodeId = x.NodeId })
-            .ToList();
-        using var client = BuildClientData(
-            session,
-            "GamePlay/GetRegionToScore",
-            method: HttpMethod.Post
-        );
-        var content = new StringContent(
-            JsonSerializer.Serialize(nodeList, CloudGameContext.Default.ListNodeList),
-            Encoding.UTF8,
-            "application/json"
-        );
-        client.Content = content;
-        var result = await _cloudClient.SendAsync(client, ct);
-        var str = await result.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize(
-            str,
-            CloudGameContext.Default.CloudApiResponseListCloudGameNode
-        );
+        try
+        {
+            var pingNode = await this.CloudNetworkSpeedTestService.RunSpeedTestAsync(ct);
+            var nodeList = pingNode
+                .Select(x => new NodeList() { Delay = x.Delay, NodeId = x.NodeId })
+                .ToList();
+            using var client = BuildClientData(
+                session,
+                "GamePlay/GetRegionToScore",
+                method: HttpMethod.Post
+            );
+            var content = new StringContent(
+                JsonSerializer.Serialize(nodeList, CloudGameContext.Default.ListNodeList),
+                Encoding.UTF8,
+                "application/json"
+            );
+            client.Content = content;
+            var result = await _cloudClient.SendAsync(client, ct);
+            var str = await result.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize(
+                str,
+                CloudGameContext.Default.CloudApiResponseListCloudGameNode
+            );
+        }
+        catch (TaskCanceledException)
+        {
+            return null;
+        }
+        catch(Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<CloudApiResponse<WalletData>?> GetWalletDataAsync(

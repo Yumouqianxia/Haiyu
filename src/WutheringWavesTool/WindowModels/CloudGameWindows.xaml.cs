@@ -1,4 +1,4 @@
-﻿
+
 using Haiyu.ViewModel.GameViewModels;
 using Waves.Core.Models.CloudGame;
 
@@ -26,6 +26,7 @@ public sealed partial class CloudGameWindows : Window
     
     private async void CloudGameWindows_Closing(AppWindow sender, AppWindowClosingEventArgs args)
     {
+       
         ViewModel.ShowSystemCursor();
         this.ViewModel.Dispose();
         this.ViewModel = null;

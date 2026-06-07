@@ -1,4 +1,4 @@
-﻿using Haiyu.Models.Dialogs;
+using Haiyu.Models.Dialogs;
 using Haiyu.Plugin.Models;
 using Waves.Api.Models.CloudGame;
 using Waves.Core.Models.CloudGame;
@@ -173,6 +173,9 @@ public abstract class DialogManager : IDialogManager
         this._dialog = null;
         return result;
     }
+
+    public async Task ShowGameSettingAsync(string contextName) =>
+        await ShowDialogAsync<KuroGameSettingDialog>(new GameSettingDialogConfig(contextName));
 
     public async Task ShowWebGameDialogAsync() => await ShowDialogAsync<WebGameLogin>();
 

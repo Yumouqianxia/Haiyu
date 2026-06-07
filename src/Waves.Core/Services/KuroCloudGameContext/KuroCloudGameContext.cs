@@ -188,7 +188,7 @@ public class KuroCloudGameContext : IKuroCloudGameContext
             int errCount = 0;
             while (true)
             {
-                if (queqeCTS.IsCancellationRequested)
+                if (queqeCTS == null || queqeCTS.IsCancellationRequested)
                 {
                     await ClearActiveAsync().ConfigureAwait(false);
                     return;

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Window
     x:Class="Haiyu.WindowModels.CloudGameWindows"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -57,6 +57,7 @@
                                 <RowDefinition />
                                 <RowDefinition />
                                 <RowDefinition />
+                                <RowDefinition />
                                 <RowDefinition Height="auto" />
                             </Grid.RowDefinitions>
                             <TextBlock VerticalAlignment="Center" Text="清晰度选择" />
@@ -105,6 +106,16 @@
                                 IsOn="{x:Bind CloudSettingModel.ShowNetworkState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                 OffContent="关"
                                 OnContent="开" />
+                            <TextBlock
+                                Grid.Row="4"
+                                VerticalAlignment="Center"
+                                Text="音量" />
+                            <Slider
+                                Grid.Row="4"
+                                Grid.Column="1"
+                                Maximum="100"
+                                Minimum="0"
+                                Value="{x:Bind ViewModel.VolumeValue, Mode=TwoWay}" />
                         </Grid>
                     </Grid>
                 </Grid>
@@ -121,7 +132,10 @@
                     Padding="10"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Top">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="10"
+                        Visibility="{x:Bind ViewModel.NetworkVisibility, Mode=OneWay}">
                         <TextBlock
                             FontFamily="{ThemeResource DefaultFont}"
                             FontSize="16"

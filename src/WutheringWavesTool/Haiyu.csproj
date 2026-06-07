@@ -255,6 +255,9 @@
 		<None Update="Assets\HpatchzResource\hpatchz.exe">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<Page Update="Pages\Dialogs\KuroGameSettingDialog.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 		<Page Update="Pages\WavesAnalysisRecordPage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
@@ -365,6 +368,7 @@
 	  <None Remove="Controls\Styles\SVGPath.xaml" />
 	  <None Remove="Pages\Dialogs\CloudSelectNodeDialog.xaml" />
 	  <None Remove="Pages\Dialogs\GameSettings\CloudGameSettingDialog.xaml" />
+	  <None Remove="Pages\Dialogs\KuroGameSettingDialog.xaml" />
 	  <None Remove="Pages\GamePages\WavesCloudGamePage.xaml" />
 	  <None Remove="Pages\WavesAnalysisRecordPage.xaml" />
 	  <None Remove="WindowModels\CloudGameWindows.xaml" />

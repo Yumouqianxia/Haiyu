@@ -120,7 +120,16 @@ public interface IGameContextV2
         PatchIndexGameResource patch,
         bool isProd = false
     );
+    /// <summary>
+    /// 开始游戏
+    /// </summary>
+    /// <returns></returns>
     Task<bool> StartGameAsync();
+
+    /// <summary>
+    /// 更新游戏
+    /// </summary>
+    /// <returns></returns>
     Task<bool> UpdateGameResourceAsync();
     Task DeleteResourceAsync(
         IProgress<(double deletedCount, double totalCount)> progress

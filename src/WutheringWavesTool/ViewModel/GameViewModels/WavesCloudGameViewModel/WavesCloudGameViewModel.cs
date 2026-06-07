@@ -1,4 +1,4 @@
-﻿using Haiyu.Services.DialogServices;
+using Haiyu.Services.DialogServices;
 using System.Text;
 using Waves.Api.Models.CloudGame;
 using Waves.Core.Common;
@@ -88,7 +88,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
             }
             else if (obj.CoreType == CloudCoreType.QueueUp)
             {
-                BottomText = $"当前排队：{obj.QueueQty}位，预计:{obj.QueueWaitSecond}秒";
+                BottomText = $"排队：{obj.QueueQty}，{obj.QueueWaitSecond}秒内";
                 StartGameText = "停止排队";
                 this._startBthActive = CloudGameUIActive.QueueUp;
             }

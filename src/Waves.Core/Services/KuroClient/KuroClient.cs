@@ -517,9 +517,9 @@ public sealed partial class KuroClient : IKuroClient
                 await SetAutoUserAsync(users, token);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
+            LoggerService.WriteError(ex.Message + ex.StackTrace);
         }
     }
 

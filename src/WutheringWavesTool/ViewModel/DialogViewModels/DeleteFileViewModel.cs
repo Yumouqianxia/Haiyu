@@ -1,4 +1,4 @@
-﻿using Haiyu.Services.DialogServices;
+using Haiyu.Services.DialogServices;
 using Waves.Core.Models.Enums;
 
 namespace Haiyu.ViewModel.DialogViewModels;
@@ -42,7 +42,7 @@ public sealed partial class DeleteFileViewModel : DialogViewModelBase
     [RelayCommand(CanExecute =nameof(GetCanInvoke))]
     public async Task CancelClose()
     {
-        this.Close();
+        await this.Close();
     }
 
     [RelayCommand(CanExecute = nameof(GetCanInvoke))]
@@ -56,7 +56,7 @@ public sealed partial class DeleteFileViewModel : DialogViewModelBase
         }
         if (this.ContextName is null)
         {
-            this.Close();
+            await this.Close();
             return;
         }
         IProgress < (double deletedCount, double totalCount) > progress = new Progress<(double deletedCount, double count)>((s) =>
@@ -68,6 +68,6 @@ public sealed partial class DeleteFileViewModel : DialogViewModelBase
         this.CancelCloseCommand.NotifyCanExecuteChanged();
         this.DeleteResourceCommand.NotifyCanExecuteChanged();
         await _gameContext.DeleteResourceAsync(progress);
-        this.Close();
+        await this.Close();
     }
 }

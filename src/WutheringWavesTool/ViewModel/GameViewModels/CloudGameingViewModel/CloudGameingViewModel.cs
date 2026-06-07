@@ -1,4 +1,4 @@
-﻿using Haiyu.Common.KuroWebView;
+using Haiyu.Common.KuroWebView;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -38,8 +38,10 @@ public sealed partial class CloudGameingViewModel:ViewModelBase
         var option =  await KuroCloudGameContext.GetOptionsAsync(dpi, area.Width, area.Height);
         var script = CloudGameBuilder.BuildUpdateQalityScript(option);
         await WebView2.CoreWebView2.ExecuteScriptAsync(script);
-
+        await this.UpdateNetworkVisiblity();
     }
+
+
 
     private void CloudGameProcessTracker_OnProgressChanged(Waves.Core.Services.CloudGameServices.CloudGameProcessTracker obj)
     {
@@ -94,6 +96,19 @@ public sealed partial class CloudGameingViewModel:ViewModelBase
         await ApplyLaunchOptionsAsync();
 
         WebView2.CoreWebView2.Navigate("https://kuro-stream.local/bridge.html");
+
+        #region NetworkVisiblity
+        await UpdateNetworkVisiblity();
+        #endregion
+    }
+
+    async Task UpdateNetworkVisiblity()
+    {
+        var networkOpen = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(CloudGameLocalSettingName.EnableNetworkPanel);
+        if (bool.TryParse(networkOpen, out var enableNetworkPanel))
+        {
+            this.NetworkVisibility = enableNetworkPanel ? Visibility.Visible : Visibility.Collapsed;
+        }
     }
 
     private async Task ApplyLaunchOptionsAsync()

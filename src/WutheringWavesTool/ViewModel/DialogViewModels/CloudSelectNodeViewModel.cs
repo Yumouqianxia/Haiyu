@@ -1,4 +1,4 @@
-﻿using Waves.Api.Models.CloudGame;
+using Waves.Api.Models.CloudGame;
 using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Services.CloudGameServices;
 
@@ -36,7 +36,7 @@ public sealed partial class CloudSelectNodeViewModel:DialogViewModelBase
         if(session == null)
         {
             SelectNode = null;
-            this.Close();
+            await this.Close();
             this.Dispose();
             return;
         }
@@ -48,13 +48,13 @@ public sealed partial class CloudSelectNodeViewModel:DialogViewModelBase
     [RelayCommand]
     private async Task Invoke()
     {
-        this.Close();
+        await this.Close();
     }
 
     [RelayCommand]
-    private void CloseDialog()
+    private async Task CloseDialog()
     {
         this.SelectNode = null;
-        this.Close();
+        await this.Close();
     }
 }

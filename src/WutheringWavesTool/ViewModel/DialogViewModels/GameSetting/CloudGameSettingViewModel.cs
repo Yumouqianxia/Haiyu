@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Waves.Core.Contracts.CloudGame;
@@ -151,6 +151,7 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
             value.ToString(),
             this.CTS.Token
         );
+        SeedUpdateQuality();
     }
 
     public void SeedUpdateQuality()

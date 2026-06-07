@@ -1,4 +1,4 @@
-﻿
+
 using Haiyu.Common.QR;
 using Haiyu.Models.Dialogs;
 using Haiyu.Services.DialogServices;
@@ -209,7 +209,7 @@ public partial class QrLoginViewModel : DialogViewModelBase
         }
         this.Result = new QRScanResult(true);
         await Task.Delay(1000);
-        this.Close();
+        await Close();
     }
 }
 

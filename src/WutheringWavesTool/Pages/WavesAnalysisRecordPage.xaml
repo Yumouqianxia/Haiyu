@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="Haiyu.Pages.WavesAnalysisRecordPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -6,8 +6,10 @@
     xmlns:controls="using:Haiyu.Controls"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:itemWrapper="using:Haiyu.Models.Wrapper"
     xmlns:local="using:Haiyu.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:model1="using:Waves.Api.Models.Record"
     mc:Ignorable="d">
     <i:Interaction.Behaviors>
         <i:EventTriggerBehavior EventName="Loaded">
@@ -15,6 +17,122 @@
         </i:EventTriggerBehavior>
     </i:Interaction.Behaviors>
     <Grid>
-        <controls:TitleBar />
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition />
+            <ColumnDefinition />
+        </Grid.ColumnDefinitions>
+        <controls:TitleBar x:Name="titleBar" />
+        <Border
+            Grid.RowSpan="2"
+            Padding="14"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            BorderBrush="{ThemeResource AccentAAFillColorDisabled}"
+            BorderThickness="1"
+            CornerRadius="5">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="auto" />
+                    <RowDefinition />
+                </Grid.RowDefinitions>
+                <ComboBox ItemsSource="{x:Bind ViewModel.NavItems, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectNavItem, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="model1:GameRecordNavigationItem">
+                            <TextBlock Text="{x:Bind DisplayName}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBlock HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <Run Text="平均出货" />
+                    <Run Text="{x:Bind ViewModel.StarAvgValue, Mode=OneWay}" />
+                    <Run Text="抽" />
+                </TextBlock>
+                <ScrollViewer
+                    Grid.Row="1"
+                    Margin="0,8,0,0"
+                    HorizontalScrollBarVisibility="Hidden"
+                    VerticalScrollBarVisibility="Hidden">
+                    <ItemsControl ItemsSource="{x:Bind ViewModel.StarItems, Mode=OneWay}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="itemWrapper:RecordActivityFiveStarItemWrapper">
+                                <Grid
+                                    Margin="0,8,0,0"
+                                    Padding="10"
+                                    Background="{ThemeResource CardBackgroundFillColorSecondaryBrush}"
+                                    BorderBrush="{ThemeResource SolidBackgroundFillColorBaseAltBrush}"
+                                    BorderThickness="1"
+                                    CornerRadius="5">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Border
+                                        Grid.RowSpan="2"
+                                        Width="40"
+                                        Height="40"
+                                        Padding="5"
+                                        Background="#292A23"
+                                        CornerRadius="5">
+                                        <Image Source="{x:Bind Icon}" Stretch="UniformToFill" />
+                                    </Border>
+                                    <TextBlock
+                                        Grid.Row="0"
+                                        Grid.Column="1"
+                                        Margin="5,0,0,0"
+                                        Text="{x:Bind Name}" />
+                                    <Grid
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Margin="5,0,0,0">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition Width="auto" />
+                                        </Grid.ColumnDefinitions>
+                                        <ProgressBar
+                                            MinHeight="15"
+                                            Background="Transparent"
+                                            CornerRadius="4"
+                                            Foreground="{x:Bind Count, Converter={StaticResource RecordColorConverter}}"
+                                            Maximum="80"
+                                            Style="{ThemeResource FillHeightProgressBar}"
+                                            Value="{x:Bind Count}" />
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="0,0,5,0"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Center"
+                                            Text="{x:Bind Count}" />
+                                    </Grid>
+                                    <Border
+                                        Grid.RowSpan="2"
+                                        Grid.Column="2"
+                                        Margin="15,10,0,0"
+                                        Padding="10,6"
+                                        HorizontalAlignment="Center"
+                                        VerticalAlignment="Center"
+                                        Background="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                        CornerRadius="5"
+                                        Visibility="{x:Bind Flage, Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <TextBlock
+                                            Margin="0,-5,0,0"
+                                            Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
+                                            Text="{x:Bind Flage, Converter={StaticResource RecordStarConverter}}" />
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
     </Grid>
 </Page>

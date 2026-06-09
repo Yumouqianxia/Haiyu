@@ -20,6 +20,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Extensions\Haiyu.Plugin\Haiyu.Plugin.csproj" />
+    <ProjectReference Include="..\Extensions\Waves.Api\Waves.Api.csproj" />
     <ProjectReference Include="..\Waves.Core\Waves.Core.csproj" />
   </ItemGroup>
 

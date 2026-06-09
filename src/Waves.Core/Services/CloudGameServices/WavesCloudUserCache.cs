@@ -10,7 +10,7 @@ public class WavesCloudUserCache
     public bool IsCheck(CloudGameLoginData data)
     {
         bool flage = false;
-        var id = data.Username + data.Sdkuserid;
+        var id = data.GetId();
         if (!queryList.ContainsKey(id))
         {
             flage = true;
@@ -26,7 +26,7 @@ public class WavesCloudUserCache
 
     public void TryAdd(CloudGameLoginData data, PhoneTokenData phoneToken =null, AccessData data1 = null, EndLoginData data2 = null)
     {
-        var key = data.Username + data.Sdkuserid;
+        var key = data.GetId();
         if (!queryList.ContainsKey(key))
         {
             queryList.TryAdd(key, new CloudGameLoginSession { OrginData = data});
@@ -45,7 +45,7 @@ public class WavesCloudUserCache
 
     public void TryReplace(CloudGameLoginData data)
     {
-        var key = data.Username + data.Sdkuserid;
+        var key = data.GetId();
         if (queryList.ContainsKey(key))
         {
             queryList[key] = new CloudGameLoginSession { OrginData = data };
@@ -54,7 +54,7 @@ public class WavesCloudUserCache
 
     public CloudGameLoginSession? TryRemove(CloudGameLoginData data)
     {
-        var key = data.Username + data.Sdkuserid;
+        var key = data.GetId();
         if (queryList.ContainsKey(key))
         {
             queryList.TryRemove(key, out var result);
@@ -74,7 +74,7 @@ public class WavesCloudUserCache
 
     public CloudGameLoginSession? TryGet(CloudGameLoginData data)
     {
-        var key = data.Username + data.Sdkuserid;
+        var key = data.GetId();
         if (queryList.TryGetValue(key, out var cache))
         {
             return cache;

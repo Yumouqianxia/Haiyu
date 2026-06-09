@@ -1,4 +1,4 @@
-﻿namespace Haiyu.ViewModel;
+namespace Haiyu.ViewModel;
 
 #nullable enable
 public sealed partial class PlayerRecordViewModel : ViewModelBase, IDisposable

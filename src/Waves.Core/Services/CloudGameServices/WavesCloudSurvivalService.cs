@@ -46,6 +46,12 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
         }
         _cts = new CancellationTokenSource();
         var users = await WavesCloudGameService.ConfigManager.GetUsersAsync();
+
+        foreach (var user in users)
+        {
+            await InvokeTimerTask(user, _cts.Token);
+        }
+
         timer = new System.Threading.PeriodicTimer(TimeSpan.FromSeconds(3));
         _ = Task.Run(() => StartTask(users));
     }

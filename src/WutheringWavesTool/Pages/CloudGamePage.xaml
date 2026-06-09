@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="Haiyu.Pages.CloudGamePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -10,6 +10,7 @@
     xmlns:lvc="using:LiveChartsCore.SkiaSharpView.WinUI"
     xmlns:m="using:Waves.Api.Models.Wrappers"
     xmlns:m2="using:Haiyu.Models"
+    xmlns:m21="using:Waves.Api.Models.Record"
     xmlns:m3="using:Waves.Api.Models.CloudGame"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:table="using:WinUI.TableView"
@@ -101,7 +102,7 @@
                         ItemsSource="{x:Bind ViewModel.RecordNavigationItems, Mode=OneWay}"
                         SelectedItem="{x:Bind ViewModel.SelectRecordType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
                         <ComboBox.ItemTemplate>
-                            <DataTemplate x:DataType="m2:GameRecordNavigationItem">
+                            <DataTemplate x:DataType="m21:GameRecordNavigationItem">
                                 <TextBlock FontFamily="{ThemeResource DefaultFont}" Text="{x:Bind DisplayName}" />
                             </DataTemplate>
                         </ComboBox.ItemTemplate>

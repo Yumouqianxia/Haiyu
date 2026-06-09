@@ -1,4 +1,6 @@
-﻿namespace Haiyu.Models;
+using System.Collections.ObjectModel;
+
+namespace Waves.Api.Models.Record;
 
 public class GameRecordNavigationItem
 {

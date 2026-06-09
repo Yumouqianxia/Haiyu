@@ -8,12 +8,15 @@ public sealed partial class WavesAnalysisRecordPage : Page,IWindowPage
     {
         InitializeComponent();
         this.ViewModel = Instance.Host.Services.GetRequiredService<WavesAnalysisRecordViewModel>();
+        this.RequestedTheme = Instance.Host.Services.GetRequiredService<IThemeService>().CurrentTheme;
     }
 
     public void SetWindow(Window window)
     {
         this.ViewModel.Initialization(window);
+        //window.AppWindow.TitleBar.PreferredTheme = this.RequestedTheme = Instance.Host.Services.GetRequiredService<IThemeService>().CurrentTheme;
         this.titleBar.Window = window;
+        
         this.ViewModel.Window.AppWindow.Closing += AppWindow_Closing;
     }
 

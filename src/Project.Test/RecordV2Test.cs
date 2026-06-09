@@ -21,6 +21,12 @@ public class RecordV2Test
     [TestMethod]
     public async Task RecordTestSave()
     {
+        var data = await RefreshDataAsync();
+        
+    }
+
+    private async Task<WavesAnalysisPlayerCard> RefreshDataAsync()
+    {
         Directory.CreateDirectory(AppSettings.WavesRecordFolder);
         var context = await InitServiceAsync();
         await Task.Delay(2000);
@@ -43,14 +49,14 @@ public class RecordV2Test
                     current,
                     recordId.Data.RecordId,
                     recordId.Data.PlayerId.ToString(),
-                    (int)item
+                    (int) item
                 );
             if (resources?.Data != null)
             {
                 cards.Items.Add(
                     new WavesAnalysisPlayerCardItem()
                     {
-                        PoolType = (int)item,
+                        PoolType = (int) item,
                         Resource = resources.Data.Select(
                             x => new Waves.Api.Models.Wrappers.RecordCardItemWrapper(x)
                         ),
@@ -58,9 +64,7 @@ public class RecordV2Test
                 );
             }
         }
-
-        await cache.SaveAsync(cards);
-
+        return await cache.SaveAsync(cards);
     }
 
     private async Task<IKuroCloudGameContext> InitServiceAsync()

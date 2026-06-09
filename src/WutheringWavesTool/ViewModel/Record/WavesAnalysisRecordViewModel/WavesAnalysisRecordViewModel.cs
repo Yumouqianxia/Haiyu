@@ -36,6 +36,7 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
         {
             await LoadDataAsync();
             await InitAnalysis();
+            await AnalysisStarAsync();
         }
         catch (Exception)
         {

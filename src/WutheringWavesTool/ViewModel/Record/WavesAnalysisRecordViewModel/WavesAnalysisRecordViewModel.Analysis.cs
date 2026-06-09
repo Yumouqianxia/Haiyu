@@ -13,6 +13,15 @@ partial class WavesAnalysisRecordViewModel
     [ObservableProperty]
     public partial GameRecordNavigationItem SelectNavItem { get; set; }
 
+    /// <summary>
+    /// 小保底歪率集合
+    /// </summary>
+    [ObservableProperty]
+    public partial ObservableCollection<GuaranteRangeWrapper> GuaranteItems { get; set; }
+
+    [ObservableProperty]
+    public partial GuaranteRangeWrapper SelectGuarante { get; set; }
+
     [ObservableProperty]
     public partial double StarAvgValue { get; set; }
 
@@ -31,6 +40,32 @@ partial class WavesAnalysisRecordViewModel
         SelectNavItem = NavItems[0];
     }
 
+    public async Task AnalysisStarAsync()
+    {
+        if (GuaranteItems == null)
+            GuaranteItems = new();
+        GuaranteItems.Clear();
+        var upIds = RecordHelper.FormatFiveRoleStar(FiveGroup);
+        //小保底扇形图
+        foreach (var item in this.Cards.Items.Where(x => x.IsFlage()))
+        {
+            var roleRange = RecordHelper.FormatStartFive(
+                item.Resource,
+                out var lastCount, upIds
+            );
+            ArgumentNullException.ThrowIfNull(roleRange.Item1);
+            var data = RecordHelper.GetGuaranteedRange(roleRange.Item1);
+            GuaranteItems.Add(new()
+            {
+                NG = data,
+                OK = 100 - data,
+                DisplayName = item.GetRecordNavItem().DisplayName
+            });
+        }
+        //称号
+        var result = Cards.EvaluateLuck(upIds);
+    }
+
     partial void OnSelectNavItemChanged(GameRecordNavigationItem value)
     {
         try
@@ -39,16 +74,14 @@ partial class WavesAnalysisRecordViewModel
             ArgumentNullException.ThrowIfNull(resources);
             ArgumentNullException.ThrowIfNull(FiveGroup);
             var temp1 = RecordHelper
-                        .FormatStartFive(
-                            resources.Resource,
-                            out var lastCount,
-                            RecordHelper.FormatFiveRoleStar(this.FiveGroup)
-                        )
-                        .Item1;
+                .FormatStartFive(
+                    resources.Resource,
+                    out var lastCount,
+                    RecordHelper.FormatFiveRoleStar(this.FiveGroup)
+                )
+                .Item1;
             ArgumentNullException.ThrowIfNull(temp1);
-            StarItems = temp1.Format(this.AllRole, true)
-                        .Reverse()
-                        .ToObservableCollection();
+            StarItems = temp1.Format(this.AllRole, true).Reverse().ToObservableCollection();
             StarItems.Insert(
                 0,
                 new RecordActivityFiveStarItemWrapper()

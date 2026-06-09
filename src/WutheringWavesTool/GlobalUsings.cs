@@ -75,3 +75,4 @@ global using WinRT.Interop;
 global using WinUIEx;
 global using static Haiyu.Common.Win32;
 global using Haiyu.Models.GameConfig;
+global using Waves.Core.Models.CloudGame;

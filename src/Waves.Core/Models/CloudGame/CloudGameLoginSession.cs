@@ -19,6 +19,8 @@ public partial class CloudGameLoginSession:ObservableObject
     public string TraceId { get; internal set; }
 
     public DateTime SaveTime { get; internal set; }
+
+    public string GetId() => $"{OrginData.Username}{OrginData.Sdkuserid}";
 }
 
 /// <summary>

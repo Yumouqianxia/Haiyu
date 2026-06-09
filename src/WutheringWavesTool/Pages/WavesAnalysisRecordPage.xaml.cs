@@ -1,24 +1,5 @@
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation.Collections;
-using Windows.Foundation;
-using Waves.Core.Models.CloudGame;
-
 namespace Haiyu.Pages;
 
-/// <summary>
-/// 新抽卡页面，自动合并，自动分析并计算结果
-/// </summary>
 public sealed partial class WavesAnalysisRecordPage : Page,IWindowPage
 {
     public WavesAnalysisRecordViewModel ViewModel { get; private set; }
@@ -32,6 +13,7 @@ public sealed partial class WavesAnalysisRecordPage : Page,IWindowPage
     public void SetWindow(Window window)
     {
         this.ViewModel.Initialization(window);
+        this.titleBar.Window = window;
         this.ViewModel.Window.AppWindow.Closing += AppWindow_Closing;
     }
 

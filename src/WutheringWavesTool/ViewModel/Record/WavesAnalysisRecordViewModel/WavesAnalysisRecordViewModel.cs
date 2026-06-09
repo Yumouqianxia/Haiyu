@@ -1,4 +1,6 @@
 using Haiyu.Plugin.Common.LegacyMessageBox;
+using Haiyu.Plugin.Contracts;
+using Haiyu.Plugin.Models.Enums;
 using MemoryPack;
 using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Models.CloudGame;
@@ -13,12 +15,18 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
 {
     public readonly IKuroCloudGameContext CloudGameContext;
     public CloudGameLoginSession Session { get; set; }
-
+    public IWavesPlayerCardCacheServices Cache { get; }
+    public FiveGroupModel FiveGroup { get; private set; }
+    public List<CommunityRoleData> AllRole { get; private set; }
+    public List<CommunityWeaponData> AllWeapon { get; private set; }
+    private WavesAnalysisPlayerCard Cards { get; set; }
     public WavesAnalysisRecordViewModel(
-        [FromKeyedServices(nameof(KuroCloudGameContext))] IKuroCloudGameContext cloudGameContext
+        [FromKeyedServices(nameof(KuroCloudGameContext))] IKuroCloudGameContext cloudGameContext,
+        IWavesPlayerCardCacheServices cache
     )
     {
         this.CloudGameContext = cloudGameContext;
+        Cache = cache;
     }
 
     [RelayCommand]
@@ -27,6 +35,8 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
         try
         {
             await LoadDataAsync();
+            await InitAnalysis();
+            await AnalysisStarAsync();
         }
         catch (Exception)
         {
@@ -34,28 +44,61 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
         }
     }
 
+    private async Task InitAnalysis()
+    {
+        this.FiveGroup = await RecordHelper.GetFiveGroupAsync(this.CTS.Token)??new();
+        this.AllRole = await RecordHelper.GetAllRoleAsync(this.CTS.Token)??new();
+        this.AllWeapon = await RecordHelper.GetAllWeaponAsync(this.CTS.Token)??new();
+        InitNavItems();
+
+    }
+
     private async Task LoadDataAsync()
     {
-        var path = Path.Combine(
-            Waves.Core.Settings.AppSettings.RecordFolder,
-            $"{this.Session.OrginData.Username}.json"
-        );
-        using (
-            var fs = new FileStream(
-                path,
-                FileMode.Open,
-                FileAccess.Read,
-                FileShare.ReadWrite,
-                4096,
-                true
-            )
-        )
-        {
-            var datas = await MemoryPackSerializer.DeserializeAsync<RecordCacheDetily>(
-                fs,
-                new MemoryPackSerializerOptions() { StringEncoding = StringEncoding.Utf8 }
+        await MargeNewRecordPlayerAsync();
+    }
+
+    async Task MargeNewRecordPlayerAsync()
+    {
+        var newRecord =
+            await this.CloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.GetRecordAsync(
+                this.Session,
+                this.CTS.Token
             );
+        if (newRecord == null || newRecord.Data == null)
+        {
+            return;
         }
+        WavesAnalysisPlayerCard cards = new()
+        {
+            Items = new List<WavesAnalysisPlayerCardItem>(),
+            LastUpdater = DateTime.Now,
+            SessionId = this.Session.OrginData.Username + this.Session.OrginData.Sdkuserid,
+        };
+        foreach (var item in CardPoolTypeValues.All)
+        {
+            var resources =
+                await this.CloudGameContext.WavesCloudSurivivalService.WavesCloudGameService.GetGameRecordResource(
+                    Session,
+                    newRecord.Data.RecordId,
+                    newRecord.Data.PlayerId.ToString(),
+                    (int) item
+                );
+            if (resources?.Data != null)
+            {
+                cards.Items.Add(
+                    new WavesAnalysisPlayerCardItem()
+                    {
+                        PoolType = (int) item,
+                        Resource = resources.Data.Select(
+                            x => new RecordCardItemWrapper(x)
+                        ),
+                        
+                    }
+                );
+            }
+        }
+        this.Cards  = await Cache.SaveAsync(cards);
     }
 
     internal void SetSessionAsync(CloudGameLoginSession session)
@@ -63,7 +106,7 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
         var result = this.CloudGameContext.WavesCloudSurivivalService.Cache.TryGet(
             session.OrginData.Username + session.OrginData.Sdkuserid
         );
-        if(result == null)
+        if (result == null)
         {
             LegacyMessageBox.ShowError("账号异常……");
             this.Window.Close();

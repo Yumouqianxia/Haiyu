@@ -26,7 +26,7 @@ public static class Instance
     public static void InitService()
     {
         Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder().AppBuilder().Build();
-        Task.Run(async()=>await Instance.Host.StartAsync());
+        Task.Run(async () => await Instance.Host.StartAsync());
     }
 
     public static T? GetService<T>()
@@ -68,11 +68,11 @@ public static class InstanceBuilderExtensions
                         }
                     )
                     .AddSingleton<AppSettings>()
-                #region XBox
+                    #region XBox
                     .AddSingleton<XBoxConfig>()
                     .AddSingleton<XBoxController>()
                     .AddSingleton<XBoxService>()
-                #endregion
+                    #endregion
                     .AddTransient<IRpcMethodService, RpcMethodService>()
                     .AddSingleton<ShellPage>()
                     .AddSingleton<ShellViewModel>()
@@ -122,8 +122,8 @@ public static class InstanceBuilderExtensions
                     .AddTransient<GamerTowerViewModel>()
                     .AddTransient<GamerSkinViewModel>()
                     .AddTransient<GamerSlashDetailViewModel>()
-                #endregion
-                #region Record
+                    #endregion
+                    #region Record
                     .AddTransient<RecordItemViewModel>()
                     #endregion
                     #region Roil
@@ -163,17 +163,17 @@ public static class InstanceBuilderExtensions
                     .AddTransient<CloudGameSettingDialog>()
                     .AddTransient<KuroGameSettingDialog>()
                     .AddTransient<KuroGameSettingViewModel>()
+                    #endregion
                 #endregion
-                #endregion
-                #region More
+                    #region More
                     .AddTransient<IPageService, PageService>()
                     .AddTransient<IPickersService, PickersService>()
                     .AddSingleton<ITipShow, TipShow>()
                     .AddKeyedTransient<ITipShow, PageTipShow>("Cache")
                     .AddKeyedTransient<IDialogManager, MainDialogService>("Cache")
-                    .AddSingleton<IWavesCloudGameService,WavesCloudGameService>()
-                    .AddKeyedSingleton<IUpdateService,GithubUpdateService>("GitHub")
-                    .AddKeyedSingleton<IUpdateService,MirrorUpdateService>("Mirror")
+                    .AddSingleton<IWavesCloudGameService, WavesCloudGameService>()
+                    .AddKeyedSingleton<IUpdateService, GithubUpdateService>("GitHub")
+                    .AddKeyedSingleton<IUpdateService, MirrorUpdateService>("Mirror")
                     #endregion
                     #region Base
                     .AddSingleton<IAppContext<App>, AppContext<App>>()
@@ -184,7 +184,7 @@ public static class InstanceBuilderExtensions
                     .AddSingleton<IGameWikiClient, GameWikiClient>()
                     .AddTransient<IViewFactorys, ViewFactorys>()
                     .AddSingleton<IThemeService, ThemeService>()
-                    .AddSingleton<IKuroAccountService,KuroAccountService>()
+                    .AddSingleton<IKuroAccountService, KuroAccountService>()
                     .AddHostedService<AutoSignService>()
                     .AddSingleton<CloudConfigManager>(
                         (s) =>
@@ -223,7 +223,9 @@ public static class InstanceBuilderExtensions
                     )
                     #endregion
                     #region Plugin
-
+                    .AddTransient<IWavesPlayerCardCacheServices, WavesPlayerCardCacheServices>(
+                        _ => new WavesPlayerCardCacheServices(AppSettings.WavesRecordFolder)
+                    )
                     #endregion
                     .AddKeyedSingleton<IDialogManager, MainDialogService>(nameof(MainDialogService))
                     .AddKeyedSingleton<LoggerService>(

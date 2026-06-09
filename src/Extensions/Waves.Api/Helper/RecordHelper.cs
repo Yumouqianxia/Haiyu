@@ -1,4 +1,4 @@
-﻿
+
 using System.Text.Json;
 using MemoryPack;
 using Waves.Api.Models;
@@ -164,18 +164,18 @@ public static class RecordHelper
     public static List<int> FormatFiveWeaponeRoleStar(FiveGroupModel model) =>
         model.Data.VersionPools.SelectMany(x => x.UpFiveWeaponIds).ToList();
 
-    public static async Task<FiveGroupModel?> GetFiveGroupAsync()
+    public static async Task<FiveGroupModel?> GetFiveGroupAsync(CancellationToken token = default)
     {
         using (HttpClient client = new HttpClient())
         {
             try
             {
                 var response = await client.GetAsync(
-                    "https://api3.sanyueqi.cn/api/v1/pool/draw_config_infos"
+                    "https://api3.sanyueqi.cn/api/v1/pool/draw_config_infos", token
                 );
                 response.EnsureSuccessStatusCode();
                 var model = JsonSerializer.Deserialize(
-                    await response.Content.ReadAsStringAsync(),
+                    await response.Content.ReadAsStringAsync(token),
                     PlayerCardRecordContext.Default.FiveGroupModel
                 );
                 return model;
@@ -187,16 +187,16 @@ public static class RecordHelper
         }
     }
 
-    public static async Task<List<CommunityRoleData>?> GetAllRoleAsync()
+    public static async Task<List<CommunityRoleData>?> GetAllRoleAsync(CancellationToken token= default)
     {
         using (HttpClient client = new HttpClient())
         {
             try
             {
-                var response = await client.GetAsync("https://mc.appfeng.com/json/avatar.json");
+                var response = await client.GetAsync("https://mc.appfeng.com/json/avatar.json", token);
                 response.EnsureSuccessStatusCode();
                 var model = JsonSerializer.Deserialize(
-                    await response.Content.ReadAsStringAsync(),
+                    await response.Content.ReadAsStringAsync(token),
                     PlayerCardRecordContext.Default.ListCommunityRoleData
                 );
                 if (model != null)
@@ -210,16 +210,16 @@ public static class RecordHelper
         }
     }
 
-    public static async Task<List<CommunityWeaponData>?> GetAllWeaponAsync()
+    public static async Task<List<CommunityWeaponData>?> GetAllWeaponAsync(CancellationToken token =default)
     {
         using (HttpClient client = new HttpClient())
         {
             try
             {
-                var response = await client.GetAsync("https://mc.appfeng.com/json/weapon.json?");
+                var response = await client.GetAsync("https://mc.appfeng.com/json/weapon.json?", token);
                 response.EnsureSuccessStatusCode();
                 var model = JsonSerializer.Deserialize(
-                    await response.Content.ReadAsStringAsync(),
+                    await response.Content.ReadAsStringAsync(token),
                     PlayerCardRecordContext.Default.ListCommunityWeaponData
                 );
                 if (model != null)

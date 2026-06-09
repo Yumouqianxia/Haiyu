@@ -292,6 +292,8 @@ public partial class AnalysisRecordViewModel : ViewModelBase
                     out lastCount,
                     RecordHelper.FormatFiveRoleStar(FiveGroup!)
                 );
+                ArgumentNullException.ThrowIfNull(roleRange);
+                ArgumentNullException.ThrowIfNull(roleRange.Item1);
                 var passValue = roleRange.Item1.Where(x => x.Item3 == false);
                 var ngValue = roleRange.Item1.Where(x => x.Item3 == true);
                 int passCount = passValue.Count();

@@ -827,6 +827,15 @@ partial class KuroGameContextBaseV2
                 await downloadMethod.ExecuteAsync(true);
             }
         }
+        for (int i = 0; i < patch.DeleteFiles.Count; i++)
+        {
+            var localFile = $"{baseFolder}\\{patch.DeleteFiles[i]}".Replace('/', '\\');
+            if (File.Exists(localFile))
+            {
+                File.Delete(localFile);
+            }
+            Logger.WriteInfo($"删除旧文件{System.IO.Path.GetFileName(localFile)}");
+        }
         var writeConfig = new WriteGameResourceConfig(
             this.GameLocalConfig,
             launcher,
@@ -848,16 +857,12 @@ partial class KuroGameContextBaseV2
                 ""
             );
         }
-        else
-        {
-            
-        }
         //删除下载文件夹
         if (!string.IsNullOrWhiteSpace(downloadBaseFolder))
             Directory.Delete(downloadBaseFolder, true);
         await state.CancelToken.CancelAsync();
         state.IsActive = false;
-        SetCurrentStateNull(false);
+        await SetCurrentStateNull(false);
         this.GameEventPublisher.Publish(
             new GameContextOutputArgs() { Type = GameContextActionType.None}
         );

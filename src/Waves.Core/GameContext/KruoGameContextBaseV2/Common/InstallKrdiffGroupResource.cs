@@ -29,7 +29,7 @@ public sealed partial class InstallKrdiffGroupResource : IProgressSetup, IAsyncD
     public void SetParam(Dictionary<string, object> param, GameEventPublisher gameEventPublisher)
     {
         this.Param = param;
-        this.GameEventPublisher = GameEventPublisher;
+        this.GameEventPublisher = gameEventPublisher;
     }
 
     public async Task<bool> CheckAsync()
@@ -107,6 +107,18 @@ public sealed partial class InstallKrdiffGroupResource : IProgressSetup, IAsyncD
                     return false;
                 }
                 var krdiffPath = BuildFileHelper.BuildFilePath(diffFolderPath, groupFileInfos[i]);
+                if (!File.Exists(krdiffPath))
+                {
+                    Logger.WriteError($"补丁文件不存在，跳过: {krdiffPath}");
+                    GameEventPublisher.Publish(
+                        new GameContextOutputArgs
+                        {
+                            Type = GameContextActionType.Error,
+                            TipMessage = $"补丁文件不存在，跳过: {System.IO.Path.GetFileName(krdiffPath)}",
+                        }
+                    );
+                    continue;
+                }
                 IProgress<(GameContextActionType, string, KrDiffDecompressResult)> progress =
                     new Progress<(GameContextActionType, string, KrDiffDecompressResult)>(
                         (s) =>
@@ -133,7 +145,7 @@ public sealed partial class InstallKrdiffGroupResource : IProgressSetup, IAsyncD
                             ProgressValue = s.Item3.TotalBytesProgress;
                         }
                     );
-                await DiffDecompressTask.DecompressKrdiffFile(
+                var decompressResult = await DiffDecompressTask.DecompressKrdiffFile(
                     baseFolderPath,
                     krdiffPath,
                     i,
@@ -141,19 +153,34 @@ public sealed partial class InstallKrdiffGroupResource : IProgressSetup, IAsyncD
                     tempFolder,
                     progress: progress
                 );
+                if (decompressResult != 0)
+                {
+                    Logger.WriteError($"补丁解压失败，退出码: {decompressResult}，跳过: {krdiffPath}");
+                    GameEventPublisher.Publish(
+                        new GameContextOutputArgs
+                        {
+                            Type = GameContextActionType.Error,
+                            TipMessage = $"补丁解压失败，退出码: {decompressResult}，跳过: {System.IO.Path.GetFileName(krdiffPath)}",
+                        }
+                    );
+                    continue;
+                }
                 for (int j = 0; j < groupFileInfos[i].SrcFiles.Count; j++)
                 {
                     var deleteFilePath = BuildFileHelper.BuildFilePath(
                         baseFolderPath,
                         groupFileInfos[i].SrcFiles[j]
                     );
+                    Logger.WriteError($"删除源文件{deleteFilePath}");
+                    if (File.Exists(deleteFilePath))
+                        File.Delete(deleteFilePath);
+                }
+                for (int j = 0; j < groupFileInfos[i].DstFiles.Count; j++)
+                {
                     newFiles.Add(
                         BuildFileHelper.BuildFilePath(tempFolder, groupFileInfos[i].DstFiles[j]),
                         BuildFileHelper.BuildFilePath(baseFolderPath, groupFileInfos[i].DstFiles[j])
                     );
-                    Logger.WriteError($"删除源文件{deleteFilePath}");
-                    if (File.Exists(deleteFilePath))
-                        File.Delete(deleteFilePath);
                 }
                 Logger.WriteInfo("删除差异文件");
                 if (File.Exists(krdiffPath))
@@ -182,6 +209,7 @@ public sealed partial class InstallKrdiffGroupResource : IProgressSetup, IAsyncD
         }
         catch (Exception ex)
         {
+            Logger.WriteError($"安装补丁组文件异常: {ex.Message}");
             return false;
         }
     }

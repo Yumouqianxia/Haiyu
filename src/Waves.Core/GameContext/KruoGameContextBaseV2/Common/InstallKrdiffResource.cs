@@ -90,13 +90,25 @@ public class InstallKrdiffResource:IProgressSetup,IAsyncDisposable
                         ProgressValue = s.Item3.TotalBytesProgress;
                     }
                 );
-            await DiffDecompressTask.DecompressKrdiffFile(
+            var decompressResult =  await DiffDecompressTask.DecompressKrdiffFile(
                 gameBaseFolder,
                 krdiffPath,
                 i,
                 krdiffs.Count,
                 progress: progress
             );
+            if (decompressResult != 0)
+            {
+                Logger.WriteError($"补丁解压失败，退出码: {decompressResult}，跳过: {krdiffPath}");
+                GameEventPublisher.Publish(
+                    new GameContextOutputArgs
+                    {
+                        Type = GameContextActionType.Error,
+                        TipMessage = $"补丁解压失败，退出码: {decompressResult}，跳过: {System.IO.Path.GetFileName(krdiffPath)}",
+                    }
+                );
+                continue;
+            }
         }
         return true;
     }
@@ -104,7 +116,7 @@ public class InstallKrdiffResource:IProgressSetup,IAsyncDisposable
     public void SetParam(Dictionary<string, object> param, IGameEventPublisher gameEventPublisher)
     {
         this.Param = param;
-        this.GameEventPublisher = GameEventPublisher;
+        this.GameEventPublisher = gameEventPublisher;
     }
 
     /// <summary>

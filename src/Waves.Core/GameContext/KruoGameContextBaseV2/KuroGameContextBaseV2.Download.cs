@@ -149,7 +149,7 @@ partial class KuroGameContextBaseV2
                     );
                     
                 }
-                this.SetCurrentStateNull(false);
+                await this.SetCurrentStateNull(false);
                 return true;
             }
             await this.GameEventPublisher.PublishStepAsync("写入配置", CurrentSetups, Setups);
@@ -158,17 +158,17 @@ partial class KuroGameContextBaseV2
             await state.CancelToken.CancelAsync();
             state.IsActive = false;
             await Task.Delay(200);
-            SetCurrentStateNull(false);
+            await SetCurrentStateNull(false);
             return true;
         }
         catch (OperationCanceledException)
         {
-            SetCurrentStateNull(false);
+            await SetCurrentStateNull(false);
             return false;
         }
         finally
         {
-            SetCurrentStateNull(false);
+            await SetCurrentStateNull(false);
         }
     }
 
@@ -199,7 +199,7 @@ partial class KuroGameContextBaseV2
             );
             return false;
         }
-        Task.Run(async () => await StartDownloadAsync(folder, launcher, true));
+        _ = Task.Run(async () => await StartDownloadAsync(folder, launcher, true));
         return true;
     }
 

@@ -48,7 +48,7 @@ public static class WavesRecordPlayerHelper
 
     extension(WavesAnalysisPlayerCard card)
     {
-        public (string Title, double Score) EvaluateLuck(List<int> upRoleIds)
+        public (string Title, double Score,double doubleCount) EvaluateLuck(List<int> upRoleIds)
         {
             var rates = new List<double>();
             var allResources = new List<RecordCardItemWrapper>();
@@ -91,7 +91,33 @@ public static class WavesRecordPlayerHelper
             }
 
             var totalPullsScore = Math.Min(allResources.Count / 1000.0, 1.0) * 100;
-            var rawScore = guaranteeScore * 0.25 + efficiencyScore * 0.6 + totalPullsScore * 0.15;
+
+            var sorted = allResources.OrderBy(x => x.RecordTime).ToList();
+            var fiveStarCount = sorted.Count(x => x.QualityLevel == 5);
+            int doubleCount = 0;
+            for (int i = 0; i < sorted.Count; i++)
+            {
+                if (sorted[i].QualityLevel != 5) continue;
+                for (int j = i + 1; j < Math.Min(i + 10, sorted.Count); j++)
+                {
+                    if (sorted[j].QualityLevel == 5)
+                    {
+                        doubleCount++;
+                        break;
+                    }
+                }
+            }
+
+            double doubleScore = doubleCount switch
+            {
+                0 => 0,
+                1 => 70,
+                2 => 85,
+                _ => 100
+            };
+
+            var rawScore = guaranteeScore * 0.2 + efficiencyScore * 0.4
+                + totalPullsScore * 0.1 + doubleScore * 0.3;
             rawScore = Math.Clamp(rawScore, 0, 100);
 
             var title = rawScore switch
@@ -103,7 +129,7 @@ public static class WavesRecordPlayerHelper
                 _ => "至尊无敌欧皇"
             };
 
-            return (title, Math.Round(rawScore, 1));
+            return (title, Math.Round(rawScore, 1),doubleCount);
         }
     }
 }

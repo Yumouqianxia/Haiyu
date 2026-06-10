@@ -430,7 +430,6 @@ partial class KuroGameContextBaseV2
             {
                 await this.StartInstallGameResource(_launcher, previous, _patch);
             }
-            await SetCurrentStateNull(isProd);
             #endregion
             return true;
         }

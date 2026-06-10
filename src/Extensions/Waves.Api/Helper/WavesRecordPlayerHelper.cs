@@ -22,6 +22,7 @@ public static class WavesRecordPlayerHelper
             { CardPoolType.WeaponCollaboration, ("武器联动", false) },
         };
 
+
     extension(WavesAnalysisPlayerCardItem analysisItem)
     {
         public GameRecordNavigationItem GetRecordNavItem()
@@ -42,13 +43,27 @@ public static class WavesRecordPlayerHelper
         public bool IsFlage()
         {
             return PoolTypeNames
-                    .GetValueOrDefault((CardPoolType) analysisItem.PoolType, ("未知", false)).Item2;
+                .GetValueOrDefault((CardPoolType)analysisItem.PoolType, ("未知", false))
+                .Item2;
+        }
+
+        /// <summary>
+        /// 获得抽卡时间线
+        /// </summary>
+        /// <returns></returns>
+        public ObservableCollection<RecordTimeLine> GetTimeLine()
+        {
+            return new ObservableCollection<RecordTimeLine>(
+                analysisItem
+                    .Resource.GroupBy(x => x.RecordTime.Date)
+                    .Select(x => new RecordTimeLine() { DateTime = x.Key, Values = x.Count() })
+            );
         }
     }
 
     extension(WavesAnalysisPlayerCard card)
     {
-        public (string Title, double Score,double doubleCount) EvaluateLuck(List<int> upRoleIds)
+        public (string Title, double Score, double doubleCount) EvaluateLuck(List<int> upRoleIds)
         {
             var rates = new List<double>();
             var allResources = new List<RecordCardItemWrapper>();
@@ -97,7 +112,8 @@ public static class WavesRecordPlayerHelper
             int doubleCount = 0;
             for (int i = 0; i < sorted.Count; i++)
             {
-                if (sorted[i].QualityLevel != 5) continue;
+                if (sorted[i].QualityLevel != 5)
+                    continue;
                 for (int j = i + 1; j < Math.Min(i + 10, sorted.Count); j++)
                 {
                     if (sorted[j].QualityLevel == 5)
@@ -113,11 +129,14 @@ public static class WavesRecordPlayerHelper
                 0 => 0,
                 1 => 70,
                 2 => 85,
-                _ => 100
+                _ => 100,
             };
 
-            var rawScore = guaranteeScore * 0.2 + efficiencyScore * 0.4
-                + totalPullsScore * 0.1 + doubleScore * 0.3;
+            var rawScore =
+                guaranteeScore * 0.2
+                + efficiencyScore * 0.4
+                + totalPullsScore * 0.1
+                + doubleScore * 0.3;
             rawScore = Math.Clamp(rawScore, 0, 100);
 
             var title = rawScore switch
@@ -126,10 +145,30 @@ public static class WavesRecordPlayerHelper
                 < 40 => "非酋",
                 < 60 => "平民",
                 < 80 => "小欧皇",
-                _ => "至尊无敌欧皇"
+                _ => "至尊无敌欧皇",
             };
 
-            return (title, Math.Round(rawScore, 1),doubleCount);
+            return (title, Math.Round(rawScore, 1), doubleCount);
+        }
+
+        /// <summary>
+        /// 获取整体抽卡时间线
+        /// </summary>
+        /// <returns></returns>
+        public ObservableCollection<RecordTimeLine> GetTimeLine()
+        {
+            return new ObservableCollection<RecordTimeLine>(
+                card.Items.SelectMany(x=>x.Resource)
+                    .GroupBy(x => x.RecordTime.Date)
+                    .Select(x => new RecordTimeLine() { DateTime = x.Key, Values = x.Count() })
+            );
         }
     }
+}
+
+public class RecordTimeLine
+{
+    public DateTime DateTime { get; set; }
+
+    public int Values { get; set; }
 }

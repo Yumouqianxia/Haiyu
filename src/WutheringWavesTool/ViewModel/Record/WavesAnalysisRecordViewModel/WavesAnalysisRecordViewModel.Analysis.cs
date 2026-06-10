@@ -64,6 +64,7 @@ partial class WavesAnalysisRecordViewModel
         }
         //称号
         var result = Cards.EvaluateLuck(upIds);
+
     }
 
     partial void OnSelectNavItemChanged(GameRecordNavigationItem value)

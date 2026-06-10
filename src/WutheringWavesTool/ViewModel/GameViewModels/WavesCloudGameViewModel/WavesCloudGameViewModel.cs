@@ -293,7 +293,15 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     [RelayCommand]
     void ShowWavesAnalysis()
     {
-        ViewFactorys.ShowAnalysisRecordV2(this.SelectLogin).AppWindow.Show();
+        var win = ViewFactorys.ShowAnalysisRecordV2(this.SelectLogin);
+        var scale = Haiyu.Controls.TitleBar.GetScaleAdjustment(win);
+        int targetDipWidth = 1000;
+        int targetDipHeight = 500;
+        var pixelWidth = (int) Math.Round(targetDipWidth * scale);
+        var pixelHeight = (int) Math.Round(targetDipHeight * scale);
+        win.Manager.Height = pixelHeight;
+        win.Manager.Width = pixelWidth;
+        win.AppWindow.Show();
     }
 }
 

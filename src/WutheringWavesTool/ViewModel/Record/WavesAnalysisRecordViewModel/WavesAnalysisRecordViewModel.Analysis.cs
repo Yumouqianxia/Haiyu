@@ -49,21 +49,34 @@ partial class WavesAnalysisRecordViewModel
         //小保底扇形图
         foreach (var item in this.Cards.Items.Where(x => x.IsFlage()))
         {
-            var roleRange = RecordHelper.FormatStartFive(
-                item.Resource,
-                out var lastCount, upIds
-            );
+            var roleRange = RecordHelper.FormatStartFive(item.Resource, out var lastCount, upIds);
             ArgumentNullException.ThrowIfNull(roleRange.Item1);
             var data = RecordHelper.GetGuaranteedRange(roleRange.Item1);
-            GuaranteItems.Add(new()
-            {
-                NG = data,
-                OK = 100 - data,
-                DisplayName = item.GetRecordNavItem().DisplayName
-            });
+            GuaranteItems.Add(
+                new()
+                {
+                    NG = data,
+                    OK = 100 - data,
+                    DisplayName = item.GetRecordNavItem().DisplayName,
+                }
+            );
+            this.SelectGuarante = GuaranteItems[0];
         }
         //称号
         var result = Cards.EvaluateLuck(upIds);
+    }
+
+    partial void OnSelectGuaranteChanged(GuaranteRangeWrapper value)
+    {
+        if (this.GuaranteeChart == null)
+            GuaranteeChart = new();
+        GuaranteeChart.Clear();
+        this.GuaranteeChart = new ObservableCollection<object>()
+        {
+            new Models.Charts.PipeData() { Name = "中", Values = [value.OK] },
+            new Models.Charts.PipeData() { Name = "歪", Values = [value.NG] },
+        };
+        GuaranteeHeader = $"小保底歪率:{value.OK}";
     }
 
     partial void OnSelectNavItemChanged(GameRecordNavigationItem value)

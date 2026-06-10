@@ -722,7 +722,7 @@ partial class KuroGameContextBaseV2
                 if (runValue is bool boolValue && boolValue == false)
                 {
                     Logger.WriteError("安装补丁组文件失败");
-                    SetCurrentStateNull(false);
+                    await SetCurrentStateNull(false);
                     Directory.Delete(downloadBaseFolder);
                     GameEventPublisher.Publish(new() { Type = GameContextActionType.None, Prod = false });
                     return;
@@ -754,7 +754,7 @@ partial class KuroGameContextBaseV2
                 if (runValue is bool boolValue && boolValue == false)
                 {
                     Logger.WriteError("安装解压包失败");
-                    SetCurrentStateNull(false);
+                    await SetCurrentStateNull(false);
                     GameEventPublisher.Publish(new() { Type = GameContextActionType.None, Prod = false });
                     return;
                 }
@@ -842,7 +842,6 @@ partial class KuroGameContextBaseV2
             Logger
         );
         await writeConfig.WriteDownloadAndUpDateResultAsync(launcher);
-        //确保写入文件IO
         await Task.Delay(100);
         if (isProd)
         {
@@ -856,18 +855,20 @@ partial class KuroGameContextBaseV2
                 ""
             );
         }
-        //删除下载文件夹
         if (!string.IsNullOrWhiteSpace(downloadBaseFolder))
             Directory.Delete(downloadBaseFolder, true);
         await state.CancelToken.CancelAsync();
         state.IsActive = false;
-        await SetCurrentStateNull(false);
-        this.GameEventPublisher.Publish(
-            new GameContextOutputArgs() { Type = GameContextActionType.None}
-        );
+        await SetCurrentStateNull(false); 
+        Logger.WriteInfo($"安装完成");
         #endregion
     }
 
+    /// <summary>
+    /// 退出下载任务
+    /// </summary>
+    /// <param name="isProd"></param>
+    /// <returns></returns>
     private async Task SetCurrentStateNull(bool? isProd)
     {
         if (isProd == null)

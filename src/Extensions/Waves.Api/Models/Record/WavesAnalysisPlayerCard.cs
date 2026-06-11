@@ -1,10 +1,15 @@
 
+using System.Diagnostics.CodeAnalysis;
 using MemoryPack;
 using Waves.Api.Models.Wrappers;
 
 namespace Waves.Api.Models.Record;
 
 [MemoryPackable]
+[DynamicallyAccessedMembers(
+    DynamicallyAccessedMemberTypes.PublicProperties
+    | DynamicallyAccessedMemberTypes.PublicMethods
+)]
 public partial class WavesAnalysisPlayerCard
 {
     public DateTime LastUpdater { get; set; }
@@ -15,6 +20,10 @@ public partial class WavesAnalysisPlayerCard
 }
 
 [MemoryPackable]
+[DynamicallyAccessedMembers(
+    DynamicallyAccessedMemberTypes.PublicProperties
+    | DynamicallyAccessedMemberTypes.PublicMethods
+)]
 public partial class WavesAnalysisPlayerCardItem
 {
     public int PoolType { get; set; }

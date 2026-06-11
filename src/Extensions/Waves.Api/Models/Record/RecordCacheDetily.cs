@@ -1,4 +1,5 @@
-﻿using MemoryPack;
+﻿using System.Diagnostics.CodeAnalysis;
+using MemoryPack;
 using System.Text.Json.Serialization;
 using Waves.Api.Models.Wrappers;
 
@@ -6,6 +7,10 @@ namespace Waves.Api.Models.Record;
 
 
 [MemoryPackable]
+[DynamicallyAccessedMembers(
+    DynamicallyAccessedMemberTypes.PublicProperties
+    | DynamicallyAccessedMemberTypes.PublicMethods
+)]
 public partial class RecordCacheDetily
 {
     [JsonPropertyName("name")]

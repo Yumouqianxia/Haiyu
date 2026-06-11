@@ -9,10 +9,14 @@ using Haiyu.ViewModel.GameViewModels;
 using Haiyu.ViewModel.GameViewModels.GameContexts;
 using Haiyu.ViewModel.OOBEViewModels;
 using Haiyu.ViewModel.WikiViewModels;
+using MemoryPack;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Waves.Api.Models.Rpc;
+using Waves.Api.Models.CloudGame;
+using Waves.Api.Models.Record;
+using Waves.Api.Models.Wrappers;
 using Waves.Core.Contracts.CloudGame;
+using Waves.Core.Models;
 using Waves.Core.Services;
 using Waves.Core.Services.CloudGameServices;
 using Waves.Core.Settings;
@@ -25,8 +29,19 @@ public static class Instance
 
     public static void InitService()
     {
+        EnsureMemoryPackFormatters();
         Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder().AppBuilder().Build();
         Task.Run(async () => await Instance.Host.StartAsync());
+    }
+
+    static void EnsureMemoryPackFormatters()
+    {
+        MemoryPackFormatterProvider.Register<RecordCardItemWrapper>();
+        MemoryPackFormatterProvider.Register<RecordCacheDetily>();
+        MemoryPackFormatterProvider.Register<WavesAnalysisPlayerCard>();
+        MemoryPackFormatterProvider.Register<WavesAnalysisPlayerCardItem>();
+        MemoryPackFormatterProvider.Register<Datum>();
+        MemoryPackFormatterProvider.Register<LocalAccount>();
     }
 
     public static T? GetService<T>()

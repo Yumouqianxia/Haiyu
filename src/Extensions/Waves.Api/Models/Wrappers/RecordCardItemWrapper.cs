@@ -21,7 +21,6 @@ public partial class RecordCardItemWrapper : ObservableObject
         Name = datum.Name;
         Count = datum.Count;
         Time = datum.Time;
-        this.RecordTime = DateTime.Parse(Time);
     }
 
     [ObservableProperty]
@@ -52,8 +51,8 @@ public partial class RecordCardItemWrapper : ObservableObject
     [JsonPropertyName("time")]
     public partial string Time { get; set; }
 
-    [JsonPropertyName("recordTime")]
-    public DateTime RecordTime { get; }
+    [JsonIgnore]
+    public DateTime RecordTime => DateTime.TryParse(Time, out var dt) ? dt : default;
 
     [JsonIgnore]
     public int Day => RecordTime.Day;

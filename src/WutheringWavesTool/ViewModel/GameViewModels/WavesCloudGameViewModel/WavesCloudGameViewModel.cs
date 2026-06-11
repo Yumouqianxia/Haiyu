@@ -295,8 +295,8 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     {
         var win = ViewFactorys.ShowAnalysisRecordV2(this.SelectLogin);
         var scale = Haiyu.Controls.TitleBar.GetScaleAdjustment(win);
-        int targetDipWidth = 1000;
-        int targetDipHeight = 500;
+        int targetDipWidth = 700;
+        int targetDipHeight = 400;
         var pixelWidth = (int) Math.Round(targetDipWidth * scale);
         var pixelHeight = (int) Math.Round(targetDipHeight * scale);
         win.Manager.Height = pixelHeight;

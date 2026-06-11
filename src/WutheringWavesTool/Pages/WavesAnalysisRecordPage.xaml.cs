@@ -35,7 +35,9 @@ public sealed partial class WavesAnalysisRecordPage : Page,IWindowPage
 
     public void Dispose()
     {
+        this.Bindings.StopTracking();
         this.ViewModel.Dispose();
         this.ViewModel = null;
+        GC.Collect();
     }
 }

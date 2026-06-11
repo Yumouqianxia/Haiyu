@@ -1,6 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using LiveChartsCore;
+using LiveChartsCore.Defaults;
+using LiveChartsCore.Kernel;
+using LiveChartsCore.SkiaSharpView;
 using Windows.ApplicationModel.VoiceCommands;
 
 namespace Haiyu.ViewModel;
@@ -28,6 +33,9 @@ partial class WavesAnalysisRecordViewModel
     [ObservableProperty]
     public partial ObservableCollection<RecordActivityFiveStarItemWrapper> StarItems { get; set; }
 
+    [ObservableProperty]
+    public partial RecordHealderWrapper Header { get; set; }
+
     public void InitNavItems()
     {
         if (NavItems == null)
@@ -46,28 +54,119 @@ partial class WavesAnalysisRecordViewModel
             GuaranteItems = new();
         GuaranteItems.Clear();
         var upIds = RecordHelper.FormatFiveRoleStar(FiveGroup);
+        var allResources = Cards
+            .Items.SelectMany(x => x.Resource ?? Enumerable.Empty<RecordCardItemWrapper>())
+            .ToList();
+        var allStarTotal = allResources.Count(x => x.QualityLevel == 5);
+        var crookedTotal = 0;
         //小保底扇形图
         foreach (var item in this.Cards.Items.Where(x => x.IsFlage()))
         {
             var roleRange = RecordHelper.FormatStartFive(item.Resource, out var lastCount, upIds);
             ArgumentNullException.ThrowIfNull(roleRange.Item1);
             var data = RecordHelper.GetGuaranteedRange(roleRange.Item1);
+
+            var flaggedFiveStars = roleRange.Item1;
+            int consecutiveLoss = 0;
+            for (int i = flaggedFiveStars.Count - 1; i >= 0; i--)
+            {
+                if (flaggedFiveStars[i].Item3 == true)
+                    consecutiveLoss++;
+                else if (flaggedFiveStars[i].Item3.HasValue)
+                    break;
+            }
+
+            bool isNextSmallGuarantee = true;
+            foreach (var entry in flaggedFiveStars)
+            {
+                if (entry.Item3.HasValue)
+                    isNextSmallGuarantee = !entry.Item3.Value;
+            }
+
             GuaranteItems.Add(
                 new()
                 {
                     NG = data,
                     OK = 100 - data,
                     DisplayName = item.GetRecordNavItem().DisplayName,
+                    ConsecutiveLoss = consecutiveLoss,
+                    GuaranteeStatus = isNextSmallGuarantee ? "小保底" : "大保底",
                 }
             );
             this.SelectGuarante = GuaranteItems[0];
+            crookedTotal += flaggedFiveStars.Count(x => x.Item3 == true);
         }
         //称号
         var result = Cards.EvaluateLuck(upIds);
+        //平均出金抽数
+        var fiveStarRecords = RecordHelper.FormatRecordFive(allResources);
+        double avgPulls =
+            fiveStarRecords.Count > 0 ? Math.Round(fiveStarRecords.CalculateAvg(), 1) : 0;
+        //实际出金率
+        double actualRate =
+            allResources.Count > 0
+                ? Math.Round((double)allStarTotal / allResources.Count * 100, 2)
+                : 0;
+        //抽卡跨度天数
+        var validDates = allResources.Select(x => x.RecordTime).Where(x => x != default).ToList();
+        int days = validDates.Count > 1 ? (validDates.Max() - validDates.Min()).Days : 0;
+        Header = new RecordHealderWrapper()
+        {
+            Designation = result.Title,
+            DoubleCount = (int)result.doubleCount,
+            AllTotal = allResources.Count,
+            AllStarTotal = allStarTotal,
+            CrookedTotal = crookedTotal,
+            Score = result.Score,
+            AvgPulls = avgPulls,
+            ActualFiveStarRate = actualRate,
+            Days = days,
+        };
+
+        //各卡池抽数分布
+        var poolChart = new ObservableCollection<object>();
+        foreach (var item in Cards.Items)
+        {
+            var resourceCount = item.Resource?.Count() ?? 0;
+            if (resourceCount > 0)
+            {
+                poolChart.Add(
+                    new Models.Charts.PipeData()
+                    {
+                        Name = item.GetRecordNavItem().DisplayName,
+                        Values = [resourceCount],
+                    }
+                );
+            }
+        }
+        PoolChart = poolChart;
+
+        //出货占比饼图
+        var fourStarTotal = allResources.Count(x => x.QualityLevel == 4);
+        StarRatioChart = new ObservableCollection<object>()
+        {
+            new Models.Charts.PipeData() { Name = "4星", Values = [fourStarTotal] },
+            new Models.Charts.PipeData() { Name = "5星", Values = [allStarTotal] },
+        };
+
+        if (TimeLineChart == null)
+            TimeLineChart = new();
+        TimeLineChart.Clear();
+        //每日抽数柱状图
+        var timeLine = Cards.GetTimeLine();
+        TimeLineChart = new ObservableCollection<DateTimePoint>();
+        foreach (var point in timeLine)
+        {
+            if (point.DateTime == DateTime.MinValue)
+                continue;
+            TimeLineChart.Add(new DateTimePoint(point.DateTime, point.Values));
+        }
     }
 
     partial void OnSelectGuaranteChanged(GuaranteRangeWrapper value)
     {
+        if (value == null)
+            return;
         if (this.GuaranteeChart == null)
             GuaranteeChart = new();
         GuaranteeChart.Clear();
@@ -76,11 +175,13 @@ partial class WavesAnalysisRecordViewModel
             new Models.Charts.PipeData() { Name = "中", Values = [value.OK] },
             new Models.Charts.PipeData() { Name = "歪", Values = [value.NG] },
         };
-        GuaranteeHeader = $"小保底歪率:{value.OK}";
+        GuaranteeHeader = $"保底状态：{value.GuaranteeStatus}";
     }
 
     partial void OnSelectNavItemChanged(GameRecordNavigationItem value)
     {
+        if (value == null)
+            return;
         try
         {
             var resources = this.Cards.Items.Where(x => x.PoolType == value.Id).FirstOrDefault();

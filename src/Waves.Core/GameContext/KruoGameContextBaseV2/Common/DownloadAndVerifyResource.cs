@@ -29,7 +29,7 @@ public sealed class DownloadAndVerifyResource : IProgressSetup, IAsyncDisposable
     private DownloadState _downloadState;
 
     public Dictionary<string, object> Param { get; private set; }
-    public IGameEventPublisher GameEventPublisher { get; private set; }
+    public IGameEventPublisher<GameContextOutputArgs> GameEventPublisher { get; private set; }
     public LoggerService Logger { get; }
     public string ProgressName { get; set; }
     public double ProgressValue { get; set; }
@@ -47,7 +47,7 @@ public sealed class DownloadAndVerifyResource : IProgressSetup, IAsyncDisposable
         Logger = loggerService;
     }
 
-    public void SetParam(Dictionary<string, object> param, IGameEventPublisher gameEventPublisher)
+    public void SetParam(Dictionary<string, object> param, IGameEventPublisher<GameContextOutputArgs> gameEventPublisher)
     {
         Param = param;
         this.GameEventPublisher = gameEventPublisher;
@@ -219,7 +219,9 @@ public sealed class DownloadAndVerifyResource : IProgressSetup, IAsyncDisposable
                         new Progress<(GameContextActionType, bool, long, string, long, long)>(
                             value =>
                             {
-                                if (_disposed || _downloadState.CancelToken.IsCancellationRequested)
+                                if (_disposed
+                                    || _downloadState.CancelToken.IsCancellationRequested
+                                    || !(_downloadState?.IsActive ?? false))
                                     return;
                                 var args = UpdateFileProgress(
                                     value.Item1,
@@ -268,7 +270,9 @@ public sealed class DownloadAndVerifyResource : IProgressSetup, IAsyncDisposable
                             }
                             else
                             {
-                                if (!_disposed && !_downloadState.CancelToken.IsCancellationRequested)
+                                if (!_disposed
+                                    && !_downloadState.CancelToken.IsCancellationRequested
+                                    && (_downloadState?.IsActive ?? false))
                                 {
                                     var args = UpdateFileProgress(
                                         GameContextActionType.Verify,
@@ -326,7 +330,9 @@ public sealed class DownloadAndVerifyResource : IProgressSetup, IAsyncDisposable
                                 }
                                 else
                                 {
-                                    if (!_disposed && !_downloadState.CancelToken.IsCancellationRequested)
+                                    if (!_disposed
+                                        && !_downloadState.CancelToken.IsCancellationRequested
+                                        && (_downloadState?.IsActive ?? false))
                                     {
                                         var args = UpdateFileProgress(
                                             GameContextActionType.Verify,

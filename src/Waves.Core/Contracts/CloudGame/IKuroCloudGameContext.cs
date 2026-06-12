@@ -6,7 +6,7 @@ namespace Waves.Core.Contracts.CloudGame;
 public interface IKuroCloudGameContext
 {
     WavesCloudSurvivalService WavesCloudSurivivalService { get; }
-    ICloudGameEventPublisher CloudGameEventPublisher { get; }
+    IGameEventPublisher<CloudMessageArgs> CloudGameEventPublisher { get; }
     CloudGameProcessTracker CloudGameProcessTracker { get; }
     GameLocalConfig GameLocalConfig { get; }
     

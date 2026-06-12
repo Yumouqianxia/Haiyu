@@ -70,7 +70,6 @@ global using Waves.Core.Common.Downloads;
 global using Waves.Core.Contracts;
 global using Waves.Core.Contracts.CloudGame;
 global using Waves.Core.Contracts.Events;
-global using Waves.Core.Contracts.Events.CloudGame;
 global using Waves.Core.GameContext;
 global using Waves.Core.GameContext.Common.FilesAction;
 global using Waves.Core.GameContext.ContextsV2;

@@ -2,15 +2,21 @@ namespace Waves.Core.Models;
 
 public class GameContextOutputArgs
 {
+    internal static readonly AsyncLocal<long> CurrentGeneration = new();
+
     public GameContextOutputArgs()
     {
         this.CreateTime = DateTime.Now;
+        this.Generation = CurrentGeneration.Value;
     }
 
     public GameContextOutputArgs(DateTime cT)
     {
-        this.CreateTime = cT ;
+        this.CreateTime = cT;
+        this.Generation = CurrentGeneration.Value;
     }
+
+    public long Generation { get; set; }
 
     public GameContextActionType Type { get; set; }
 

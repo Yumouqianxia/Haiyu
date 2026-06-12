@@ -6,5 +6,5 @@ namespace Waves.Core.Contracts.CloudGame;
 public interface ICloudGameContext
 {
 
-    public ICloudGameEventPublisher GameEventPublisher { get; }
+    public IGameEventPublisher<CloudMessageArgs> GameEventPublisher { get; }
 }

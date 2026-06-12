@@ -19,7 +19,7 @@ public class KuroCloudGameContext : IKuroCloudGameContext
 
     public WavesCloudSurvivalService WavesCloudSurivivalService { get; }
 
-    public ICloudGameEventPublisher CloudGameEventPublisher { get; internal set; }
+    public IGameEventPublisher<CloudMessageArgs> CloudGameEventPublisher { get; internal set; }
 
     public CloudGameProcessTracker CloudGameProcessTracker { get; private set; }
 

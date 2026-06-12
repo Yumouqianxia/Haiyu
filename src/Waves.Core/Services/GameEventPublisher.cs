@@ -2,7 +2,7 @@ namespace Waves.Core.Services;
 
 public sealed class GameEventPublisher
     : EventPublishBase<GameContextOutputArgs>,
-        IGameEventPublisher,
+        IGameEventPublisher<GameContextOutputArgs>,
         IAsyncDisposable,
         IPublisher
 {

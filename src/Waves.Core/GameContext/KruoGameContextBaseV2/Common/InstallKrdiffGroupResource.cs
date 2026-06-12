@@ -18,7 +18,7 @@ public sealed partial class InstallKrdiffGroupResource : IProgressSetup, IAsyncD
 
     public Dictionary<string, object> Param { get; private set; }
     public LoggerService Logger { get; }
-    public IGameEventPublisher GameEventPublisher { get; private set; }
+    public IGameEventPublisher<GameContextOutputArgs> GameEventPublisher { get; private set; }
     public string ProgressName { get; set; }
     public double ProgressValue { get; set; }
 
@@ -214,7 +214,7 @@ public sealed partial class InstallKrdiffGroupResource : IProgressSetup, IAsyncD
         }
     }
 
-    public void SetParam(Dictionary<string, object> param, IGameEventPublisher gameEventPublisher)
+    public void SetParam(Dictionary<string, object> param, IGameEventPublisher<GameContextOutputArgs> gameEventPublisher)
     {
         this.Param = param;
         this.GameEventPublisher = gameEventPublisher;

@@ -10,7 +10,7 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
     /// <summary>
     /// 阻塞用户启动的下载发布器
     /// </summary>
-    public IGameEventPublisher GameEventPublisher { get; internal set; }
+    public IGameEventPublisher<GameContextOutputArgs> GameEventPublisher { get; internal set; }
 
     /// <summary>
     /// Http 请求服务，包含下载Client与配置Client
@@ -80,6 +80,7 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
     #endregion
 
     private IAsyncDisposable? _currentRunningAction;
+    private long _operationGeneration;
 
     public KuroGameContextBaseV2(KuroGameApiConfig config, string contextName)
     {
@@ -159,6 +160,11 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
                 {
                     if (cancelTask.CanStop)
                     {
+                        if (this.DownloadState != null)
+                        {
+                            DownloadState.IsStop = true;
+                            DownloadState.IsActive = false;
+                        }
                         await _currentRunningAction.DisposeAsync();
                         if (this.DownloadState != null)
                             await this.DownloadState.CancelToken.CancelAsync();
@@ -181,6 +187,8 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
                 DownloadState.IsStop = true;
                 DownloadState.IsActive = false;
             }
+            var cancelGen = Interlocked.Increment(ref _operationGeneration);
+            GameContextOutputArgs.CurrentGeneration.Value = cancelGen;
             this.GameEventPublisher.Publish(
                 new GameContextOutputArgs() { Type = GameContextActionType.None }
             );

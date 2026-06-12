@@ -10,7 +10,7 @@ public interface IGameContextV2
     public string GamerConfigPath { get; internal set; }
     GameLocalConfig GameLocalConfig { get; }
 
-    public IGameEventPublisher GameEventPublisher { get; }
+    public IGameEventPublisher<GameContextOutputArgs> GameEventPublisher { get; }
     GameProgressTracker ProgressState { get; }
     public KuroGameApiConfig Config { get; }
 

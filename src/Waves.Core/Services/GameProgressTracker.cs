@@ -132,6 +132,8 @@ public sealed class GameProgressTracker : IAsyncDisposable
     private GameContextOutputArgs _lastArgs;
     private volatile bool _isDirty;
     private DateTime? lastTime;
+    private volatile bool _isTerminated;
+    private long _terminationGeneration;
 
     /// <summary>
     /// UI线程启动收集数据
@@ -139,7 +141,7 @@ public sealed class GameProgressTracker : IAsyncDisposable
     /// <param name="publisher"></param>
     /// <returns></returns>
     /// <exception cref="ArgumentNullException"></exception>
-    public async Task StartTrackingAsync(IGameEventPublisher publisher)
+    public async Task StartTrackingAsync(IGameEventPublisher<GameContextOutputArgs> publisher)
     {
         if (publisher == null)
             throw new ArgumentNullException(nameof(publisher));
@@ -183,13 +185,51 @@ public sealed class GameProgressTracker : IAsyncDisposable
     {
         if (args == null)
             return;
+
+        if (args.Type == GameContextActionType.None)
+        {
+            CurrentAction = GameContextActionType.None;
+            CurrentBytes = 0;
+            TotalBytes = 0;
+            CurrentFileIndex = 0;
+            TotalFiles = 0;
+            DownloadSpeed = 0;
+            VerifySpeed = 0;
+            ZipSpeed = 0;
+            DiffSpeed = 0;
+            IsCancel = false;
+            IsActive = false;
+            IsPaused = false;
+            FilePath = string.Empty;
+            FileCurrentSize = 0;
+            FileTotalSize = 0;
+            CurrentStepTip = string.Empty;
+            ActiveFiles.Clear();
+            Interlocked.Increment(ref _activeFilesVersion);
+            if (args.Generation > _terminationGeneration)
+            {
+                _terminationGeneration = args.Generation;
+                _isTerminated = true;
+            }
+            this.lastTime = args.CreateTime;
+            this._lastArgs = args;
+            _isDirty = true;
+            return;
+        }
+
+        if (_isTerminated)
+        {
+            if (args.Generation > 0 && args.Generation < _terminationGeneration)
+                return;
+            _isTerminated = false;
+        }
+
         if (this.lastTime == null || this.lastTime == DateTime.MinValue)
         {
             this.lastTime = args.CreateTime;
         }
-        if(args.CreateTime< this.lastTime)
+        if (args.CreateTime < this.lastTime)
         {
-            // 避免旧数据覆盖通知
             return;
         }
         if (args.Type != GameContextActionType.None)
@@ -251,7 +291,7 @@ public sealed class GameProgressTracker : IAsyncDisposable
         }
         this._lastArgs = args;
         _isDirty = true;
-        
+
         await ValueTask.CompletedTask;
     }
 

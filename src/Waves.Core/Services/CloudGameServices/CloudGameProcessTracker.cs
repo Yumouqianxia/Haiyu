@@ -18,7 +18,7 @@ public class CloudGameProcessTracker:IAsyncDisposable
 
     public event Action<CloudGameProcessTracker>? OnProgressChanged;
 
-    public async Task StartTrackingAsync(ICloudGameEventPublisher publisher)
+    public async Task StartTrackingAsync(IGameEventPublisher<CloudMessageArgs> publisher)
     {
         if (publisher == null)
             throw new ArgumentNullException(nameof(publisher));

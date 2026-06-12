@@ -36,6 +36,8 @@ partial class KuroGameContextBaseV2
             );
             return false;
         }
+        var gen = Interlocked.Increment(ref _operationGeneration);
+        GameContextOutputArgs.CurrentGeneration.Value = gen;
         Task.Run(async () => await StartDownloadAsync(folder, launcher));
         return true;
     }
@@ -199,6 +201,8 @@ partial class KuroGameContextBaseV2
             );
             return false;
         }
+        var gen = Interlocked.Increment(ref _operationGeneration);
+        GameContextOutputArgs.CurrentGeneration.Value = gen;
         _ = Task.Run(async () => await StartDownloadAsync(folder, launcher, true));
         return true;
     }

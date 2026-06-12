@@ -30,7 +30,7 @@ public class InstallKrZipResource : IProgressSetup,IAsyncDisposable
 
     public bool CanStop => true;
 
-    public IGameEventPublisher GameEventPublisher { get; private set; }
+    public IGameEventPublisher<GameContextOutputArgs> GameEventPublisher { get; private set; }
     public Dictionary<string, object> Param { get; private set; }
     public LoggerService Logger { get; }
 
@@ -39,7 +39,7 @@ public class InstallKrZipResource : IProgressSetup,IAsyncDisposable
         Logger = logger;
     }
 
-    public void SetParam(Dictionary<string, object> param, IGameEventPublisher gameEventPublisher)
+    public void SetParam(Dictionary<string, object> param, IGameEventPublisher<GameContextOutputArgs> gameEventPublisher)
     {
         this.GameEventPublisher = gameEventPublisher;
         this.Param = param;

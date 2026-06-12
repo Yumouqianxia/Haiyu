@@ -23,7 +23,7 @@ public static class DownloadExtension
         }
     }
 
-    extension(IGameEventPublisher publisher)
+    extension(IGameEventPublisher<GameContextOutputArgs> publisher)
     {
         public async ValueTask PublisAsync(
             Models.Enums.GameContextActionType cdnSelect,

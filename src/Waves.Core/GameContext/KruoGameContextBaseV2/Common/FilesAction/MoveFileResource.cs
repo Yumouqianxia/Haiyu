@@ -16,7 +16,7 @@ public class MoveFileResource : IProgressSetup, IAsyncDisposable
 
     public Dictionary<string, string> Files { get; private set; }
 
-    private IGameEventPublisher gameEventPublisher;
+    private IGameEventPublisher<GameContextOutputArgs> gameEventPublisher;
     private LoggerService logger;
 
     public MoveFileResource(LoggerService logger)
@@ -86,7 +86,7 @@ public class MoveFileResource : IProgressSetup, IAsyncDisposable
         return true;
     }
 
-    public void SetParam(Dictionary<string, object> param, IGameEventPublisher gameEventPublisher)
+    public void SetParam(Dictionary<string, object> param, IGameEventPublisher<GameContextOutputArgs> gameEventPublisher)
     {
         this.Param = param;
         this.gameEventPublisher = gameEventPublisher;

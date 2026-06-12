@@ -69,6 +69,8 @@ partial class KuroGameContextBaseV2
             return false;
         }
         #endregion
+        var gen = Interlocked.Increment(ref _operationGeneration);
+        GameContextOutputArgs.CurrentGeneration.Value = gen;
         _ = Task.Run(async () =>
             await StartDownloadUpdateGameResourceAsync(
                 _launcher,
@@ -96,6 +98,8 @@ partial class KuroGameContextBaseV2
             Logger.WriteError("启动预下载失败，游戏配置错误");
             return false;
         }
+        var gen = Interlocked.Increment(ref _operationGeneration);
+        GameContextOutputArgs.CurrentGeneration.Value = gen;
         _ = Task.Run(async () =>
         {
             await StartProdDownloadGameResourceAsync(_launcher, currentVersion);
@@ -509,6 +513,8 @@ partial class KuroGameContextBaseV2
         bool isProd = false
     )
     {
+        var gen = Interlocked.Increment(ref _operationGeneration);
+        GameContextOutputArgs.CurrentGeneration.Value = gen;
         #region 获取资源
         var baseFolder = await this.GameLocalConfig.GetConfigAsync(
             GameLocalSettingName.GameLauncherBassFolder

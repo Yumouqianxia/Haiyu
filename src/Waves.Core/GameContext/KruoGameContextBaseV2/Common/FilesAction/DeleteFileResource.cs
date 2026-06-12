@@ -18,7 +18,7 @@ public class DeleteFileResource : IProgressSetup
         throw new NotImplementedException();
     }
 
-    public void SetParam(Dictionary<string, object> param, IGameEventPublisher gameEventPublisher)
+    public void SetParam(Dictionary<string, object> param, IGameEventPublisher<GameContextOutputArgs> gameEventPublisher)
     {
         throw new NotImplementedException();
     }

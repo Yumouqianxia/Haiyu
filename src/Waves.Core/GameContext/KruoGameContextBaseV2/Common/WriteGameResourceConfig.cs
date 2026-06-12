@@ -22,7 +22,7 @@ public class WriteGameResourceConfig : IAsyncDisposable
     /// DownloadAndVerifyResource类写入后执行方法
     /// </summary>
     /// <returns></returns>
-    public async Task WriteDownloadComplateAsync(IGameEventPublisher gameEventPublisher,bool isSync = false)
+    public async Task WriteDownloadComplateAsync(IGameEventPublisher<GameContextOutputArgs> gameEventPublisher,bool isSync = false)
     {
         var currentVersion = await GameLocalConfig.GetConfigAsync(
             GameLocalSettingName.LocalGameVersion
@@ -52,7 +52,7 @@ public class WriteGameResourceConfig : IAsyncDisposable
         );
     }
 
-    public async Task WriteDownloadCancelAsync(IGameEventPublisher gameEventPublisher, bool isSync = false)
+    public async Task WriteDownloadCancelAsync(IGameEventPublisher<GameContextOutputArgs> gameEventPublisher, bool isSync = false)
     {
         var currentVersion = await GameLocalConfig.GetConfigAsync(
             GameLocalSettingName.LocalGameVersion

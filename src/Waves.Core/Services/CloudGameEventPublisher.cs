@@ -5,7 +5,7 @@ namespace Waves.Core.Services;
 /// </summary>
 public class CloudGameEventPublisher
     : EventPublishBase<CloudMessageArgs>,
-        ICloudGameEventPublisher,
+        IGameEventPublisher<CloudMessageArgs>,
         IAsyncDisposable,
         IPublisher
 {

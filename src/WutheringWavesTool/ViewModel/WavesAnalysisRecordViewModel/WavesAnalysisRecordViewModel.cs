@@ -37,18 +37,25 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
         PickersService = pickersService;
     }
 
+    [ObservableProperty]
+    public partial bool IsLoading { get; set; } = true;
+
     [RelayCommand]
     async Task Loaded()
     {
         try
         {
             await LoadDataAsync();
+            IsLoading = true;
             await InitAnalysis();
             await AnalysisStarAsync();
+            IsLoading = false;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
+            Instance
+                .Host.Services.GetRequiredService<SystemEventPublisher>()
+                .Publish(new() { Message = ex.Message, Delay = 30 });
         }
     }
 
@@ -127,7 +134,7 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
     [RelayCommand]
     public async Task ImportDefaultFolderAsync(string folderPath = null)
     {
-        if(folderPath == null)
+        if (folderPath == null)
         {
             folderPath = Waves.Core.Settings.AppSettings.RecordFolder;
         }
@@ -143,8 +150,7 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
             Items = new List<WavesAnalysisPlayerCardItem>(),
             LastUpdater = DateTime.Now,
             SessionId =
-                this.Session?.OrginData.Username + this.Session?.OrginData.Sdkuserid
-                ?? "import",
+                this.Session?.OrginData.Username + this.Session?.OrginData.Sdkuserid ?? "import",
         };
         var loadedNames = new List<string>();
 
@@ -175,18 +181,15 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
                     }
                 }
 
-                AddPool((int) CardPoolType.RoleActivity, cache.RoleActivityItems);
-                AddPool((int) CardPoolType.WeaponsActivity, cache.WeaponsActivityItems);
-                AddPool((int) CardPoolType.RoleResident, cache.RoleResidentItems);
-                AddPool((int) CardPoolType.WeaponsResident, cache.WeaponsResidentItems);
-                AddPool((int) CardPoolType.Beginner, cache.BeginnerItems);
-                AddPool((int) CardPoolType.BeginnerChoice, cache.BeginnerChoiceItems);
-                AddPool(
-                    (int) CardPoolType.GratitudeOrientation,
-                    cache.GratitudeOrientationItems
-                );
-                AddPool((int) CardPoolType.CharacterNovice, cache.RoleJourneyItems);
-                AddPool((int) CardPoolType.WeaponNovice, cache.WeaponJourneyItems);
+                AddPool((int)CardPoolType.RoleActivity, cache.RoleActivityItems);
+                AddPool((int)CardPoolType.WeaponsActivity, cache.WeaponsActivityItems);
+                AddPool((int)CardPoolType.RoleResident, cache.RoleResidentItems);
+                AddPool((int)CardPoolType.WeaponsResident, cache.WeaponsResidentItems);
+                AddPool((int)CardPoolType.Beginner, cache.BeginnerItems);
+                AddPool((int)CardPoolType.BeginnerChoice, cache.BeginnerChoiceItems);
+                AddPool((int)CardPoolType.GratitudeOrientation, cache.GratitudeOrientationItems);
+                AddPool((int)CardPoolType.CharacterNovice, cache.RoleJourneyItems);
+                AddPool((int)CardPoolType.WeaponNovice, cache.WeaponJourneyItems);
             }
             catch
             {
@@ -203,8 +206,10 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
         this.Cards = await Cache.SaveAsync(mergedCard);
         var names = string.Join("、", loadedNames);
         LegacyMessageBox.ShowInformation($"成功导入 {loadedNames.Count} 个账号的数据：{names}");
+        IsLoading = true;
         await InitAnalysis();
         await AnalysisStarAsync();
+        IsLoading = false;
     }
 
     internal void SetSessionAsync(CloudGameLoginSession session)

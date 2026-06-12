@@ -333,11 +333,6 @@
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
 
-                    <NavigationViewItem property:NavigationItemClickHelper.NavigationKey="Haiyu.ViewModel.CloudGameViewModel" Content="云工具">
-                        <NavigationViewItem.Icon>
-                            <FontIcon FontFamily="Segoe UI Emoji" Glyph="&#x2601;" />
-                        </NavigationViewItem.Icon>
-                    </NavigationViewItem>
                 </NavigationView.MenuItems>
                 <NavigationView.PaneFooter>
                     <Button

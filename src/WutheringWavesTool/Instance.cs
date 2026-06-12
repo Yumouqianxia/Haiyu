@@ -94,8 +94,6 @@ public static class InstanceBuilderExtensions
                     .AddSingleton<OOBEPage>()
                     .AddSingleton<OOBEViewModel>()
                     .AddTransient<CommunityPage>()
-                    .AddTransient<PlayerRecordPage>()
-                    .AddTransient<PlayerRecordViewModel>()
                     .AddTransient<WavesAnalysisRecordPage>()
                     .AddTransient<WavesAnalysisRecordViewModel>()
                     .AddTransient<SettingViewModel>()
@@ -109,9 +107,6 @@ public static class InstanceBuilderExtensions
                     .AddTransient<DeviceInfoPage>()
                     .AddTransient<DeviceInfoViewModel>()
                     .AddTransient<ResourceBriefViewModel>()
-                    .AddTransient<CloudGameViewModel>()
-                    .AddTransient<AnalysisRecordViewModel>()
-                    .AddTransient<AnalysisRecordPage>()
                     .AddTransient<HomeViewModel>()
                     .AddTransient<LanguageSelectViewModel>()
                     .AddTransient<CloudGameingViewModel>()
@@ -137,9 +132,6 @@ public static class InstanceBuilderExtensions
                     .AddTransient<GamerTowerViewModel>()
                     .AddTransient<GamerSkinViewModel>()
                     .AddTransient<GamerSlashDetailViewModel>()
-                    #endregion
-                    #region Record
-                    .AddTransient<RecordItemViewModel>()
                     #endregion
                     #region Roil
                     .AddTransient<GamerRoilsDetilyPage>()

@@ -1,4 +1,4 @@
-﻿using Waves.Api.Models.CloudGame;
+using Waves.Api.Models.CloudGame;
 using Waves.Core.Models.CloudGame;
 
 namespace Haiyu.Services;
@@ -55,25 +55,6 @@ public class ViewFactorys : IViewFactorys
     }
 
 
-    public WindowModelBase ShowPlayerRecordWindow()
-    {
-        var window = this.ShowWindowBase<PlayerRecordPage>(null);
-        window.Manager.MaxHeight = 700;
-        window.Manager.MinHeight = 700;
-        window.Manager.MaxWidth = 500;
-        window.Manager.MinWidth = 500;
-        return window;
-    }
-
-
-    public Window ShowAnalysisRecord(CloudGameLoginData data)
-
-    {
-        var win = ShowWindowBase<AnalysisRecordPage>(data);
-        win.Manager.MaxHeight = 620;
-        win.Manager.MaxWidth = 1100;
-        return win;
-    }
 
     public TransparentWindow CreateTransperentWindow()
     {

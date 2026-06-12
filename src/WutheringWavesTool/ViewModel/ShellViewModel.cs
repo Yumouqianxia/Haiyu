@@ -223,15 +223,6 @@ public sealed partial class ShellViewModel : ViewModelBase
     }
 
    
-    [RelayCommand]
-    void OpenPlayerRecordWindow()
-    {
-        var win = ViewFactorys.ShowPlayerRecordWindow();
-        (win.AppWindow.Presenter as OverlappedPresenter)!.IsMaximizable = false;
-        (win.AppWindow.Presenter as OverlappedPresenter)!.IsMinimizable = false;
-        win.SystemBackdrop = new MicaBackdrop();
-        win.Activate();
-    }
 
     [RelayCommand]
     async Task Login()

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,7 +20,8 @@ public sealed class AutoSignService : IHostedService
         [FromKeyedServices("AppLog")] LoggerService loggerService,
         IKuroClient wavesClient,
         AppSettings appSettings,
-        IKuroAccountService kuroAccountService
+        IKuroAccountService kuroAccountService,
+        SystemEventPublisher systemEventPublisher
     )
     {
         TipShow = tipShow;
@@ -28,6 +29,7 @@ public sealed class AutoSignService : IHostedService
         SignKuroClient = wavesClient;
         AppSettings = appSettings;
         KuroAccountService = kuroAccountService;
+        SystemEventPublisher = systemEventPublisher;
         _nextExecuteTime = GetNext2AmTargetTime();
     }
 
@@ -36,6 +38,7 @@ public sealed class AutoSignService : IHostedService
     public IKuroClient SignKuroClient { get; }
     public AppSettings AppSettings { get; }
     public IKuroAccountService KuroAccountService { get; }
+    public SystemEventPublisher SystemEventPublisher { get; }
 
     public async Task RunAsync(CancellationToken token)
     {
@@ -61,9 +64,7 @@ public sealed class AutoSignService : IHostedService
                 foreach (var item in items)
                 {
                     var sign = await SignKuroClient.SignInAsync(item, token);
-                    if (!sign.Success)
-                        continue;
-                    if (sign.Code == 1511)
+                    if (sign.Code == 1511 || sign.Code == 0)
                     {
                         successCount++;
                     }
@@ -73,10 +74,11 @@ public sealed class AutoSignService : IHostedService
                     }
                 }
             }
-            await TipShow.ShowMessageAsync(
-                $"签到结果{successCount}个成功，总数{successCount + errorCount}",
-                Symbol.Bookmarks
-            );
+            SystemEventPublisher.Publish(new()
+            {
+                Message = $"签到结果{successCount}个成功，总数{successCount + errorCount}",
+                Delay = 5
+            });
             await SignKuroClient.AccountService.SetAutoUser();
         }
         catch (Exception ex)

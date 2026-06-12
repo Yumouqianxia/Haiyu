@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.WinUI;
+using CommunityToolkit.WinUI;
 using Haiyu.Plugin.Contracts;
 using Haiyu.Services.DialogServices;
 using Microsoft.UI.Dispatching;
@@ -305,14 +305,24 @@ public class AppContext<T> : IAppContext<T>
                 }
                 else
                 {
-                    LoggerService.WriteError("获取更新信息失败");
+                    Instance
+                    .Host.Services.GetRequiredService<SystemEventPublisher>()
+                    .Publish(new SystemMessagerModel()
+                    {
+                        Message = "获取更新信息失败",
+                        Delay = 5
+                    });
                 }
             }
             else
             {
-                await Instance
-                    .Host.Services.GetService<ITipShow>()
-                    .ShowMessageAsync("当前已是最新版本", Symbol.Accept);
+                 Instance
+                    .Host.Services.GetRequiredService<SystemEventPublisher>()
+                    .Publish(new SystemMessagerModel()
+                    {
+                        Message= "当前已是最新版本",
+                        Delay = 5
+                    });
             }
         }
         catch (Exception)

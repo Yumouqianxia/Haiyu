@@ -12,6 +12,7 @@ public static class Waves
         #region 新核心测试
         //事件订阅发布器
         services
+            .AddSingleton<SystemEventPublisher>()
             .AddKeyedSingleton<GameEventPublisher>(nameof(PunishMainGameContextV2))
             .AddKeyedSingleton<IGameContextV2, PunishMainGameContextV2>(
                 nameof(PunishMainGameContextV2),
@@ -23,6 +24,7 @@ public static class Waves
                         provider.GetRequiredKeyedService<GameEventPublisher>(
                             nameof(PunishMainGameContextV2)
                         );
+                    context.SystemEventPublisher = provider.GetRequiredService<SystemEventPublisher>();
                     return context;
                 }
             )
@@ -37,6 +39,7 @@ public static class Waves
                         provider.GetRequiredKeyedService<GameEventPublisher>(
                             nameof(PunishBiliBiliGameContextV2)
                         );
+                    context.SystemEventPublisher = provider.GetRequiredService<SystemEventPublisher>();
                     return context;
                 }
             )
@@ -51,6 +54,7 @@ public static class Waves
                         provider.GetRequiredKeyedService<GameEventPublisher>(
                             nameof(PunishGlobalGameContextV2)
                         );
+                    context.SystemEventPublisher = provider.GetRequiredService<SystemEventPublisher>();
                     return context;
                 }
             )
@@ -65,6 +69,7 @@ public static class Waves
                         provider.GetRequiredKeyedService<GameEventPublisher>(
                             nameof(PunishTwGameContextV2)
                         );
+                    context.SystemEventPublisher = provider.GetRequiredService<SystemEventPublisher>();
                     return context;
                 }
             )
@@ -79,6 +84,7 @@ public static class Waves
                         provider.GetRequiredKeyedService<GameEventPublisher>(
                             nameof(WavesMainGameContextV2)
                         );
+                    context.SystemEventPublisher = provider.GetRequiredService<SystemEventPublisher>();
                     return context;
                 }
             )
@@ -93,6 +99,7 @@ public static class Waves
                         provider.GetRequiredKeyedService<GameEventPublisher>(
                             nameof(WavesBiliBiliGameContextV2)
                         );
+                    context.SystemEventPublisher = provider.GetRequiredService<SystemEventPublisher>();
                     return context;
                 }
             )
@@ -107,6 +114,7 @@ public static class Waves
                         provider.GetRequiredKeyedService<GameEventPublisher>(
                             nameof(WavesGlobalGameContextV2)
                         );
+                    context.SystemEventPublisher = provider.GetRequiredService<SystemEventPublisher>();
                     return context;
                 }
             )

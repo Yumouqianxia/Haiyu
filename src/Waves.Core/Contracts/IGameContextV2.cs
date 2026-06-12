@@ -11,6 +11,8 @@ public interface IGameContextV2
     GameLocalConfig GameLocalConfig { get; }
 
     public IGameEventPublisher<GameContextOutputArgs> GameEventPublisher { get; }
+
+    public SystemEventPublisher SystemEventPublisher { get; }
     GameProgressTracker ProgressState { get; }
     public KuroGameApiConfig Config { get; }
 

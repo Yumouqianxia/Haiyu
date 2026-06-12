@@ -1,28 +1,22 @@
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
+using Waves.Core.Contracts.Events;
+
 namespace Waves.Core.Services;
 
-/// <summary>
-/// 游戏下载/校验进度跟踪器
-/// 负责订阅并在内部维护更新当前所处状态。
-/// </summary>
-public sealed class GameProgressTracker : IAsyncDisposable
+public sealed class GameProgressTracker : TrackerBase<GameProgressTracker, GameContextOutputArgs>
 {
-    private IGameEventSubscription? _subscription;
-
     public GameContextActionType CurrentAction { get; private set; }
 
-    /// <summary>
-    ///
-    /// </summary>
     public string CurrentStepTip { get; private set; } = string.Empty;
 
-    // 大步骤状态
     public int CurrentStepIndex { get; private set; }
 
     public int TotalSteps { get; private set; }
 
     public int SetupIndex { get; internal set; } = -1;
 
-    public System.Collections.Generic.List<string> AllSteps { get; private set; } = new();
+    public List<string> AllSteps { get; private set; } = new();
 
     public List<DownloadSetupItem> GetCurrentSteps()
     {
@@ -62,9 +56,7 @@ public sealed class GameProgressTracker : IAsyncDisposable
     public double ZipSpeed { get; private set; }
 
     public bool IsPaused { get; private set; }
-    /// <summary>
-    /// 是否预下载
-    /// </summary>
+
     public bool Prod { get; private set; }
     public bool IsActive { get; private set; }
 
@@ -74,13 +66,6 @@ public sealed class GameProgressTracker : IAsyncDisposable
 
     public long FileTotalSize { get; private set; }
 
-
-    
-
-    /// <summary>
-    /// 正在进行操作的活跃文件列表（如并发下载/校验的文件）
-    /// Key: 文件名, Value: (当前进度, 总大小)
-    /// </summary>
     public ConcurrentDictionary<string, (long Current, long Total)> ActiveFiles { get; } =
         new(StringComparer.OrdinalIgnoreCase);
 
@@ -88,9 +73,6 @@ public sealed class GameProgressTracker : IAsyncDisposable
     private long _cachedActiveFilesVersion = -1;
     private ObservableCollection<DownloadActiveFileItem>? _cachedActiveFilesItem;
 
-    /// <summary>
-    /// 活跃文件列表的版本号，每次 ActiveFiles 变更时递增
-    /// </summary>
     public long ActiveFilesVersion => Interlocked.Read(ref _activeFilesVersion);
 
     public ObservableCollection<DownloadActiveFileItem> ActiveFilesItem
@@ -115,8 +97,6 @@ public sealed class GameProgressTracker : IAsyncDisposable
         }
     }
 
-    public event Action<GameProgressTracker>? OnProgressChanged;
-
     public double Percentage =>
         TotalBytes > 0 ? Math.Round((CurrentBytes * 100.0) / TotalBytes, 2) : 0;
 
@@ -126,65 +106,15 @@ public sealed class GameProgressTracker : IAsyncDisposable
     public bool IsCancel { get; private set; }
     public double DiffSpeed { get; set; }
 
-    private SynchronizationContext? _syncContext;
-    private PeriodicTimer? _timer;
-    private Task? _timerTask;
     private GameContextOutputArgs _lastArgs;
-    private volatile bool _isDirty;
     private DateTime? lastTime;
-    private volatile bool _isTerminated;
+    private bool _isTerminated;
     private long _terminationGeneration;
 
-    /// <summary>
-    /// UI线程启动收集数据
-    /// </summary>
-    /// <param name="publisher"></param>
-    /// <returns></returns>
-    /// <exception cref="ArgumentNullException"></exception>
-    public async Task StartTrackingAsync(IGameEventPublisher<GameContextOutputArgs> publisher)
-    {
-        if (publisher == null)
-            throw new ArgumentNullException(nameof(publisher));
-
-        _syncContext = SynchronizationContext.Current;
-
-        _subscription = await publisher.SubscribeAsync(HandleEventAsync).ConfigureAwait(false);
-        _timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
-        _timerTask = NotifyLoopAsync();
-    }
-
-    /// <summary>
-    /// 轮询推送数据
-    /// </summary>
-    /// <returns></returns>
-    private async Task NotifyLoopAsync()
-    {
-        try
-        {
-            while (await _timer!.WaitForNextTickAsync())
-            {
-                if (_isDirty)
-                {
-                    _isDirty = false;
-
-                    if (_syncContext != null)
-                    {
-                        _syncContext.Post(_ => OnProgressChanged?.Invoke(this), null);
-                    }
-                    else
-                    {
-                        OnProgressChanged?.Invoke(this);
-                    }
-                }
-            }
-        }
-        catch (Exception) { }
-    }
-
-    private async ValueTask HandleEventAsync(GameContextOutputArgs args)
+    public override ValueTask HandleEventAsync(GameContextOutputArgs args)
     {
         if (args == null)
-            return;
+            return default;
 
         if (args.Type == GameContextActionType.None)
         {
@@ -214,13 +144,13 @@ public sealed class GameProgressTracker : IAsyncDisposable
             this.lastTime = args.CreateTime;
             this._lastArgs = args;
             _isDirty = true;
-            return;
+            return default;
         }
 
         if (_isTerminated)
         {
             if (args.Generation > 0 && args.Generation < _terminationGeneration)
-                return;
+                return default;
             _isTerminated = false;
         }
 
@@ -230,7 +160,7 @@ public sealed class GameProgressTracker : IAsyncDisposable
         }
         if (args.CreateTime < this.lastTime)
         {
-            return;
+            return default;
         }
         if (args.Type != GameContextActionType.None)
         {
@@ -292,7 +222,18 @@ public sealed class GameProgressTracker : IAsyncDisposable
         this._lastArgs = args;
         _isDirty = true;
 
-        await ValueTask.CompletedTask;
+        return default;
+    }
+
+    public override void Invoke()
+    {
+        onTrackerHandle?.Invoke(this);
+    }
+
+    public override async Task OnVirualDispose()
+    {
+        ActiveFiles.Clear();
+        _cachedActiveFilesItem = null;
     }
 
     public string GetSpeedText()
@@ -330,25 +271,6 @@ public sealed class GameProgressTracker : IAsyncDisposable
             i++;
         }
         return dblSByte;
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-        try
-        {
-            _timer?.Dispose();
-            _subscription?.Dispose();
-            _subscription = null;
-            OnProgressChanged = null;
-            ActiveFiles.Clear();
-            _cachedActiveFilesItem = null;
-
-            if (_timerTask != null)
-            {
-                await _timerTask;
-            }
-        }
-        catch { }
     }
 
     public double? GetSpeedValue()

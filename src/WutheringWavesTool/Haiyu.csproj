@@ -41,21 +41,25 @@
 		<Compile Remove="AppPackages\**" />
 		<Compile Remove="BundleArtifacts\**" />
 		<Compile Remove="Common\Plugins\**" />
+		<Compile Remove="Services\CloudGameServices\**" />
 		<Compile Remove="Strings\**" />
 		<Compile Remove="Themes\**" />
 		<EmbeddedResource Remove="AppPackages\**" />
 		<EmbeddedResource Remove="BundleArtifacts\**" />
 		<EmbeddedResource Remove="Common\Plugins\**" />
+		<EmbeddedResource Remove="Services\CloudGameServices\**" />
 		<EmbeddedResource Remove="Strings\**" />
 		<EmbeddedResource Remove="Themes\**" />
 		<None Remove="AppPackages\**" />
 		<None Remove="BundleArtifacts\**" />
 		<None Remove="Common\Plugins\**" />
+		<None Remove="Services\CloudGameServices\**" />
 		<None Remove="Strings\**" />
 		<None Remove="Themes\**" />
 		<Page Remove="AppPackages\**" />
 		<Page Remove="BundleArtifacts\**" />
 		<Page Remove="Common\Plugins\**" />
+		<Page Remove="Services\CloudGameServices\**" />
 		<Page Remove="Strings\**" />
 		<Page Remove="Themes\**" />
 	</ItemGroup>
@@ -340,7 +344,6 @@
 	<ItemGroup>
 		<Folder Include="Assets\GameAssets\Punish\" />
 		<Folder Include="Assets\Languages\" />
-		<Folder Include="Services\CloudGameServices\" />
 	</ItemGroup>
 	<PropertyGroup Label="Globals" />
 	<!--
@@ -382,5 +385,8 @@
 	</Target>
 	<ItemGroup>
 	  <PRIResource Remove="Common\Plugins\**" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PRIResource Remove="Services\CloudGameServices\**" />
 	</ItemGroup>
 </Project>

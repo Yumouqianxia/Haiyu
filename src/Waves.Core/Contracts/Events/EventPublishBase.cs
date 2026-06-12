@@ -91,7 +91,7 @@ namespace Waves.Core.Contracts.Events
             }
         }
 
-        private void Unsubscribe(Guid id)
+        public void Unsubscribe(Guid id)
         {
             lock (_subscribers)
             {

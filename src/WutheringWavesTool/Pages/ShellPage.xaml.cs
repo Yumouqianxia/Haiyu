@@ -1,4 +1,5 @@
-﻿using Haiyu.Pages.GamePages;
+using System.Collections.Specialized;
+using Haiyu.Pages.GamePages;
 
 namespace Haiyu.Pages;
 
@@ -51,6 +52,7 @@ public sealed partial class ShellPage : Page
         this.ViewModel.DialogManager.RegisterRoot(this.XamlRoot);
         this.ViewModel.AppContext.WallpaperService.RegisterMediaHost(mediaControl);
     }
+
 
     private void ComboBox_SizeChanged(object sender, SizeChangedEventArgs e)
     {

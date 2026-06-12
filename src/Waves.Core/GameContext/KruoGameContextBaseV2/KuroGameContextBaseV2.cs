@@ -13,6 +13,11 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
     public IGameEventPublisher<GameContextOutputArgs> GameEventPublisher { get; internal set; }
 
     /// <summary>
+    /// 系统消息发布器
+    /// </summary>
+    public SystemEventPublisher SystemEventPublisher { get; internal set; }
+
+    /// <summary>
     /// Http 请求服务，包含下载Client与配置Client
     /// </summary>
     public IHttpClientService HttpClientService { get; set; }
@@ -104,6 +109,23 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
         if (this.GameEventPublisher != null)
         {
             await ProgressState.StartTrackingAsync(this.GameEventPublisher);
+        }
+
+        if (this.GameEventPublisher != null && this.SystemEventPublisher != null)
+        {
+            await this.GameEventPublisher.SubscribeAsync(async args =>
+            {
+                if (args == null)
+                    return;
+                if (!string.IsNullOrWhiteSpace(args.TipMessage))
+                {
+                    SystemEventPublisher.Publish(new SystemMessagerModel
+                    {
+                        Time = DateTime.Now,
+                        Message = args.TipMessage,
+                    });
+                }
+            });
         }
 
         await InitSettingAsync();

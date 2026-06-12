@@ -1,17 +1,16 @@
 namespace Waves.Core.Services;
 
 /// <summary>
-/// 云游戏事件发布器
+/// 系统消息
 /// </summary>
-public class CloudGameEventPublisher
-    : EventPublishBase<CloudMessageArgs>,
-        IGameEventPublisher<CloudMessageArgs>,
+public class SystemEventPublisher : EventPublishBase<SystemMessagerModel>,
+        IGameEventPublisher<SystemMessagerModel>,
         IAsyncDisposable,
         IPublisher
 {
     public override async ValueTask<IGameEventSubscription> SubscribeAsync(
-        Func<CloudMessageArgs, ValueTask> handler
-    )
+       Func<SystemMessagerModel, ValueTask> handler
+   )
     {
         if (_isDisposed)
             throw new ObjectDisposedException(nameof(CloudGameEventPublisher));
@@ -28,6 +27,7 @@ public class CloudGameEventPublisher
                 }
             );
         }
-        return new SubscriptionToken<CloudGameEventPublisher>(this, id, cts);
+        return new SubscriptionToken<SystemEventPublisher>(this, id, cts);
     }
+
 }

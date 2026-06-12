@@ -1,4 +1,4 @@
-﻿using LiveChartsCore.SkiaSharpView.Extensions;
+using LiveChartsCore.SkiaSharpView.Extensions;
 using Waves.Core.Common;
 using Waves.Core.Models.CoreApi;
 using Waves.Core.Models.Enums;
@@ -216,7 +216,11 @@ public partial class WavesV2GameContextViewModel : KuroGameContextViewModelV2
                     this.MusicData = null;
                     this.BattlePass = null;
                     this.MotorData = null;
-                    await TipShow.ShowMessageAsync($"账号：{item.Username}失效", Symbol.Clear);
+                    this.GameContext.SystemEventPublisher.Publish(new()
+                    {
+                        Message = $"游戏账号:{item.Username}失效",
+                        Delay = 5
+                    });
                     IsLocalUserRefresh = false;
                     continue;
                 }
@@ -244,6 +248,7 @@ public partial class WavesV2GameContextViewModel : KuroGameContextViewModelV2
             this.BattlePass = null;
             this.MotorData = null;
             IsLocalUserRefresh = false;
+
             return;
         }
         if (selectItem.PlayerItem is not WavesQueryPlayerItem playerItem)
@@ -261,6 +266,11 @@ public partial class WavesV2GameContextViewModel : KuroGameContextViewModelV2
         {
             LocalUserTitle = "获取账号信息失败";
             await TipShow.ShowMessageAsync("请重新进入游戏获取信息", Symbol.Clear);
+            this.GameContext.SystemEventPublisher.Publish(new()
+            {
+                Message = $"体力卡片刷新失败，请重新进入游戏获取",
+                Delay = 5
+            });
             IsLocalUserRefresh = false;
             this.Base = null;
             this.MusicData = null;

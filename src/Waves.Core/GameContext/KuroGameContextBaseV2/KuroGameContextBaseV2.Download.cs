@@ -38,7 +38,7 @@ partial class KuroGameContextBaseV2
         }
         var gen = Interlocked.Increment(ref _operationGeneration);
         GameContextOutputArgs.CurrentGeneration.Value = gen;
-        Task.Run(async () => await StartDownloadAsync(folder, launcher));
+        _ = Task.Run(async () => await StartDownloadAsync(folder, launcher));
         return true;
     }
 

@@ -96,6 +96,7 @@ partial class KuroGameContextBaseV2
         if(_launcher==null || currentVersion == null)
         {
             Logger.WriteError("启动预下载失败，游戏配置错误");
+            SystemEventPublisher.Publish(new() { Message = "启动预下载失败，游戏配置错误" });
             return false;
         }
         var gen = Interlocked.Increment(ref _operationGeneration);
@@ -659,6 +660,7 @@ partial class KuroGameContextBaseV2
         else
         {
             Logger.WriteError("获取资源信息失败，最终校验启动失败，跳过此校验");
+            SystemEventPublisher.Publish(new() { Message = "获取资源信息失败，最终校验启动失败，跳过此校验" });
         }
         bool? runValue = true;
         for (int i = 0; i < installTasks.Count; i++)
@@ -699,6 +701,7 @@ partial class KuroGameContextBaseV2
                 if (runValue is bool boolValue && boolValue == false)
                 {
                     Logger.WriteError("安装补丁文件失败");
+                    SystemEventPublisher.Publish(new() { Message = "安装补丁文件失败" });
                     SetCurrentStateNull(false);
                     GameEventPublisher.Publish(new() { Type = GameContextActionType.None, Prod = false });
                     return;
@@ -728,6 +731,7 @@ partial class KuroGameContextBaseV2
                 if (runValue is bool boolValue && boolValue == false)
                 {
                     Logger.WriteError("安装补丁组文件失败");
+                    SystemEventPublisher.Publish(new() { Message = "安装补丁组文件失败" });
                     await SetCurrentStateNull(false);
                     Directory.Delete(downloadBaseFolder);
                     GameEventPublisher.Publish(new() { Type = GameContextActionType.None, Prod = false });
@@ -760,6 +764,7 @@ partial class KuroGameContextBaseV2
                 if (runValue is bool boolValue && boolValue == false)
                 {
                     Logger.WriteError("安装解压包失败");
+                    SystemEventPublisher.Publish(new() { Message = "安装解压包失败" });
                     await SetCurrentStateNull(false);
                     GameEventPublisher.Publish(new() { Type = GameContextActionType.None, Prod = false });
                     return;
@@ -808,6 +813,7 @@ partial class KuroGameContextBaseV2
                 if (cdnResult == null)
                 {
                     Logger.WriteError("获取资源信息失败，最终校验启动失败，跳过此校验");
+                    SystemEventPublisher.Publish(new() { Message = "获取资源信息失败，最终校验启动失败，跳过此校验" });
                     this.GameEventPublisher.Publish(
                         new GameContextOutputArgs() { Type = GameContextActionType.None }
                     );
@@ -927,6 +933,7 @@ partial class KuroGameContextBaseV2
         if(cdnUrl == null)
         {
             Logger.WriteError("CDN地址配置错误，无法更新游戏");
+            SystemEventPublisher.Publish(new() { Message = "CDN地址配置错误，无法更新游戏" });
             return;
         }
         var _patch = await GetPatchGameResourceAsync(cdnUrl.Url + previous.IndexFile);

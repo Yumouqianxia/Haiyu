@@ -179,12 +179,6 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         {
             AppSettings.PunishAutoOpenContext = this.GameContext.ContextName;
         }
-        this.GameContext.SystemEventPublisher.Publish(new()
-        {
-            Delay = 0,
-            Message = "核心初始化完成",
-            Time = DateTime.Now
-        });
         await RefreshCoreAsync(showCard);
         GC.Collect();
     }

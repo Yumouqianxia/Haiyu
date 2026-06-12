@@ -190,10 +190,7 @@
                         Style="{ThemeResource DefaultAcrylicButtonStyle}"
                         ToolTipService.ToolTip="系统消息">
                         <Grid>
-                            <FontIcon
-                                FontFamily="Segoe Fluent Icons"
-                                FontSize="12"
-                                Glyph="&#xF716;" />
+
                             <InfoBadge
                                 x:Name="MessageBadge"
                                 HorizontalAlignment="Right"

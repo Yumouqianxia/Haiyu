@@ -6,6 +6,11 @@ namespace Waves.Api.Models;
 
 public class SystemMessagerModel
 {
+    public SystemMessagerModel()
+    {
+        this.Time = DateTime.Now;
+    }
+
     public DateTime Time
     {
         get => field;

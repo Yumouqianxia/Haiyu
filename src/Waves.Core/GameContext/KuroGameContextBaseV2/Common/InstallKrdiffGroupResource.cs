@@ -210,6 +210,11 @@ public sealed partial class InstallKrdiffGroupResource : IProgressSetup, IAsyncD
         catch (Exception ex)
         {
             Logger.WriteError($"安装补丁组文件异常: {ex.Message}");
+            GameEventPublisher.Publish(new GameContextOutputArgs
+            {
+                Type = GameContextActionType.Error,
+                TipMessage = $"安装补丁组文件异常: {ex.Message}"
+            });
             return false;
         }
     }

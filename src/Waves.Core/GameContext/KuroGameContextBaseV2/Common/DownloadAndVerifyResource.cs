@@ -371,6 +371,11 @@ public sealed class DownloadAndVerifyResource : IProgressSetup, IAsyncDisposable
         catch (Exception ex)
         {
             Logger.WriteError($"校验失败！{ex}");
+            GameEventPublisher.Publish(new GameContextOutputArgs
+            {
+                Type = GameContextActionType.TipMessage,
+                TipMessage = $"校验失败！{ex.Message}"
+            });
             return false;
         }
     }
@@ -437,8 +442,14 @@ public sealed class DownloadAndVerifyResource : IProgressSetup, IAsyncDisposable
             await this._downloadState.CancelToken.CancelAsync();
             return true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Logger.WriteError($"取消任务失败: {ex.Message}");
+            GameEventPublisher.Publish(new GameContextOutputArgs
+            {
+                Type = GameContextActionType.TipMessage,
+                TipMessage = $"取消任务失败: {ex.Message}"
+            });
             return false;
         }
     }

@@ -57,7 +57,7 @@ namespace Waves.Core.GameContext
             {
                 this._isStarting = false;
                 Logger.WriteError($"游戏启动错误{ex.Message}");
-
+                SystemEventPublisher.Publish(new() { Message = $"游戏启动错误{ex.Message}" });
                 this.GameEventPublisher.Publish(new GameContextOutputArgs { Type = GameContextActionType.None });
                 return false;
             }
@@ -95,6 +95,7 @@ namespace Waves.Core.GameContext
             catch (Exception ex)
             {
                 Logger.WriteError($"检查游戏状态失败: {ex.Message}");
+                SystemEventPublisher.Publish(new() { Message = $"检查游戏状态失败: {ex.Message}" });
             }
         }
 

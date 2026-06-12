@@ -119,11 +119,9 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
                     return;
                 if (!string.IsNullOrWhiteSpace(args.TipMessage))
                 {
-                    SystemEventPublisher.Publish(new SystemMessagerModel
-                    {
-                        Time = DateTime.Now,
-                        Message = args.TipMessage,
-                    });
+                    SystemEventPublisher.Publish(
+                        new SystemMessagerModel { Time = DateTime.Now, Message = args.TipMessage }
+                    );
                 }
             });
         }
@@ -218,14 +216,15 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
         }
         catch (Exception ex)
         {
-            Logger.WriteError($"取消任务失败:{ex.Message}");
+            var message = $"{this.ContextName}取消任务失败:{ex.Message}";
+            SystemEventPublisher.Publish(new SystemMessagerModel() { Message = message });
+            Logger.WriteError(message);
             return false;
         }
     }
 
     public async Task<bool> PauseDownloadAsync()
     {
-
         if (DownloadState != null)
         {
             if (DownloadState.IsActive && _currentRunningAction != null)
@@ -305,7 +304,10 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
 
     public async Task SetDownloadSpeedAsync(long mbValue)
     {
-        await this.GameLocalConfig.SaveConfigAsync(GameLocalSettingName.LimitSpeed,mbValue.ToString());
+        await this.GameLocalConfig.SaveConfigAsync(
+            GameLocalSettingName.LimitSpeed,
+            mbValue.ToString()
+        );
         if (DownloadState == null)
             return;
         await DownloadState.SetSpeedLimitAsync(mbValue * 1024 * 1024);
@@ -493,7 +495,10 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
                     }
                     catch (Exception ex)
                     {
-                        Console.WriteLine($"删除文件失败：{filePath}，错误：{ex.Message}");
+                        var message = $"删除文件失败：{filePath}，错误：{ex.Message}";
+                        SystemEventPublisher.Publish(
+                            new() { Message = message, Delay = TimeSpan.FromMinutes(1).TotalSeconds }
+                        );
                     }
                 }
             );
@@ -510,7 +515,7 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"批量删除资源失败：{ex.Message}");
+            SystemEventPublisher.Publish(new() { Message = $"批量删除资源失败：{ex.Message}" });
         }
     }
 
@@ -538,7 +543,7 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"删除空目录失败：{directoryPath}，错误：{ex.Message}");
+            SystemEventPublisher.Publish(new() { Message = $"删除空目录失败：{directoryPath}，错误：{ex.Message}" });
         }
     }
 

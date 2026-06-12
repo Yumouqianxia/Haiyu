@@ -51,6 +51,7 @@ namespace Waves.Core.GameContext
             catch (Exception ex)
             {
                 Logger.WriteError($"请求{url}出错：{ex.Message}");
+                SystemEventPublisher.Publish(new() { Message = $"请求{url}出错：{ex.Message}" });
                 return null;
             }
         }
@@ -87,6 +88,7 @@ namespace Waves.Core.GameContext
             catch (Exception ex)
             {
                 Logger.WriteError($"请求{url}出错：{ex.Message}");
+                SystemEventPublisher.Publish(new() { Message = $"请求{url}出错：{ex.Message}" });
                 return null;
             }
         }
@@ -121,6 +123,7 @@ namespace Waves.Core.GameContext
             catch (Exception ex)
             {
                 Logger.WriteError($"请求{url}出错：{ex.Message}");
+                SystemEventPublisher.Publish(new() { Message = $"请求{url}出错：{ex.Message}" });
                 return null;
             }
         }

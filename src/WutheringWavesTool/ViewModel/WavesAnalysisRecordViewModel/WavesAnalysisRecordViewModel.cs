@@ -164,7 +164,11 @@ public sealed partial class WavesAnalysisRecordViewModel : WindowViewModelBase
                 );
                 if (cache == null)
                     continue;
-
+                ArgumentNullException.ThrowIfNull(this.Session);
+                if(cache.Name != this.Session.OrginData.Username)
+                {
+                    continue;
+                }
                 loadedNames.Add(cache.Name);
 
                 void AddPool(int poolType, IList<RecordCardItemWrapper>? resources)

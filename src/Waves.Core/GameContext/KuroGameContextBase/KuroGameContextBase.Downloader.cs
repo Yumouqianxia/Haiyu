@@ -294,7 +294,7 @@ public partial class KuroGameContextBase
                             var checkResult = await VaildateFullFile(item.Md5, filePath, ispred);
                             if (checkResult)
                             {
-                                Logger.WriteInfo("需要全量下载……");
+                                Logger.WriteInfo($"需要全量下载……{item.Dest}");
                                 await DownloadFileByFull(
                                     item.Dest,
                                     item.Size,
@@ -331,7 +331,7 @@ public partial class KuroGameContextBase
                                 );
                                 if (needDownload)
                                 {
-                                    Logger.WriteInfo($"分片[{i}]需要全量下载……");
+                                    Logger.WriteInfo($"分片[{i}]需要全量下载……{item.Dest}");
                                     if (i == item.ChunkInfos.Count - 1)
                                     {
                                         await DownloadFileByChunks(
@@ -371,7 +371,7 @@ public partial class KuroGameContextBase
                     }
                     else
                     {
-                        Logger.WriteInfo($"文件不存在，全量下载");
+                        Logger.WriteInfo($"文件不存在，全量下载{item.Dest}");
                         await DownloadFileByFull(
                             item.Dest,
                             item.Size,

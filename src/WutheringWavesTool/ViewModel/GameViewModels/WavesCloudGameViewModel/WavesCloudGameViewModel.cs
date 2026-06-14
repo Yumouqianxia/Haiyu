@@ -293,6 +293,14 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     [RelayCommand]
     void ShowWavesAnalysis()
     {
+        if(this.SelectLogin == null)
+        {
+            SystemEventMessager.Publish(new()
+            {
+                Message = "请登录并选中一个鸣潮账号"
+            });
+            return;
+        }
         var win = ViewFactorys.ShowAnalysisRecordV2(this.SelectLogin);
         var scale = Haiyu.Controls.TitleBar.GetScaleAdjustment(win);
         int targetDipWidth = 700;

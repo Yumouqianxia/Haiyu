@@ -1,14 +1,3 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net.WebSockets;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-using Waves.Api.Models;
-using Waves.Api.Models.CloudGame;
-
 namespace Waves.Core.Common;
 
 public class CloudNetworkSpeedTestService : IDisposable
@@ -140,10 +129,9 @@ public class CloudNetworkSpeedTestService : IDisposable
         var results = new ConcurrentBag<CloudNetworkDelayItem>();
         var failedCount = 0;
 
-        // Parallel.ForEachAsync 默认并发度=Environment.ProcessorCount，可手动指定
         var parallelOptions = new ParallelOptions
         {
-            MaxDegreeOfParallelism = 3, // 最多3个并发WS连接
+            MaxDegreeOfParallelism = 3,
             CancellationToken = ct,
         };
 

@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.Contracts;
+using System.Diagnostics.Contracts;
 using System.Diagnostics.Metrics;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
@@ -164,7 +164,6 @@ public partial class WavesWikiViewModel : WikiViewModelBase
                 this.Gamers = roles.Result.Data.ToObservableCollection();
                 this.SelectGamer = Gamers[0];
                 this.KuroLogin = true;
-                TipShow.ShowMessage("刷新完成", Symbol.Accept);
             }
         }
         catch (Exception ex)

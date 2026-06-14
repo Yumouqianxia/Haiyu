@@ -28,7 +28,7 @@ public class GamerId
         };
 }
 
-public partial class DeviceInfoViewModel : ViewModelBase, IDisposable
+public partial class DeviceInfoViewModel : WindowViewModelBase, IDisposable
 {
     private bool disposedValue;
 

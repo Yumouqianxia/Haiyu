@@ -8,7 +8,7 @@ public sealed partial class MainWindow : WindowEx
         this.Title = "Haiyu";
         this.AppWindow.SetIcon(AppDomain.CurrentDomain.BaseDirectory + "Assets/appLogo.ico");
         this.IsResizable = false;
-        NativeWindowHelper.ForceDisableMaximize(this);
+        NativeWindowHelper.ForceDisableMaximize(this, targetDipWidth: 1150, targetDipHeight: 650);
         this.SystemBackdrop = new MicaBackdrop();
     }
 

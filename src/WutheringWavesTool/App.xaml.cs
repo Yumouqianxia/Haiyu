@@ -1,4 +1,4 @@
-﻿using Haiyu.Helpers;
+using Haiyu.Helpers;
 using LiveChartsCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Windows.ApplicationModel.Resources;
@@ -19,7 +19,7 @@ public partial class App : ClientApplication
     private const int PROCESS_PER_MONITOR_DPI_AWARE = 2;
     private AppInstance mainInstance;
 
-    public static string AppVersion => "1.2.21";
+    public static string AppVersion => "1.2.22";
 
     public AppSettings AppSettings { get; private set; }
 
@@ -41,6 +41,7 @@ public partial class App : ClientApplication
     {
         Directory.CreateDirectory(AppSettings.BassFolder);
         Directory.CreateDirectory(AppSettings.RecordFolder);
+        Directory.CreateDirectory(AppSettings.WavesRecordFolder);
         Directory.CreateDirectory(AppSettings.ColorGameFolder);
         Directory.CreateDirectory(AppSettings.WrallpaperFolder);
         Directory.CreateDirectory(AppSettings.ScreenCaptures);

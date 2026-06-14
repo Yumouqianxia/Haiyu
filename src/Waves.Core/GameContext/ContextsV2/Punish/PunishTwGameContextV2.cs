@@ -1,6 +1,3 @@
-﻿using Waves.Core.Models.CoreApi;
-using Waves.Core.Models.Enums;
-
 namespace Waves.Core.GameContext.ContextsV2.Punish;
 
 public class PunishTwGameContextV2 : KuroGameContextBaseV2

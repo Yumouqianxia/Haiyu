@@ -20,7 +20,10 @@ public sealed partial class PunishWikiPage : Page, IPage,IDisposable
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
+        base.OnNavigatedTo(e);
+        this.Bindings.StopTracking();
         this.ViewModel.Dispose();
+        this.ViewModel = null;
         base.OnNavigatedFrom(e);
     }
 }

@@ -1,10 +1,3 @@
-﻿using System.Buffers;
-using System.Collections;
-using System.IO.Compression;
-using Waves.Core.Models.Downloader;
-using Waves.Core.Models.Enums;
-using Waves.Core.Services;
-
 namespace Waves.Core.Common.Downloads;
 
 public static class UnZipTask

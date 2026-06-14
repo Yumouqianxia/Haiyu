@@ -1,12 +1,3 @@
-﻿using Serilog.Core;
-using System.Buffers;
-using System.Net.Http.Headers;
-using Waves.Core.Contracts;
-using Waves.Core.Contracts.Events;
-using Waves.Core.Models.Downloader;
-using Waves.Core.Models.Enums;
-using Waves.Core.Services;
-
 namespace Waves.Core.Common.Downloads;
 
 public static class DownloadTask

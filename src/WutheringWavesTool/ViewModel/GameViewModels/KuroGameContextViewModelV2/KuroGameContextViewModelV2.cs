@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -269,7 +269,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                             allSteps.Count - 1
                         );
                         PreSetupText = $"{allSteps[safeStepIndex]}";
-                        PreSetupHeaderText = $"[{safeStepIndex + 1}/{allSteps.Count}]";
+                        PreSetupHeaderText = $"[{safeStepIndex + 1}/{allSteps.Count}]{tracker.StepName}";
                     }
                     else
                     {
@@ -598,6 +598,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                     PredDownloadingVisibility = Visibility.Visible;
                     PredDownloadDoneVisibility = Visibility.Collapsed;
                     PreDownloadIcon = "\uE769";
+                    PreSetupHeaderText = "预下载暂停";
                 }
                 else if (status.PredownloaAcion && !status.PredownloadedDone && !status.IsPause)
                 {
@@ -613,6 +614,9 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                     PredDownloadBthVisibility = Visibility.Visible;
                     PredDownloadingVisibility = Visibility.Collapsed;
                     PredDownloadDoneVisibility = Visibility.Collapsed;
+                    PreDownloadIcon = "\uE74B";
+                    PreProgress = 0;
+                    PreSetupHeaderText = "等待预下载";
                 }
                 else
                 {
@@ -622,6 +626,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                     this.PreDownloadIcon = "\uE8FB";
                     this.PreProgress = 100;
                     this.PredDownloadingVisibility = Visibility.Collapsed;
+                    PreSetupHeaderText = "预下载完成";
                 }
             }
             else
@@ -896,6 +901,12 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
     async Task ShowGameResource()
     {
         await DialogManager.ShowGameResourceV2DialogAsync(this.GameContext.ContextName);
+    }
+
+    [RelayCommand]
+    async Task ShowGameSetting()
+    {
+        await DialogManager.ShowGameSettingAsync(this.GameContext.ContextName);
     }
 
     [RelayCommand]

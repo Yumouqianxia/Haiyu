@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Models.Enums;
+using Waves.Core.Services;
 using Waves.Core.Services.CloudGameServices;
 
 namespace Haiyu.ViewModel.DialogViewModels;
@@ -14,7 +15,13 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
         QualityWrapper.Create();
 
     [ObservableProperty]
-    public partial QualityWrapper? SelectQualitys { get; set; }
+    public partial ObservableCollection<int> Fps { get; set; } = [30, 60];
+
+    [ObservableProperty]
+    public partial int SelectFps { get; set; }
+    
+    [ObservableProperty]
+    public partial QualityWrapper SelectQualitys { get; set; }
 
     [ObservableProperty]
     public partial bool Enable { get; set; }
@@ -26,6 +33,11 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
     public partial int CodeType { get; set; } = CloudGameMethod.DefaultCodecType;
 
     public IKuroCloudGameContext CloudGameContext { get; internal set; }
+
+    public CloudGameSettingViewModel([FromKeyedServices(nameof(KuroCloudGameContext))]IKuroCloudGameContext  cloudGameContext)
+    {
+        this.CloudGameContext = cloudGameContext;
+    }
 
     [RelayCommand]
     async Task Loaded()
@@ -53,6 +65,20 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
         }
 
         if (
+            int.TryParse(
+                (
+                    await this.CloudGameContext.GameLocalConfig.GetConfigAsync(
+                        CloudGameLocalSettingName.Fps
+                    )
+                ),
+                out var fps
+            )
+        )
+        {
+            this.SelectFps = fps;
+        }
+
+        if (
             bool.TryParse(
                 await this.CloudGameContext.GameLocalConfig.GetConfigAsync(
                     CloudGameLocalSettingName.EnableImageEnhancement
@@ -63,6 +89,8 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
         {
             this.Enable = enable;
         }
+
+
         if (
             bool.TryParse(
                 await this.CloudGameContext.GameLocalConfig.GetConfigAsync(
@@ -74,6 +102,8 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
         {
             this.ShowNetworkState = enable;
         }
+
+
     }
 
     async partial void OnSelectQualitysChanged(QualityWrapper? value)
@@ -85,6 +115,19 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
             Enum.GetName(value.Type!),
             this.CTS.Token
         );
+        SeedUpdateQuality();
+    }
+
+    async partial void OnSelectFpsChanged(int value)
+    {
+        if (value == 0 || value == null)
+            return;
+        await CloudGameContext.GameLocalConfig.SaveConfigAsync(
+            CloudGameLocalSettingName.Fps,
+            value.ToString(),
+            this.CTS.Token
+        );
+        SeedUpdateQuality();
     }
 
     async partial void OnEnableChanged(bool value)
@@ -96,6 +139,7 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
             value.ToString(),
             this.CTS.Token
         );
+        SeedUpdateQuality();
     }
 
     async partial void OnShowNetworkStateChanged(bool value)
@@ -107,6 +151,19 @@ public sealed partial class CloudGameSettingViewModel : DialogViewModelBase
             value.ToString(),
             this.CTS.Token
         );
+        SeedUpdateQuality();
+    }
+
+    public void SeedUpdateQuality()
+    {
+       
+        WeakReferenceMessenger.Default.Send<CloudQualityUpdateModel>(new()
+        {
+            Type =this.SelectQualitys==null? CloudQualityType.Clarity:this.SelectQualitys.Type,
+            Fps = this.SelectFps,
+            NetworkShow = this.ShowNetworkState,
+            QaulityEnable = this.Enable
+        });
     }
 }
 
@@ -118,7 +175,7 @@ public class QualityWrapper
 
     public static ObservableCollection<QualityWrapper> Create() =>
         [
-            new QualityWrapper() { Type = CloudQualityType.Clarity, DisplayName = "流畅" },
-            new QualityWrapper() { Type = CloudQualityType.Native, DisplayName = "原生" },
+            new QualityWrapper() { Type = CloudQualityType.Smooth, DisplayName = "流畅" },
+            new QualityWrapper() { Type = CloudQualityType.Clarity, DisplayName = "原生" },
         ];
 }

@@ -1,4 +1,4 @@
-using CommunityToolkit.WinUI.Controls;
+﻿using CommunityToolkit.WinUI.Controls;
 using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Models.Enums;
 using Waves.Core.Services;

@@ -1,5 +1,3 @@
-﻿using Waves.Core.Models.Enums;
-
 namespace Waves.Core.Contracts;
 
 /// <summary>

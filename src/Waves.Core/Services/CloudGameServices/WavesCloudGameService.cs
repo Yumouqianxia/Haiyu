@@ -1,20 +1,3 @@
-﻿using System.Buffers.Text;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Reflection.Metadata;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.Json;
-using Waves.Api.Models;
-using Waves.Api.Models.CloudGame;
-using Waves.Core.Common;
-using Waves.Core.Contracts;
-using Waves.Core.Contracts.CloudGame;
-using Waves.Core.Helpers;
-using Waves.Core.Models.CloudGame;
-using static System.Collections.Specialized.BitVector32;
-
 namespace Waves.Core.Services.CloudGameServices;
 
 public class WavesCloudGameService : IWavesCloudGameService
@@ -31,6 +14,10 @@ public class WavesCloudGameService : IWavesCloudGameService
     private const string ClientId = "vvkewnskrxxwfo0yi61cy24l";
 
     private const string ClientSecret = "g9ej0i1jf3y68wchb0ncm266";
+
+    public const string CardPoolId = "5c13a63f85465e9fcc0f24d6efb15083";
+
+    public const string ServerId = "76402e5b20be2c39f095a152090afddc";
 
     private const string ChannelId = "211";
 
@@ -250,27 +237,38 @@ public class WavesCloudGameService : IWavesCloudGameService
         CancellationToken ct = default
     )
     {
-        var pingNode = await this.CloudNetworkSpeedTestService.RunSpeedTestAsync(ct);
-        var nodeList = pingNode
-            .Select(x => new NodeList() { Delay = x.Delay, NodeId = x.NodeId })
-            .ToList();
-        using var client = BuildClientData(
-            session,
-            "GamePlay/GetRegionToScore",
-            method: HttpMethod.Post
-        );
-        var content = new StringContent(
-            JsonSerializer.Serialize(nodeList, CloudGameContext.Default.ListNodeList),
-            Encoding.UTF8,
-            "application/json"
-        );
-        client.Content = content;
-        var result = await _cloudClient.SendAsync(client, ct);
-        var str = await result.Content.ReadAsStringAsync();
-        return JsonSerializer.Deserialize(
-            str,
-            CloudGameContext.Default.CloudApiResponseListCloudGameNode
-        );
+        try
+        {
+            var pingNode = await this.CloudNetworkSpeedTestService.RunSpeedTestAsync(ct);
+            var nodeList = pingNode
+                .Select(x => new NodeList() { Delay = x.Delay, NodeId = x.NodeId })
+                .ToList();
+            using var client = BuildClientData(
+                session,
+                "GamePlay/GetRegionToScore",
+                method: HttpMethod.Post
+            );
+            var content = new StringContent(
+                JsonSerializer.Serialize(nodeList, CloudGameContext.Default.ListNodeList),
+                Encoding.UTF8,
+                "application/json"
+            );
+            client.Content = content;
+            var result = await _cloudClient.SendAsync(client, ct);
+            var str = await result.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize(
+                str,
+                CloudGameContext.Default.CloudApiResponseListCloudGameNode
+            );
+        }
+        catch (TaskCanceledException)
+        {
+            return null;
+        }
+        catch(Exception)
+        {
+            return null;
+        }
     }
 
     public async Task<CloudApiResponse<WalletData>?> GetWalletDataAsync(
@@ -324,7 +322,10 @@ public class WavesCloudGameService : IWavesCloudGameService
         );
     }
 
-    public async Task<CloudApiResponse<CommonQueueInfo>?> CommonQueueInfoAsync(HttpClient client,CloudGameLoginSession session)
+    public async Task<CloudApiResponse<CommonQueueInfo>?> CommonQueueInfoAsync(
+        HttpClient client,
+        CloudGameLoginSession session
+    )
     {
         using var response = await client.GetAsync("GamePlay/CommonQueueInfo");
         var body = await response.Content.ReadAsStringAsync();
@@ -340,6 +341,7 @@ public class WavesCloudGameService : IWavesCloudGameService
         using var response = await client.GetAsync("GamePlay/CancelQueue");
         var body = await response.Content.ReadAsStringAsync();
     }
+
     public HttpRequestMessage BuildClientData(
         CloudGameLoginSession session,
         string path,
@@ -363,6 +365,58 @@ public class WavesCloudGameService : IWavesCloudGameService
         return message;
     }
 
+    public async Task<CloudApiResponse<RecordData>?> GetRecordAsync(
+        CloudGameLoginSession session,
+        CancellationToken token = default
+    )
+    {
+        using var client = BuildClientData(
+            session,
+            "/Message/GameRecordInfo",
+            method: HttpMethod.Get
+        );
+        var result = await _cloudClient.SendAsync(client, token);
+        var str = await result.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<CloudApiResponse<RecordData>?>(
+            str,
+            CloudGameContext.Default.CloudApiResponseRecordData
+        );
+    }
+
+    public async Task<PlayerReponse?> GetGameRecordResource(
+        CloudGameLoginSession session,
+        string recordId,
+        string userId,
+        int poolType,
+        CancellationToken token = default
+    )
+    {
+        RecardQuery query = new RecardQuery();
+        query.CardPoolId = "5c13a63f85465e9fcc0f24d6efb15083";
+        query.RecordId = recordId;
+        query.LanguageCode = "zh-Hans";
+        query.PlayerId = userId;
+        query.CardPoolType = poolType;
+        query.ServerId = "76402e5b20be2c39f095a152090afddc";
+        HttpRequestMessage message = new HttpRequestMessage(
+           HttpMethod.Post,
+           "https://gmserver-api.aki-game2.com/gacha/record/query"
+       );
+        var content = JsonSerializer.Serialize(query, CloudGameContext.Default.RecardQuery);
+        message.Content = new StringContent(content, new MediaTypeHeaderValue("application/json"));
+        message.Headers.Add(
+            "User-Agent",
+            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36 Edg/139.0.0.0"
+        );
+        using(HttpClient client = new(new WavesGameHandler()))
+        {
+            var result = await client.SendAsync(message, token);
+            var str = await result.Content.ReadAsStringAsync(token);
+            return JsonSerializer.Deserialize(str, PlayerCardRecordContext.Default.PlayerReponse);
+        }
+        
+    }
+
     /// <summary>
     /// 将启动参数中的 cookie 合成为 HTTP 请求头字符串。
     /// </summary>
@@ -370,9 +424,7 @@ public class WavesCloudGameService : IWavesCloudGameService
     {
         return string.Join(
             "; ",
-            CloudGameDataHelper
-                .BuildCookieItems(options)
-                .Select(pair => $"{pair.Key}={pair.Value}")
+            CloudGameDataHelper.BuildCookieItems(options).Select(pair => $"{pair.Key}={pair.Value}")
         );
     }
 

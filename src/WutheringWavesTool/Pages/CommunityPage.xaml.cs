@@ -15,6 +15,7 @@ public sealed partial class CommunityPage : Page, IPage, IDisposable,IWindowPage
 
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
+        this.Bindings.StopTracking();
         if (this.frame.Content is IDisposable disposable)
         {
             disposable.Dispose();

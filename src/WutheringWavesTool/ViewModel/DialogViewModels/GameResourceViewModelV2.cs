@@ -1,4 +1,4 @@
-﻿using Haiyu.Services.DialogServices;
+using Haiyu.Services.DialogServices;
 
 namespace Haiyu.ViewModel.DialogViewModels;
 
@@ -107,16 +107,16 @@ public sealed partial class GameResourceViewModelV2 : DialogViewModelBase
     }
 
     [RelayCommand]
-    void SendDeleteGameResource()
+    async Task SendDeleteGameResource()
     {
         WeakReferenceMessenger.Default.Send<DeleteGameResource>(new(true, ContextName));
-        Close();
+        await Close();
     }
 
     [RelayCommand]
-    void SendDeleteProdGameResource()
+    async Task SendDeleteProdGameResource()
     {
         WeakReferenceMessenger.Default.Send<DeleteGameResource>(new(false, ContextName));
-        Close();
+        await Close();
     }
 }

@@ -1,4 +1,5 @@
-﻿using Haiyu.Pages.GamePages;
+using System.Collections.Specialized;
+using Haiyu.Pages.GamePages;
 
 namespace Haiyu.Pages;
 
@@ -52,6 +53,7 @@ public sealed partial class ShellPage : Page
         this.ViewModel.AppContext.WallpaperService.RegisterMediaHost(mediaControl);
     }
 
+
     private void ComboBox_SizeChanged(object sender, SizeChangedEventArgs e)
     {
         this.titlebar.UpDate();
@@ -60,5 +62,10 @@ public sealed partial class ShellPage : Page
     private void notify_LeftDoubleClick(object sender, EventArgs args)
     {
         this.ViewModel.ShowWindowCommand.Execute(null);
+    }
+
+    private void OpenMessagePane(object sender, RoutedEventArgs e)
+    {
+        view.IsPaneOpen = !view.IsPaneOpen;
     }
 }

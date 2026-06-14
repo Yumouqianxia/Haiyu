@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+using System.Diagnostics.CodeAnalysis;
+using System.Text.Json.Serialization;
 using CommunityToolkit.Mvvm.ComponentModel;
 using MemoryPack;
 using Waves.Api.Models.CloudGame;
@@ -6,6 +7,10 @@ using Waves.Api.Models.CloudGame;
 namespace Waves.Api.Models.Wrappers;
 
 [MemoryPackable]
+[DynamicallyAccessedMembers(
+    DynamicallyAccessedMemberTypes.PublicProperties
+    | DynamicallyAccessedMemberTypes.PublicMethods
+)]
 public partial class RecordCardItemWrapper : ObservableObject
 {
     [JsonConstructor]
@@ -21,7 +26,11 @@ public partial class RecordCardItemWrapper : ObservableObject
         Name = datum.Name;
         Count = datum.Count;
         Time = datum.Time;
-        this.RecordTime = DateTime.Parse(Time);
+        var dt = DateTime.Parse(Time);
+        RecordTime = dt;
+        Day = dt.Day;
+        Month = dt.Month;
+        Year = dt.Year;
     }
 
     [ObservableProperty]
@@ -52,13 +61,28 @@ public partial class RecordCardItemWrapper : ObservableObject
     [JsonPropertyName("time")]
     public partial string Time { get; set; }
 
-    [JsonPropertyName("recordTime")]
-    public DateTime RecordTime { get; }
+    [JsonIgnore]
+    public DateTime RecordTime { get; set; }
 
     [JsonIgnore]
-    public int Day => RecordTime.Day;
+    public int Day { get; set; }
+
     [JsonIgnore]
-    public int Month => RecordTime.Month;
+    public int Month { get; set; }
+
     [JsonIgnore]
-    public int Year => RecordTime.Year;
+    public int Year { get; set; }
+
+    [MemoryPackOnDeserialized]
+    void OnDeserialized()
+    {
+        if (RecordTime == default && !string.IsNullOrEmpty(Time))
+        {
+            RecordTime = DateTime.Parse(Time);
+            Day = RecordTime.Day;
+            Month = RecordTime.Month;
+            Year = RecordTime.Year;
+        }
+    }
+
 }

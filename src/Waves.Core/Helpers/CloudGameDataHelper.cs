@@ -1,12 +1,3 @@
-﻿using System.Net;
-using System.Net.Http.Headers;
-using System.Net.NetworkInformation;
-using System.Text.Json;
-using Haiyu.Models;
-using Waves.Api.Models;
-using Waves.Api.Models.CloudGame;
-using Waves.Core.Models.CloudGame;
-
 namespace Waves.Core.Common;
 
 /// <summary>
@@ -204,32 +195,26 @@ public static class CloudGameDataHelper
         };
     }
 
+    /// <summary>
+    /// 通过DPI缩放转换物理像素
+    /// </summary>
+    /// <param name="quality"></param>
+    /// <param name="clampToWindow"></param>
+    /// <returns></returns>
     public static StreamQualityOptions ScaleQualityToPhysical(
         StreamQualityOptions quality,
         bool clampToWindow
     )
     {
         var dpiScale = quality.DPI / 96.0;
+        var isSmooth = quality.Type ==  Models.Enums.CloudQualityType.Smooth;
+        double maxScale = isSmooth ? 2.0 / 3.0 : 1.0;
+        var maxW = (int)Math.Round(quality.Width * maxScale);
+        var maxH = (int)Math.Round(quality.Height * maxScale); 
         var physicalWidth = (int)Math.Round(quality.Width * dpiScale);
-        var physicalHeight = (int)Math.Round(quality.Height * dpiScale);
-
-        if (clampToWindow)
-        {
-            const int windowDipWidth = 1440;
-            const int windowDipHeight = 900;
-            const int chromeVerticalDip = 100;
-            const int marginDip = 28;
-            var maxPhysicalWidth = (int)Math.Round((windowDipWidth - marginDip) * dpiScale);
-            var maxPhysicalHeight = (int)
-                Math.Round((windowDipHeight - chromeVerticalDip - marginDip) * dpiScale);
-            physicalWidth = Math.Min(physicalWidth, maxPhysicalWidth);
-            physicalHeight = Math.Min(physicalHeight, maxPhysicalHeight);
-        }
-        physicalWidth = physicalWidth % 2 == 0 ? physicalWidth : physicalWidth - 1;
-        physicalHeight = physicalHeight % 2 == 0 ? physicalHeight : physicalHeight - 1;
-        physicalWidth = Math.Clamp(physicalWidth, 640, 3840);
-        physicalHeight = Math.Clamp(physicalHeight, 360, 2160);
-
+        var physicalHeight = (int)Math.Round(quality.Height * dpiScale); 
+        physicalWidth = ClampEven(physicalWidth, 640, maxW);
+        physicalHeight = ClampEven(physicalHeight, 360, maxH);
         const double targetBitratePerPixel = 0.013;
         var targetBitRate = (int)(physicalWidth * physicalHeight * targetBitratePerPixel);
         targetBitRate = Math.Clamp(targetBitRate, 5000, 50000);

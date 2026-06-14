@@ -1,17 +1,3 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http.Headers;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using Waves.Api.Models;
-using Waves.Api.Models.Communitys;
-using Waves.Api.Models.QRLogin;
-using Waves.Core;
-using Waves.Core.Contracts;
-using Waves.Core.Helpers;
-using Waves.Core.Models;
-using Waves.Core.Services;
-using WavesLauncher.Core.Contracts;
-
 namespace Waves.Core.Services;
 
 public sealed partial class KuroClient : IKuroClient
@@ -531,9 +517,9 @@ public sealed partial class KuroClient : IKuroClient
                 await SetAutoUserAsync(users, token);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
+            LoggerService.WriteError(ex.Message + ex.StackTrace);
         }
     }
 

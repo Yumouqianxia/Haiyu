@@ -1,8 +1,4 @@
-﻿using System.Text.Json.Serialization;
-using Waves.Core.Contracts;
-using Waves.Core.Models.Enums;
-
-namespace Waves.Core.Models;
+﻿namespace Waves.Core.Models;
 
 public class WavesQueryLocalPlayerInfoRequest
 {
@@ -206,13 +202,13 @@ public class Base
     public int WeeklyInstCount { get; set; }
 
     [JsonPropertyName("Boxes")]
-    public Boxes Boxes { get; set; }
+    public BasicBoxes Boxes { get; set; }
 
     [JsonPropertyName("BasicBoxes")]
     public BasicBoxes BasicBoxes { get; set; }
 
     [JsonPropertyName("PhantomBoxes")]
-    public PhantomBoxes PhantomBoxes { get; set; }
+    public BasicBoxes PhantomBoxes { get; set; }
 
     [JsonPropertyName("BirthMon")]
     public int BirthMon { get; set; }
@@ -230,16 +226,16 @@ public class Base
 public class BasicBoxes
 {
     [JsonPropertyName("2")]
-    public int _2 { get; set; }
+    public int Two { get; set; }
 
     [JsonPropertyName("1")]
-    public int _1 { get; set; }
+    public int One { get; set; }
 
     [JsonPropertyName("3")]
-    public int _3 { get; set; }
+    public int Three { get; set; }
 
     [JsonPropertyName("4")]
-    public int _4 { get; set; }
+    public int Four { get; set; }
 }
 
 public class BattlePass
@@ -266,20 +262,6 @@ public class BattlePass
     public int ExpLimit { get; set; }
 }
 
-public class Boxes
-{
-    [JsonPropertyName("2")]
-    public int _2 { get; set; }
-
-    [JsonPropertyName("1")]
-    public int _1 { get; set; }
-
-    [JsonPropertyName("3")]
-    public int _3 { get; set; }
-
-    [JsonPropertyName("4")]
-    public int _4 { get; set; }
-}
 
 public class Decoration
 {
@@ -344,17 +326,6 @@ public class MusicData
     public List<Album> Albums { get; set; }
 }
 
-public class PhantomBoxes
-{
-    [JsonPropertyName("1")]
-    public int _1 { get; set; }
-
-    [JsonPropertyName("2")]
-    public int _2 { get; set; }
-
-    [JsonPropertyName("3")]
-    public int _3 { get; set; }
-}
 
 public class WavesLocalGameRoleItem : ILocalGameRole
 {

@@ -1,4 +1,4 @@
-﻿using Haiyu.Models.Dialogs;
+using Haiyu.Models.Dialogs;
 using Haiyu.Services.DialogServices;
 using Waves.Api.Models.Launcher;
 using Waves.Core.Common;
@@ -120,7 +120,7 @@ public sealed partial class GameLauncherCacheViewModel : DialogViewModelBase
         }
         await GameContext.GameLocalConfig.SaveConfigAsync(GameLocalSettingName.LasterSelectLocalUser,item.GetKey);
         WeakReferenceMessenger.Default.Send<LocalGameRefreshBindUser>(new LocalGameRefreshBindUser(item));
-        this.Close();
+        await this.Close();
     }
 
     public override void AfterClose()

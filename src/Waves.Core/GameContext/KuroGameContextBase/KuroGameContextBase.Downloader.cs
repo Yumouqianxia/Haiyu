@@ -1,19 +1,3 @@
-﻿using System.Buffers;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net.Http.Headers;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
-using Haiyu.Common;
-using Waves.Api.Models;
-using Waves.Api.Models.Launcher;
-using Waves.Core.Common;
-using Waves.Core.Helpers;
-using Waves.Core.Models;
-using Waves.Core.Models.Downloader;
-using Waves.Core.Models.Enums;
-
 namespace Waves.Core.GameContext;
 
 public partial class KuroGameContextBase
@@ -310,7 +294,7 @@ public partial class KuroGameContextBase
                             var checkResult = await VaildateFullFile(item.Md5, filePath, ispred);
                             if (checkResult)
                             {
-                                Logger.WriteInfo("需要全量下载……");
+                                Logger.WriteInfo($"需要全量下载……{item.Dest}");
                                 await DownloadFileByFull(
                                     item.Dest,
                                     item.Size,
@@ -347,7 +331,7 @@ public partial class KuroGameContextBase
                                 );
                                 if (needDownload)
                                 {
-                                    Logger.WriteInfo($"分片[{i}]需要全量下载……");
+                                    Logger.WriteInfo($"分片[{i}]需要全量下载……{item.Dest}");
                                     if (i == item.ChunkInfos.Count - 1)
                                     {
                                         await DownloadFileByChunks(
@@ -387,7 +371,7 @@ public partial class KuroGameContextBase
                     }
                     else
                     {
-                        Logger.WriteInfo($"文件不存在，全量下载");
+                        Logger.WriteInfo($"文件不存在，全量下载{item.Dest}");
                         await DownloadFileByFull(
                             item.Dest,
                             item.Size,

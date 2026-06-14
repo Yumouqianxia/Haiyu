@@ -1,10 +1,3 @@
-﻿using System.Net.Http.Headers;
-using System.Text.Json;
-using Waves.Api.Models;
-using Waves.Api.Models.Communitys;
-using Waves.Core.Helpers;
-using Waves.Core.Models.Enums;
-
 namespace Waves.Core.Services;
 
 partial class KuroClient

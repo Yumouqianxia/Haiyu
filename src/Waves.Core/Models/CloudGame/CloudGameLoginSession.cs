@@ -1,8 +1,3 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-using System.Runtime.CompilerServices;
-using Waves.Api.Models.CloudGame;
-using Waves.Core.Helpers;
-
 namespace Waves.Core.Models.CloudGame;
 
 /// <summary>
@@ -24,6 +19,8 @@ public partial class CloudGameLoginSession:ObservableObject
     public string TraceId { get; internal set; }
 
     public DateTime SaveTime { get; internal set; }
+
+    public string GetId() => $"{OrginData.Username}{OrginData.Sdkuserid}";
 }
 
 /// <summary>

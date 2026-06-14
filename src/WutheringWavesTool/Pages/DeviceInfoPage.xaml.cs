@@ -10,7 +10,7 @@ public sealed partial class DeviceInfoPage : Page, IWindowPage
     }
 
 
-    public DeviceInfoViewModel? ViewModel { get; }
+    public DeviceInfoViewModel ViewModel { get; }
 
     public void Dispose()
     {
@@ -22,12 +22,14 @@ public sealed partial class DeviceInfoPage : Page, IWindowPage
 
     public void SetWindow(Window window)
     {
-        title.Window = window;
+        this.ViewModel.Initialization(window);
+        title.Window = this.ViewModel.Window;
         title.Window.Closed += Window_Closed;
     }
 
     private void Window_Closed(object sender, WindowEventArgs args)
     {
+        this.Bindings.StopTracking();
         this.ViewModel?.Dispose();
     }
 }

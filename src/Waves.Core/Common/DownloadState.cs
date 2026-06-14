@@ -1,6 +1,3 @@
-﻿using System.Collections.Concurrent;
-using Waves.Core.Models.Downloader;
-
 namespace Waves.Core.Common;
 
 public sealed class DownloadState

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Haiyu.Models.Dialogs;
@@ -109,7 +109,7 @@ public sealed partial class UpdateGameViewModel : DialogViewModelBase
             if (launcher == null || launcher.ResourceDefault == null)
             {
                 WindowExtension.MessageBox(0, "游戏资源拉取失败！", "错误", 0);
-                this.Close();
+                await this.Close();
                 return;
             }
         }
@@ -118,7 +118,7 @@ public sealed partial class UpdateGameViewModel : DialogViewModelBase
             if(launcher == null || launcher.Predownload == null)
             {
                 WindowExtension.MessageBox(0, "预下载资源拉取失败！", "错误", 0);
-                this.Close();
+                await this.Close();
                 return;
             }
         }
@@ -207,10 +207,10 @@ public sealed partial class UpdateGameViewModel : DialogViewModelBase
     }
 
     [RelayCommand]
-    void Invoke()
+    async Task Invoke()
     {
         this.IsOk = true;
-        this.Close();
+        await this.Close();
     }
 
     internal void SetData(IGameContextV2 context, UpdateGameType item2)

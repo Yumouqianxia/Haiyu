@@ -1,13 +1,10 @@
-﻿using System.Collections.Generic;
+
 using System.Text.Json;
 using MemoryPack;
-using MemoryPack.Formatters;
 using Waves.Api.Models;
-using Waves.Api.Models.Communitys;
 using Waves.Api.Models.Enums;
 using Waves.Api.Models.Record;
 using Waves.Api.Models.Wrappers;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace Waves.Api.Helper;
 
@@ -15,9 +12,11 @@ public static class RecordHelper
 {
     public static HttpRequestMessage BuildRequets(RecordRequest recordRequest, CardPoolType type)
     {
-        HttpRequestMessage message = new();
-        message.RequestUri = new Uri($"https://gmserver-api.aki-game2.com/gacha/record/query");
-        message.Method = HttpMethod.Post;
+        HttpRequestMessage message = new()
+        {
+            RequestUri = new Uri($"https://gmserver-api.aki-game2.com/gacha/record/query"),
+            Method = HttpMethod.Post
+        };
         recordRequest.CardPoolType = (int)type;
         var str = new StringContent(
             JsonSerializer.Serialize(recordRequest, PlayerCardRecordContext.Default.RecordRequest),
@@ -109,7 +108,7 @@ public static class RecordHelper
         {
             if (item.QualityLevel == 5)
             {
-                if (ids.Where(x => x == item.ResourceId).Any())
+                if (ids.Any(x => x == item.ResourceId))
                 {
                     result.Add(new(item, count, false));
                 }
@@ -165,18 +164,18 @@ public static class RecordHelper
     public static List<int> FormatFiveWeaponeRoleStar(FiveGroupModel model) =>
         model.Data.VersionPools.SelectMany(x => x.UpFiveWeaponIds).ToList();
 
-    public static async Task<FiveGroupModel?> GetFiveGroupAsync()
+    public static async Task<FiveGroupModel?> GetFiveGroupAsync(CancellationToken token = default)
     {
         using (HttpClient client = new HttpClient())
         {
             try
             {
                 var response = await client.GetAsync(
-                    "https://api3.sanyueqi.cn/api/v1/pool/draw_config_infos"
+                    "https://api3.sanyueqi.cn/api/v1/pool/draw_config_infos", token
                 );
                 response.EnsureSuccessStatusCode();
                 var model = JsonSerializer.Deserialize(
-                    await response.Content.ReadAsStringAsync(),
+                    await response.Content.ReadAsStringAsync(token),
                     PlayerCardRecordContext.Default.FiveGroupModel
                 );
                 return model;
@@ -188,16 +187,16 @@ public static class RecordHelper
         }
     }
 
-    public static async Task<List<CommunityRoleData>?> GetAllRoleAsync()
+    public static async Task<List<CommunityRoleData>?> GetAllRoleAsync(CancellationToken token= default)
     {
         using (HttpClient client = new HttpClient())
         {
             try
             {
-                var response = await client.GetAsync("https://mc.appfeng.com/json/avatar.json");
+                var response = await client.GetAsync("https://mc.appfeng.com/json/avatar.json", token);
                 response.EnsureSuccessStatusCode();
                 var model = JsonSerializer.Deserialize(
-                    await response.Content.ReadAsStringAsync(),
+                    await response.Content.ReadAsStringAsync(token),
                     PlayerCardRecordContext.Default.ListCommunityRoleData
                 );
                 if (model != null)
@@ -211,16 +210,16 @@ public static class RecordHelper
         }
     }
 
-    public static async Task<List<CommunityWeaponData>?> GetAllWeaponAsync()
+    public static async Task<List<CommunityWeaponData>?> GetAllWeaponAsync(CancellationToken token =default)
     {
         using (HttpClient client = new HttpClient())
         {
             try
             {
-                var response = await client.GetAsync("https://mc.appfeng.com/json/weapon.json?");
+                var response = await client.GetAsync("https://mc.appfeng.com/json/weapon.json?", token);
                 response.EnsureSuccessStatusCode();
                 var model = JsonSerializer.Deserialize(
-                    await response.Content.ReadAsStringAsync(),
+                    await response.Content.ReadAsStringAsync(token),
                     PlayerCardRecordContext.Default.ListCommunityWeaponData
                 );
                 if (model != null)
@@ -314,10 +313,10 @@ public static class RecordHelper
         double minScore4 = 0;
         double maxScore4 = 80;
         double weightedScore1 =
-            (1 - (guaranteedRange - minScore1) / (maxScore1 - minScore1)) * weight1;
-        double weightedScore2 = (1 - (roleAAvg - minScore2) / (maxScore2 - minScore2)) * weight2;
-        double weightedScore3 = (1 - (weaponAAvg - minScore3) / (maxScore3 - minScore3)) * weight3;
-        double weightedScore4 = (1 - (resident - minScore4) / (maxScore4 - minScore4)) * weight4;
+            (1 - ((guaranteedRange - minScore1) / (maxScore1 - minScore1))) * weight1;
+        double weightedScore2 = (1 - ((roleAAvg - minScore2) / (maxScore2 - minScore2))) * weight2;
+        double weightedScore3 = (1 - ((weaponAAvg - minScore3) / (maxScore3 - minScore3))) * weight3;
+        double weightedScore4 = (1 - ((resident - minScore4) / (maxScore4 - minScore4))) * weight4;
         double totalScore =
             (weightedScore1 + weightedScore2 + weightedScore3 + weightedScore4) * 100;
         return totalScore;

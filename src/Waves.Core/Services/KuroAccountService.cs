@@ -1,14 +1,4 @@
-﻿using System.Buffers;
-using CommunityToolkit.Mvvm.Messaging;
-using MemoryPack;
-using Microsoft.Extensions.DependencyInjection;
-using Serilog;
-using Waves.Api.Models.Messanger;
-using Waves.Core.Contracts;
-using Waves.Core.Models;
-using Waves.Core.Settings;
-
-namespace Waves.Core.Services;
+﻿namespace Waves.Core.Services;
 
 public class KuroAccountService : IKuroAccountService
 {
@@ -69,7 +59,7 @@ public class KuroAccountService : IKuroAccountService
                     )
                 )
                 {
-                    var bytes = (await fs.ReadAsync(buffer));
+                    var bytes = await fs.ReadAsync(buffer);
                     var model = MemoryPackSerializer.Deserialize<LocalAccount>(
                         buffer.AsSpan(),
                         new MemoryPackSerializerOptions() { StringEncoding = StringEncoding.Utf8 }

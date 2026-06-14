@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="Haiyu.Pages.GamePages.PunishV2GamePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -584,7 +584,6 @@
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
                                 BorderThickness="0"
-                                IsEnabled="{x:Bind ViewModel.EnableStartGameBth, Mode=OneWay}"
                                 Style="{ThemeResource TransparentButtonStyle}">
                                 <FontIcon
                                     FontFamily="Segoe Fluent Icons"
@@ -595,6 +594,7 @@
                                     <MenuFlyout Placement="Bottom">
                                         <MenuFlyoutItem
                                             Command="{x:Bind ViewModel.RepirGameCommand}"
+                                            IsEnabled="{x:Bind ViewModel.EnableStartGameBth, Mode=OneWay}"
                                             Text="修复游戏"
                                             ToolTipService.ToolTip="此选项等同于下载，启动器会下载服务器资源进行自动覆盖（包含Mod资源）">
                                             <MenuFlyoutItem.Icon>
@@ -607,9 +607,15 @@
                                                 <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xEF19;" />
                                             </MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
+                                        <MenuFlyoutItem Command="{x:Bind ViewModel.ShowGameSettingCommand}" Text="游戏设置">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE713;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
                                         <MenuFlyoutSeparator />
                                         <MenuFlyoutItem
                                             Command="{x:Bind ViewModel.DeleteGameResourceCommand}"
+                                            IsEnabled="{x:Bind ViewModel.EnableStartGameBth, Mode=OneWay}"
                                             Text="卸载游戏"
                                             ToolTipService.ToolTip="此选项将直接删除游戏文件夹">
                                             <MenuFlyoutItem.Icon>
@@ -637,7 +643,7 @@
                                 CornerRadius="70"
                                 Style="{ThemeResource TransparentButtonStyle}">
                                 <ToolTipService.ToolTip>
-                                    <Grid Width="210" Height="160">
+                                    <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition />
                                             <RowDefinition />
@@ -646,8 +652,11 @@
                                             <ColumnDefinition />
                                             <ColumnDefinition />
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Text="下载步骤" />
-                                        <TextBlock Text="{x:Bind ViewModel.PreSetupHeaderText, Mode=OneWay}" />
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="2"
+                                            HorizontalAlignment="Left"
+                                            Text="{x:Bind ViewModel.PreSetupHeaderText, Mode=OneWay}" />
                                         <TextBlock Grid.Row="1" Text="处理速度" />
                                         <TextBlock
                                             Grid.Row="1"

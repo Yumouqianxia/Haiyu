@@ -1,9 +1,3 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.Json;
-using Waves.Core.Adaptives;
-using Waves.Core.Common;
-using Waves.Core.Models;
-
 namespace Waves.Core.Settings;
 
 public class AppSettings : SettingBase
@@ -12,6 +6,8 @@ public class AppSettings : SettingBase
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Waves";
 
     public static string RecordFolder => BassFolder + "\\RecordCache";
+
+    public static string WavesRecordFolder => BassFolder + "\\WavesRecordCache";
 
     public static string WrallpaperFolder => BassFolder + "\\WallpaperImages";
 

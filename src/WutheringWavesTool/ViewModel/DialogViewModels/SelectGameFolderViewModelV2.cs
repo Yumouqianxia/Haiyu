@@ -1,4 +1,4 @@
-﻿using System.Text.RegularExpressions;
+using System.Text.RegularExpressions;
 using Haiyu.Services.DialogServices;
 using Microsoft.UI.Xaml.Shapes;
 
@@ -167,7 +167,7 @@ public sealed partial class SelectGameFolderViewModelV2 : DialogViewModelBase
         {
             Type = Waves.Core.Models.Enums.GameContextActionType.None
         });
-        this.Close();
+        await this.Close();
     }
 
     private async Task<long> CalculateFolderSizeAsync(DirectoryInfo directory)

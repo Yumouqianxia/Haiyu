@@ -1,16 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Waves.Api.Models;
-using Waves.Api.Models.Launcher;
-using Waves.Core.Common;
-using Waves.Core.Contracts.Events;
-using Waves.Core.Models;
-using Waves.Core.Models.CoreApi;
-using Waves.Core.Models.Downloader;
-using Waves.Core.Models.Enums;
-using Waves.Core.Services;
-
 namespace Waves.Core.Contracts;
 
 public interface IGameContextV2
@@ -23,7 +10,9 @@ public interface IGameContextV2
     public string GamerConfigPath { get; internal set; }
     GameLocalConfig GameLocalConfig { get; }
 
-    public IGameEventPublisher GameEventPublisher { get; }
+    public IGameEventPublisher<GameContextOutputArgs> GameEventPublisher { get; }
+
+    public SystemEventPublisher SystemEventPublisher { get; }
     GameProgressTracker ProgressState { get; }
     public KuroGameApiConfig Config { get; }
 
@@ -133,7 +122,16 @@ public interface IGameContextV2
         PatchIndexGameResource patch,
         bool isProd = false
     );
+    /// <summary>
+    /// 开始游戏
+    /// </summary>
+    /// <returns></returns>
     Task<bool> StartGameAsync();
+
+    /// <summary>
+    /// 更新游戏
+    /// </summary>
+    /// <returns></returns>
     Task<bool> UpdateGameResourceAsync();
     Task DeleteResourceAsync(
         IProgress<(double deletedCount, double totalCount)> progress

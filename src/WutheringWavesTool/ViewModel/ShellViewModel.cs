@@ -1,13 +1,7 @@
-﻿using Haiyu.Models.Wrapper;
-using Haiyu.Plugin.Contracts;
 using Haiyu.Services.DialogServices;
-using Microsoft.UI.Xaml;
-using System.Linq;
-using Waves.Core.Common;
 using Waves.Core.Models.Enums;
+using Waves.Core.Services;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Devices.Geolocation;
-using Windows.Graphics.DirectX.Direct3D11;
 using Windows.Security.Credentials.UI;
 
 namespace Haiyu.ViewModel;
@@ -15,6 +9,7 @@ namespace Haiyu.ViewModel;
 public sealed partial class ShellViewModel : ViewModelBase
 {
     private bool computerShow;
+    private CancellationTokenSource? _messageCts = new();
 
     public ShellViewModel(
         [FromKeyedServices(nameof(HomeNavigationService))] INavigationService homeNavigationService,
@@ -25,7 +20,8 @@ public sealed partial class ShellViewModel : ViewModelBase
         [FromKeyedServices(nameof(MainDialogService))] IDialogManager dialogManager,
         IViewFactorys viewFactorys,
         IWallpaperService wallpaperService,
-        IKuroClient kuroClient
+        IKuroClient kuroClient,
+        SystemEventPublisher systemEventPublisher
     )
     {
         HomeNavigationService = homeNavigationService;
@@ -36,6 +32,7 @@ public sealed partial class ShellViewModel : ViewModelBase
         ViewFactorys = viewFactorys;
         WallpaperService = wallpaperService;
         KuroClient = kuroClient;
+        SystemEventPublisher = systemEventPublisher;
         RegisterMessanger();
         SystemMenu = new NotifyIconMenu()
         {
@@ -58,7 +55,7 @@ public sealed partial class ShellViewModel : ViewModelBase
     public IViewFactorys ViewFactorys { get; }
     public IWallpaperService WallpaperService { get; }
     public IKuroClient KuroClient { get; }
-
+    public SystemEventPublisher SystemEventPublisher { get; }
     [ObservableProperty]
     public partial string ServerName { get; set; }
 
@@ -98,6 +95,9 @@ public sealed partial class ShellViewModel : ViewModelBase
     [ObservableProperty]
     public partial CollectionViewSource RoleViewSource { get; set; }
 
+    [ObservableProperty]
+    public partial ObservableCollection<SystemMessagerModel> Messages { get; set; } = new();
+
     [RelayCommand]
     void RefreshCurrentPage()
     {
@@ -110,6 +110,12 @@ public sealed partial class ShellViewModel : ViewModelBase
         this.Messenger.Register<CopyTokenAccount>(this, CopyTokenMethod);
         this.Messenger.Register<CopyDeviceDidAccount>(this, CopyDeviceDidMethod);
         this.Messenger.Register<CopyUserIdAccount>(this, CopyUserIdMethod);
+        this.Messenger.Register<SystemMessageClose>(this, CloseMessage);
+    }
+
+    private void CloseMessage(object recipient, SystemMessageClose message)
+    {
+        this.Messages.Remove(message.Message);
     }
 
     private async void CopyTokenMethod(object recipient, CopyTokenAccount message)
@@ -152,26 +158,12 @@ public sealed partial class ShellViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    void OpenColorGame()
+    void ClearMessage()
     {
-        var result = this.ViewFactorys.ShowColorGame();
-        result.Manager.MaxHeight = 600;
-        result.Manager.MaxWidth = 1000;
-        result.Manager.Height = 600;
-        result.Manager.Width = 1000;
-        result.Activate();
+        this.Messages.Clear();
     }
+    
 
-    [RelayCommand]
-    void OpenStartColorGame()
-    {
-        var result = this.ViewFactorys.ShowStartColorGame();
-        result.Manager.MaxHeight = 600;
-        result.Manager.MaxWidth = 1000;
-        result.Manager.Height = 600;
-        result.Manager.Width = 1000;
-        result.Activate();
-    }
 
     [RelayCommand]
     async Task ShowOpenLocalUser()
@@ -230,24 +222,7 @@ public sealed partial class ShellViewModel : ViewModelBase
         var result = await DialogManager.GetQRLoginResultAsync();
     }
 
-    [RelayCommand]
-    void OpenTest()
-    {
-        this.HomeNavigationService.NavigationTo<TestViewModel>(
-            "Setting",
-            new DrillInNavigationTransitionInfo()
-        );
-    }
-
-    [RelayCommand]
-    void OpenPlayerRecordWindow()
-    {
-        var win = ViewFactorys.ShowPlayerRecordWindow();
-        (win.AppWindow.Presenter as OverlappedPresenter)!.IsMaximizable = false;
-        (win.AppWindow.Presenter as OverlappedPresenter)!.IsMinimizable = false;
-        win.SystemBackdrop = new MicaBackdrop();
-        win.Activate();
-    }
+   
 
     [RelayCommand]
     async Task Login()
@@ -327,9 +302,36 @@ public sealed partial class ShellViewModel : ViewModelBase
         await RefreshHeaderUser();
         OpenMain();
         await AppContext.UpdateAppAsync();
-        await KuroClient.InitMapPostion();
+
+        await SystemEventPublisher.SubscribeAsync(OnMessageChanged);
     }
 
+    private async ValueTask OnMessageChanged(SystemMessagerModel model)
+    {
+        await this.AppContext.TryInvokeAsync(async () =>
+        {
+            this.Messages.Add(model);
+            if (Messages.Count > 50)
+                Messages.RemoveAt(0);
+            await Task.CompletedTask;
+        });
+
+        if (model.Delay > 0)
+        {
+            var ct = _messageCts?.Token ?? CancellationToken.None;
+            _ = AutoRemoveAsync(model, TimeSpan.FromSeconds(model.Delay), ct);
+        }
+    }
+
+    private async Task AutoRemoveAsync(SystemMessagerModel model, TimeSpan delay, CancellationToken ct)
+    {
+        try
+        {
+            await Task.Delay(delay, ct);
+            await AppContext.TryInvokeAsync(async() => Messages.Remove(model));
+        }
+        catch (OperationCanceledException) { }
+    }
 
     [RelayCommand]
     public void ShowDeviceInfo()

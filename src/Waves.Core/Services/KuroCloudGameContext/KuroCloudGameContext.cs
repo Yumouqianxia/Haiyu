@@ -1,18 +1,3 @@
-﻿using Microsoft.VisualBasic.FileIO;
-using System.Diagnostics;
-using System.Text.Json;
-using Waves.Api.Models;
-using Waves.Api.Models.CloudGame;
-using Waves.Core.Common;
-using Waves.Core.Contracts;
-using Waves.Core.Contracts.CloudGame;
-using Waves.Core.Contracts.Events.CloudGame;
-using Waves.Core.Models;
-using Waves.Core.Models.CloudGame;
-using Waves.Core.Models.Enums;
-using Waves.Core.Services.CloudGameServices;
-using static System.Collections.Specialized.BitVector32;
-
 namespace Waves.Core.Services;
 
 public class KuroCloudGameContext : IKuroCloudGameContext
@@ -34,7 +19,7 @@ public class KuroCloudGameContext : IKuroCloudGameContext
 
     public WavesCloudSurvivalService WavesCloudSurivivalService { get; }
 
-    public ICloudGameEventPublisher CloudGameEventPublisher { get; internal set; }
+    public IGameEventPublisher<CloudMessageArgs> CloudGameEventPublisher { get; internal set; }
 
     public CloudGameProcessTracker CloudGameProcessTracker { get; private set; }
 
@@ -108,13 +93,15 @@ public class KuroCloudGameContext : IKuroCloudGameContext
             );
         if (invokeResult == null)
         {
-            CloudGameEventPublisher.Publish(new CloudMessageArgs(CloudCoreType.Message) { Message = $"启动失败!" });
+            CloudGameEventPublisher.Publish(
+                new CloudMessageArgs(CloudCoreType.Message) { Message = $"启动失败!" }
+            );
             await Task.Delay(1000);
             //启动Web串流，通知外部ViewModel接受Session，进行Web启动
             this.CloudGameEventPublisher.Publish(new(CloudCoreType.None));
             return;
         }
-        if(invokeResult.Code == 0 && invokeResult.Data != null)
+        if (invokeResult.Code == 0 && invokeResult.Data != null)
         {
             var option = launchOption.Clone();
             this.CloudGameEventPublisher.Publish(new(CloudCoreType.QueueUp));
@@ -162,7 +149,7 @@ public class KuroCloudGameContext : IKuroCloudGameContext
     {
         KuroCLoudGameCoreState args = new KuroCLoudGameCoreState();
         var key = this.GameTitleKey;
-        if(_lastQueueData!= null)
+        if (_lastQueueData != null)
         {
             args.IsQueue = true;
             args.QueueWaitTime = _lastQueueData.WaitingTime;
@@ -201,7 +188,7 @@ public class KuroCloudGameContext : IKuroCloudGameContext
             int errCount = 0;
             while (true)
             {
-                if (queqeCTS.IsCancellationRequested)
+                if (queqeCTS == null || queqeCTS.IsCancellationRequested)
                 {
                     await ClearActiveAsync().ConfigureAwait(false);
                     return;
@@ -211,7 +198,11 @@ public class KuroCloudGameContext : IKuroCloudGameContext
                 {
                     //排队失败,66*5分钟超时
                     this.CloudGameEventPublisher.Publish(
-                        new(CloudCoreType.Message) { Message = $"排队异常无果，总耗时{(errCount * _queqeTimer.Period.Seconds) * 5}s" }
+                        new(CloudCoreType.Message)
+                        {
+                            Message =
+                                $"排队异常无果，总耗时{(errCount * _queqeTimer.Period.Seconds) * 5}s",
+                        }
                     );
                     this.CloudGameEventPublisher.Publish(new(CloudCoreType.None));
                     return;
@@ -261,7 +252,7 @@ public class KuroCloudGameContext : IKuroCloudGameContext
                             QueueQty = queueResult.Data?.SeatNo ?? 0,
                             QueueTime = queueResult.Data?.WaitingTime ?? 0,
                             CurrentRegion = queueResult.Data?.RegionName ?? "",
-                            PayType = this.CurrentPayType
+                            PayType = this.CurrentPayType,
                         }
                     );
                     _lastQueueData = queueResult.Data;
@@ -293,7 +284,7 @@ public class KuroCloudGameContext : IKuroCloudGameContext
     public async Task ClearActiveAsync()
     {
         _queqeTimer?.Dispose();
-        if(queqeCTS!= null) 
+        if (queqeCTS != null)
             await queqeCTS.CancelAsync();
         queqeCTS = null;
         this.CloudGameEventPublisher.Publish(new(CloudCoreType.None));
@@ -303,5 +294,50 @@ public class KuroCloudGameContext : IKuroCloudGameContext
     {
         this.GameingWindow = null;
         this.GameTitleKey = null;
+    }
+
+    public async Task<StreamQualityOptions?> GetOptionsAsync(int dpi, int width, int height)
+    {
+        try
+        {
+            var quality = await this.GameLocalConfig.GetConfigAsync(
+                CloudGameLocalSettingName.QualityType
+            );
+            var fps = await this.GameLocalConfig.GetConfigAsync(CloudGameLocalSettingName.Fps);
+            if (!int.TryParse(fps, out var targetFps))
+            {
+                return null;
+            }
+            var enable = await this.GameLocalConfig.GetConfigAsync(
+                CloudGameLocalSettingName.EnableImageEnhancement
+            );
+            if (
+                bool.TryParse(enable, out var enableImage)
+                && Enum.TryParse<CloudQualityType>(quality, out var quEnum)
+            )
+            {
+                var mode = new StreamQualityOptions(
+                    CloudGameMethod.DefaultBitRate,
+                    CloudGameMethod.MinBitRate,
+                    targetFps,
+                    width,
+                    height,
+                    CloudGameMethod.DefaultCodecType,
+                    "0",
+                    enableImage,
+                    dpi,
+                    quEnum
+                );
+                return CloudGameDataHelper.ScaleQualityToPhysical(mode, false);
+            }
+            else
+            {
+                return null;
+            }
+        }
+        catch (Exception ex)
+        {
+            return null;
+        }
     }
 }

@@ -1,4 +1,4 @@
-﻿using Haiyu.Plugin.Common.LegacyMessageBox;
+using Haiyu.Plugin.Common.LegacyMessageBox;
 using Haiyu.Plugin.Contracts;
 using Haiyu.Plugin.Models;
 using Haiyu.Services.DialogServices;
@@ -51,10 +51,10 @@ public sealed partial class UpdateAppViewModel : DialogViewModelBase
     }
 
     [RelayCommand]
-    void SkipAppUpdate()
+    async Task SkipAppUpdate()
     {
         AppSettings.SkipAppVersion = _info.Version;
-        this.Close();
+        await this.Close();
     }
 
     [RelayCommand]

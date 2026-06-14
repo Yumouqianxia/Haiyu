@@ -1,8 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Waves.Api.Models.CloudGame;
-
 namespace Waves.Core.Models.CloudGame;
 
 public class LauncheNodeConfig

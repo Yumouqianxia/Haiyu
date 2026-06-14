@@ -1,6 +1,3 @@
-﻿using Waves.Core.Contracts;
-using Waves.Core.Models.Handlers;
-
 namespace Waves.Core.Services;
 
 public class HttpClientService : IHttpClientService

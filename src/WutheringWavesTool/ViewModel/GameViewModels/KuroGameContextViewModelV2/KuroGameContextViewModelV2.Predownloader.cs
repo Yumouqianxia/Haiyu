@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Waves.Core.Models.Enums;
@@ -70,7 +70,6 @@ partial class KuroGameContextViewModelV2
                 await this.GameContext.PauseDownloadAsync();
                 return;
             }
-            // 正在下载中，进行暂停逻辑
         }
         var result = await DialogManager.ShowUpdateGameDialogAsync(
             this.GameContext.ContextName,

@@ -1,6 +1,3 @@
-﻿using Waves.Core.Adaptives;
-using Waves.Core.Common;
-
 namespace Waves.Core.Settings;
 
 /// <summary>

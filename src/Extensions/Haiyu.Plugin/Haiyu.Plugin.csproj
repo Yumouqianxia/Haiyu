@@ -3,6 +3,7 @@
 	  <TargetFramework>net10.0</TargetFramework>
       <RootNamespace>Haiyu.Plugin</RootNamespace>
 	  <Nullable>enable</Nullable>
+	  <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="NativeMethods.txt" />

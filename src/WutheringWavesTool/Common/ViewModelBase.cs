@@ -1,4 +1,4 @@
-﻿using Waves.Core.Services;
+using Waves.Core.Services;
 using Waves.Core.Settings;
 
 namespace Haiyu.Common;
@@ -13,11 +13,13 @@ public partial class ViewModelBase : ObservableRecipient, IDisposable
         AppSettings = Instance.Host.Services.GetService<AppSettings>();
         CTS = new CancellationTokenSource();
         this.Logger = Instance.Host.Services.GetRequiredKeyedService<LoggerService>("AppLog");
+        this.SystemEventMessager = Instance.Host.Services.GetRequiredService<SystemEventPublisher>();
     }
 
     public AppSettings AppSettings { get; private set; }
 
     public LoggerService Logger { get; }
+    public SystemEventPublisher SystemEventMessager { get; }
 
     /// <summary>
     /// 闭包返回

@@ -186,7 +186,7 @@
                         CornerRadius="20">
                         <SystemBackdropElement CornerRadius="20">
                             <SystemBackdropElement.SystemBackdrop>
-                                <MicaBackdrop />
+                                <DesktopAcrylicBackdrop />
                             </SystemBackdropElement.SystemBackdrop>
                         </SystemBackdropElement>
                         <Button
@@ -258,6 +258,22 @@
                     </Button>
                 </StackPanel>
             </ui:TitleBar.Footer>
+            <Grid
+                Margin="8,5,0,0"
+                VerticalAlignment="Center"
+                CornerRadius="5">
+                <SystemBackdropElement CornerRadius="5">
+                    <SystemBackdropElement.SystemBackdrop>
+                        <DesktopAcrylicBackdrop />
+                    </SystemBackdropElement.SystemBackdrop>
+                </SystemBackdropElement>
+                <Button Width="40" Style="{ThemeResource TransparentButtonStyle}">
+                    <FontIcon
+                        FontFamily="Segoe Fluent Icons"
+                        FontSize="12"
+                        Glyph="&#xF1CB;" />
+                </Button>
+            </Grid>
         </ui:TitleBar>
 
         <ui:ApplicationBackgroundControl
@@ -282,6 +298,7 @@
                 </ani:AnimationSet>
             </ani:Explicit.Animations>
         </ui:ApplicationBackgroundControl>
+
         <Grid x:Name="panel" Grid.Row="1">
             <NavigationView
                 x:Name="navigationView"
@@ -426,7 +443,12 @@
                 </SplitView.Pane>
             </SplitView>
         </Grid>
-
+        <Grid
+            x:Name="SwitchGame"
+            Grid.Row="1"
+            x:Load="{x:Bind ViewModel.SwitchGame, Mode=OneWay}">
+            <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Opacity="0.7" />
+        </Grid>
 
     </Grid>
 </Page>

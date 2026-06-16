@@ -63,6 +63,9 @@ public sealed partial class ShellViewModel : ViewModelBase
     public partial object SelectItem { get; set; }
 
     [ObservableProperty]
+    public partial bool SwitchGame { get; set; }
+
+    [ObservableProperty]
     public partial Visibility LoginBthVisibility { get; set; } = Visibility.Collapsed;
 
     [RelayCommand]

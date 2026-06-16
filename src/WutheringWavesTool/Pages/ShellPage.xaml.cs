@@ -1,5 +1,6 @@
 using System.Collections.Specialized;
 using Haiyu.Pages.GamePages;
+using Microsoft.UI.Xaml.Hosting;
 
 namespace Haiyu.Pages;
 
@@ -51,8 +52,10 @@ public sealed partial class ShellPage : Page
         );
         this.ViewModel.DialogManager.RegisterRoot(this.XamlRoot);
         this.ViewModel.AppContext.WallpaperService.RegisterMediaHost(mediaControl);
-    }
 
+        // 强制创建 Composition visual，使 Implicit 动画能注册成功
+        _ = ElementCompositionPreview.GetElementVisual(SwitchGame);
+    }
 
     private void ComboBox_SizeChanged(object sender, SizeChangedEventArgs e)
     {

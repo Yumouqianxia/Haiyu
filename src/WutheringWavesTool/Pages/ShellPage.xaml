@@ -267,7 +267,10 @@
                         <DesktopAcrylicBackdrop />
                     </SystemBackdropElement.SystemBackdrop>
                 </SystemBackdropElement>
-                <Button Width="40" Style="{ThemeResource TransparentButtonStyle}">
+                <Button
+                    Width="40"
+                    Command="{x:Bind ViewModel.OpenGameSelectorCommand}"
+                    Style="{ThemeResource TransparentButtonStyle}">
                     <FontIcon
                         FontFamily="Segoe Fluent Icons"
                         FontSize="12"
@@ -446,8 +449,58 @@
         <Grid
             x:Name="SwitchGame"
             Grid.Row="1"
-            x:Load="{x:Bind ViewModel.SwitchGame, Mode=OneWay}">
-            <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Opacity="0.7" />
+            Visibility="{x:Bind ViewModel.SwitchGame, Mode=OneWay}">
+            <Grid.Background>
+                <SolidColorBrush Opacity="0.95" Color="{ThemeResource SolidBackgroundFillColorBase}" />
+            </Grid.Background>
+            <ani:Implicit.ShowAnimations>
+                <ani:OpacityAnimation
+                    EasingMode="EaseOut"
+                    EasingType="Cubic"
+                    From="0"
+                    To="1"
+                    Duration="0:0:0.35" />
+                <ani:TranslationAnimation
+                    EasingMode="EaseOut"
+                    EasingType="Cubic"
+                    From="0,-100,0"
+                    To="0"
+                    Duration="0:0:0.35" />
+            </ani:Implicit.ShowAnimations>
+            <ani:Implicit.HideAnimations>
+                <ani:OpacityAnimation
+                    EasingMode="EaseIn"
+                    EasingType="Cubic"
+                    To="0"
+                    Duration="0:0:0.2" />
+                <ani:ScalarAnimation
+                    EasingMode="EaseIn"
+                    EasingType="Cubic"
+                    Target="Translation.Y"
+                    To="-100"
+                    Duration="0:0:0.2" />
+            </ani:Implicit.HideAnimations>
+            <Button
+                x:Name="SwitchGameButton"
+                HorizontalAlignment="Center"
+                Content="你好">
+                <ani:Implicit.ShowAnimations>
+                    <ani:OpacityAnimation
+                        Delay="0:0:0.35"
+                        EasingMode="EaseOut"
+                        EasingType="Cubic"
+                        From="0"
+                        To="1"
+                        Duration="0:0:0.35" />
+                    <ani:TranslationAnimation
+                        Delay="0:0:0.35"
+                        EasingMode="EaseOut"
+                        EasingType="Cubic"
+                        From="0,50,0"
+                        To="0"
+                        Duration="0:0:0.35" />
+                </ani:Implicit.ShowAnimations>
+            </Button>
         </Grid>
 
     </Grid>

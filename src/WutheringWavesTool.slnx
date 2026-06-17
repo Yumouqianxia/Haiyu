@@ -78,4 +78,10 @@
     <Platform Project="x64" />
     <Deploy />
   </Project>
+  <Project Path="Haiyu.Controls/Haiyu.Controls.csproj">
+    <BuildType Solution="All|Any CPU" Project="Release" />
+    <BuildType Solution="All|x64" Project="Debug" />
+    <BuildType Solution="All|x86" Project="Debug" />
+    <Platform Project="x64" />
+  </Project>
 </Solution>

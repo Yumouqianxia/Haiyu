@@ -121,6 +121,7 @@
 		<ProjectReference Include="..\Extensions\LanguageEditer.Model\LanguageEditer.Model.csproj" />
 		<ProjectReference Include="..\Extensions\Waves.Api\Waves.Api.csproj" />
 		<ProjectReference Include="..\Waves.Core\Waves.Core.csproj" />
+		<ProjectReference Include="..\Haiyu.Controls\Haiyu.Controls.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Update="Assets\background.png">
@@ -272,9 +273,6 @@
 		<Page Update="Pages\Dialogs\CloudSelectNodeDialog.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
-		<Page Update="Controls\Styles\SVGPath.xaml">
-		  <Generator>MSBuild:Compile</Generator>
-		</Page>
 		<Page Update="Pages\GamePages\WavesCloudGamePage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
@@ -283,12 +281,6 @@
 		</Page>
 		<Page Update="Pages\Communitys\KuroDataCenterWindow.xaml">
 		  <Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Styles\VersionSubtitle.xaml">
-		  <Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Colors\GamePathChartColor.xaml">
-			<Generator>MSBuild:Compile</Generator>
 		</Page>
 		<Page Update="Pages\Dialogs\GameResourceDialogV2.xaml">
 			<Generator>MSBuild:Compile</Generator>
@@ -305,19 +297,10 @@
 		<Page Update="Pages\Dialogs\SelectDownoadGameDialogV2.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
-		<Page Update="Controls\Styles\StorageRing.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
 		<Page Update="Pages\GamePages\PunishV2GamePage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
 		<Page Update="Pages\GamePages\WavesV2GamePage.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Styles\CardSwitcher.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Styles\Shimmer.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
 		<Page Update="Pages\Dialogs\GameEnhancedDialog.xaml">
@@ -327,15 +310,6 @@
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
 		<Page Update="Pages\Dialogs\UpdateGameDialog.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Styles\Colors.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Styles\LoadingCard.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Styles\HeaderTileCard.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
 	</ItemGroup>
@@ -368,7 +342,6 @@
 		<PRIResource Remove="Themes\**" />
 	</ItemGroup>
 	<ItemGroup>
-	  <None Remove="Controls\Styles\SVGPath.xaml" />
 	  <None Remove="Pages\Dialogs\CloudSelectNodeDialog.xaml" />
 	  <None Remove="Pages\Dialogs\GameSettings\CloudGameSettingDialog.xaml" />
 	  <None Remove="Pages\Dialogs\KuroGameSettingDialog.xaml" />

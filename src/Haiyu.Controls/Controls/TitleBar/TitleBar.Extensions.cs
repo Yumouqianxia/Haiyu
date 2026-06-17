@@ -1,8 +1,8 @@
-﻿namespace Haiyu.Controls;
+namespace Haiyu.Controls;
 
 partial class TitleBar
 {
-    internal void UpDate()
+    public void UpDate()
     {
         if (this.Window == null)
             return;

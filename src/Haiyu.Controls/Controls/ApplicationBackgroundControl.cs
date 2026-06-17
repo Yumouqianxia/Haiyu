@@ -1,4 +1,4 @@
-﻿using Waves.Core.Models.Enums;
+using Waves.Core.Models.Enums;
 using Windows.Media;
 using Windows.Media.Playback;
 
@@ -183,7 +183,7 @@ public partial class ApplicationBackgroundControl : Control
             this.MediaSource = backgroundFile;
     }
 
-    internal void SetImageSource(string backgroundFile)
+    public void SetImageSource(string backgroundFile)
     {
         if (this.ImageBackground != backgroundFile)
             this.ImageSource = backgroundFile;

@@ -731,37 +731,39 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 EnableStartGameBth = false;
                 DisplayVersion = version;
                 LauncherIcon = "\uE71A";
+
             }
             else
             {
                 _buttonAction = ButtonActionType.StartGame;
                 this.CurrentProgressValue = 0;
                 this.MaxProgressValue = 0;
-                var totalTime = await GameContext.GameLocalConfig.GetConfigAsync(
-                    GameLocalSettingName.GameRunTotalTime
-                );
-                if (totalTime == null)
-                {
-                    BottomBarContent = "游戏准备就绪";
-                }
-                else
-                {
-                    if (int.TryParse(totalTime, out var timeResult))
-                    {
-                        var tt = TimeSpan.FromSeconds(timeResult);
-                        BottomBarContent =
-                            "已游玩" + ($"{tt.Days}天{tt.Hours}小时{tt.Minutes}分钟");
-                        ;
-                    }
-                    else
-                    {
-                        BottomBarContent = "游戏准备就绪";
-                    }
-                }
+                
                 LauncheContent = "进入游戏";
                 EnableStartGameBth = true;
                 DisplayVersion = version;
                 LauncherIcon = "\uE7FC";
+            }
+            var totalTime = await GameContext.GameLocalConfig.GetConfigAsync(
+                    GameLocalSettingName.GameRunTotalTime
+                );
+            if (totalTime == null)
+            {
+                BottomBarContent = "游戏准备就绪";
+            }
+            else
+            {
+                if (int.TryParse(totalTime, out var timeResult))
+                {
+                    var tt = TimeSpan.FromSeconds(timeResult);
+                    BottomBarContent =
+                        "已游玩" + ($"{tt.Days}天{tt.Hours}小时{tt.Minutes}分钟");
+                    ;
+                }
+                else
+                {
+                    BottomBarContent = "游戏准备就绪";
+                }
             }
         }
     }

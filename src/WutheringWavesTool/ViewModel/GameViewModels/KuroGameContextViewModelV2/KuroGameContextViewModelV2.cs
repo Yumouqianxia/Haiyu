@@ -28,9 +28,10 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
     public IDialogManager DialogManager { get; }
     public IAppContext<App> AppContext { get; }
     public ITipShow TipShow { get; }
+    public IIoCircuitBreaker IoCircuitBreaker { get; }
     public IWallpaperService WallpaperService { get; }
 
-    protected KuroGameContextViewModelV2(IAppContext<App> appContext, ITipShow tipShow)
+    protected KuroGameContextViewModelV2(IAppContext<App> appContext, ITipShow tipShow,IIoCircuitBreaker ioCircuitBreaker)
     {
         this.Logger = Instance.Host.Services.GetKeyedService<LoggerService>("AppLog");
         DialogManager = Instance.Host.Services.GetRequiredKeyedService<IDialogManager>(
@@ -38,6 +39,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         );
         AppContext = appContext;
         TipShow = tipShow;
+        IoCircuitBreaker = ioCircuitBreaker;
         WallpaperService = Instance.GetService<IWallpaperService>();
         RegisterMessager();
     }
@@ -350,9 +352,12 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                         this.PreDownloadIcon = "\uE8FB";
                         this.PreProgress = 100;
                     }
+                    //释放
+                    this.IoCircuitBreaker.Release();
                 }
                 else
                 {
+                    this.IoCircuitBreaker.Release();
                     await RefreshCoreAsync(isRefreshBackground: false);
                 }
                 if (actionType == Waves.Core.Models.Enums.GameContextActionType.GameExit)
@@ -781,6 +786,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 return;
             }
             Logger.WriteInfo($"选择游戏安装路径：{result.InstallFolder},即将进入通知核心进行下载");
+            
             StartBackground(() => this.GameContext.StartDownloadTaskAsync(result.InstallFolder));
         }
         else
@@ -891,7 +897,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         )
         {
             Logger.WriteInfo($"开始尝试修复游戏文件");
-            await GameContext.RepairGameAsync();
+            StartBackground(() => GameContext.RepairGameAsync()); 
         }
         else
         {
@@ -983,9 +989,14 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         }
     }
 
-    private void StartBackground(Func<Task> taskFunc)
+    private async void StartBackground(Func<Task> taskFunc)
     {
-        Task.Run(async () =>
+        if (!this.IoCircuitBreaker.TryAcquire())
+        {
+            await this.DialogManager.ShowMessageDialog("当前有其他核心正在执行任务，无法进行", "警告", "关闭");
+            return;
+        }
+        _ = Task.Run(async () =>
         {
             try
             {

@@ -133,7 +133,7 @@ public class AppSettings : SettingBase
     public string? SkipAppVersion
     {
         get => Read();
-        set=> Write(value);
+        set => Write(value);
     }
 
     public bool? StartGameAllowCloseMain
@@ -145,5 +145,20 @@ public class AppSettings : SettingBase
     {
         get => Read();
         set => Write(value);
+    }
+    /// <summary>
+    /// 熔断数量
+    /// </summary>
+    public int MaxIoConcurrent
+    {
+        get
+        {
+            if (int.TryParse(Read(nameof(MaxIoConcurrent)), out var maxIoCount))
+            {
+                return maxIoCount;
+            }
+            return 1;
+        }
+        set => Write(nameof(MaxIoConcurrent), Math.Clamp(value, 1, 4).ToString());
     }
 }

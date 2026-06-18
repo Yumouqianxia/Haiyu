@@ -77,7 +77,7 @@ partial class KuroGameContextViewModelV2
         );
         if (result.IsOk)
         {
-            await this.GameContext.StartProdDownloadGameResourceAsync();
+            StartBackground(() => this.GameContext.StartProdDownloadGameResourceAsync());
         }
     }
 
@@ -101,11 +101,11 @@ partial class KuroGameContextViewModelV2
         }
         if (done!= null && done.ToLower() == "true" && Directory.Exists(path))
         {
-            await this.GameContext.StartProdDownloadGameResourceAsync();
+            StartBackground(() => this.GameContext.StartProdDownloadGameResourceAsync());
         }
         else
         {
-            await StartPreDownloadGame();
+            StartBackground(()=>StartPreDownloadGame());
         }
     }
 

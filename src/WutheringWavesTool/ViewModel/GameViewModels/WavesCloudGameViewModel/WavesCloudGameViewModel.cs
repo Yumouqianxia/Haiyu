@@ -303,12 +303,10 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         }
         var win = ViewFactorys.ShowAnalysisRecordV2(this.SelectLogin);
         var scale = Haiyu.Controls.TitleBar.GetScaleAdjustment(win);
-        int targetDipWidth = 700;
-        int targetDipHeight = 400;
-        var pixelWidth = (int) Math.Round(targetDipWidth * scale);
-        var pixelHeight = (int) Math.Round(targetDipHeight * scale);
-        win.Manager.Height = pixelHeight;
-        win.Manager.Width = pixelWidth;
+        int targetDipWidth = 1200;
+        int targetDipHeight = 750;
+        win.Manager.Height = targetDipHeight;
+        win.Manager.Width = targetDipWidth;
         win.AppWindow.Show();
     }
 }

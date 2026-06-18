@@ -1,0 +1,1 @@
+dotnet build "D:\WorkSpace\Haiyu\src\Haiyu.Controls\Haiyu.Controls.csproj" -c Release --runtime win-x64 2>&1

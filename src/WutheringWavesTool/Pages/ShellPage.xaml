@@ -186,7 +186,7 @@
                         CornerRadius="20">
                         <SystemBackdropElement CornerRadius="20">
                             <SystemBackdropElement.SystemBackdrop>
-                                <MicaBackdrop />
+                                <DesktopAcrylicBackdrop />
                             </SystemBackdropElement.SystemBackdrop>
                         </SystemBackdropElement>
                         <Button
@@ -258,6 +258,7 @@
                     </Button>
                 </StackPanel>
             </ui:TitleBar.Footer>
+
         </ui:TitleBar>
 
         <ui:ApplicationBackgroundControl
@@ -282,6 +283,7 @@
                 </ani:AnimationSet>
             </ani:Explicit.Animations>
         </ui:ApplicationBackgroundControl>
+
         <Grid x:Name="panel" Grid.Row="1">
             <NavigationView
                 x:Name="navigationView"
@@ -426,7 +428,5 @@
                 </SplitView.Pane>
             </SplitView>
         </Grid>
-
-
     </Grid>
 </Page>

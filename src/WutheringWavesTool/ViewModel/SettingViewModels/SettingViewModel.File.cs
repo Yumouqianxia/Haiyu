@@ -1,5 +1,6 @@
-﻿using System.Security.Principal;
+using System.Security.Principal;
 using Haiyu.Plugin.Extensions;
+using Microsoft.WindowsAppSDK;
 using Waves.Core.Settings;
 using Windows.Management.Deployment;
 
@@ -25,8 +26,7 @@ partial class SettingViewModel
     void GetAllVersion()
     {
         WebViewVersion = CoreWebView2Environment.GetAvailableBrowserVersionString() ?? "未安装";
-        this.WindowsAppSdkVersion =
-            $"1.8.251106002";
+        this.WindowsAppSdkVersion = Microsoft.WindowsAppSDK.Runtime.Version.DotQuadString;
         this.RunType = RuntimeFeature.IsDynamicCodeCompiled ? "JIT" : "AOT";
         this.FrameworkType = RuntimeInformation.FrameworkDescription;
     }

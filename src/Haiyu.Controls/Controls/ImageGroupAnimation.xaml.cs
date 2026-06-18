@@ -98,7 +98,7 @@ public sealed partial class ImageGroupAnimation : UserControl
         var sortedFiles = files
             .Select(file =>
             {
-                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(file.Name);
+                var fileNameWithoutExtension = System.IO.Path.GetFileNameWithoutExtension(file.Name);
                 var numberPart = fileNameWithoutExtension.Split('_')[1];
                 if (int.TryParse(numberPart, out int number))
                 {

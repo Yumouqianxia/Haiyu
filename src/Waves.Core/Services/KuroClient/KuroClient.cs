@@ -317,7 +317,7 @@ public sealed partial class KuroClient : IKuroClient
             jsonStr,
             CommunityContext.Default.GamerBassString
         );
-        if (resultCode == null)
+        if (resultCode == null || resultCode.Data == null)
         {
             return null;
         }

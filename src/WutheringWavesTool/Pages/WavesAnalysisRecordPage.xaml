@@ -56,7 +56,7 @@
                             <MenuFlyoutItem Command="{x:Bind ViewModel.ImportDefaultFolderCommand}" Text="旧版数据(默认)" />
                             <MenuFlyoutItem Command="{x:Bind ViewModel.ImportFolderCommand}" Text="旧版数据(自定义文件夹)" />
                         </MenuBarItem>
-                        <MenuBarItem Title="数据">
+                        <MenuBarItem Title="数据" Visibility="Collapsed">
                             <MenuFlyoutItem Text="导出数据" />
                             <MenuFlyoutItem Text="导出为图片（实验性）" />
                         </MenuBarItem>

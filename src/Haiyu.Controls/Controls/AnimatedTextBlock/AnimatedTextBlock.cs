@@ -528,7 +528,7 @@ namespace Haiyu.Controls.AnimatedTextBlock
 
             if (fireEvent)
             {
-                DispatcherQueue.TryEnqueue(DispatcherQueuePriority.Normal, () => RedrawStateChanged?.Invoke(this, _currentState));
+                DispatcherQueue.TryEnqueue(Microsoft.UI.Dispatching.DispatcherQueuePriority.Normal, () => RedrawStateChanged?.Invoke(this, _currentState));
             }
         }
     }

@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<tool:ClientApplication
-    x:Class="Haiyu.App"
+<Application
+    x:Class="UnitTestApp1.UnitTestApp"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:control="using:Haiyu.Controls"
-    xmlns:converter="using:Haiyu.Converter"
-    xmlns:local="using:Haiyu"
-    xmlns:property="using:Haiyu.Controls.Propertys"
-    xmlns:tool="using:Haiyu.Common">
-    <tool:ClientApplication.Resources>
+    xmlns:local="using:UnitTestApp1">
+    <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls" />
+                <!--  Other merged dictionaries here  -->
                 <ResourceDictionary Source="ms-appx:///Haiyu.Controls/Controls/Styles/TitleBar.xaml" />
                 <ResourceDictionary Source="ms-appx:///Haiyu.Controls/Controls/Styles/SpiltButtonStyle.xaml" />
                 <ResourceDictionary Source="ms-appx:///Haiyu.Controls/Controls/Styles/ProgressBar.xaml" />
@@ -33,19 +30,8 @@
                 <ResourceDictionary Source="ms-appx:///Haiyu.Controls/Controls/Styles/SVGPath.xaml" />
                 <ResourceDictionary Source="ms-appx:///Haiyu.Controls/Controls/Styles/LoadingCard.xaml" />
                 <ResourceDictionary Source="ms-appx:///Haiyu.Controls/Controls/Styles/StorageRing.xaml" />
-                <ResourceDictionary Source="/Controls/GamePathChartColor.xaml" />
-                <ResourceDictionary Source="ms-appx:///CommunityToolkit.WinUI.Controls.Segmented/Segmented/Segmented.xaml" />
             </ResourceDictionary.MergedDictionaries>
-            <converter:BoolReversalConvert x:Key="BoolReversalConvert" />
-            <converter:CardPoolTypeConverter x:Key="CardPoolTypeConverter" />
-            <converter:RecordStarConverter x:Key="RecordStarConverter" />
-            <converter:RecordColorConverter x:Key="RecordColorConverter" />
-            <converter:StarLevelColorConverter x:Key="StarLevelColorConverter" />
-            <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityReversalConverter" Reversal="True" />
-            <converter:BoolToVisibilityConverter x:Key="BoolToVisibilityConverter" Reversal="False" />
-            <converter:IntToSecondTimeConverter x:Key="IntToSecondTimeConverter" />
-            <FontFamily x:Key="DefaultFont">ms-appx:///Assets/Font.ttf#文鼎方新书H7GBK</FontFamily>
-            <FontFamily x:Key="RoilDetilyFont">ms-appx:///Assets/Fonts/gameIcon.ttf#wavesRole</FontFamily>
+            <!--  Other app resources here  -->
         </ResourceDictionary>
-    </tool:ClientApplication.Resources>
-</tool:ClientApplication>
+    </Application.Resources>
+</Application>

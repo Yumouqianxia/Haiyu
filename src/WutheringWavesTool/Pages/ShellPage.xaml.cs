@@ -1,5 +1,6 @@
 using System.Collections.Specialized;
 using Haiyu.Pages.GamePages;
+using Microsoft.UI.Xaml.Hosting;
 
 namespace Haiyu.Pages;
 
@@ -15,7 +16,6 @@ public sealed partial class ShellPage : Page
         this.ViewModel.HomeNavigationService.RegisterView(this.frame);
         this.ViewModel.HomeNavigationViewService.Register(this.navigationView);
         this.ViewModel.TipShow.Owner = this.panel;
-        //this.ViewModel.Image = this.image;
         this.ViewModel.AppContext.SetTitleControl(this.titlebar);
     }
 
@@ -51,8 +51,8 @@ public sealed partial class ShellPage : Page
         );
         this.ViewModel.DialogManager.RegisterRoot(this.XamlRoot);
         this.ViewModel.AppContext.WallpaperService.RegisterMediaHost(mediaControl);
-    }
 
+    }
 
     private void ComboBox_SizeChanged(object sender, SizeChangedEventArgs e)
     {

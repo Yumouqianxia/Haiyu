@@ -7,6 +7,9 @@
     <Platform Name="x64" />
     <Platform Name="x86" />
   </Configurations>
+  <Project Path="Haiyu.Controls/Haiyu.Controls.csproj" Id="4da46af6-6a32-4670-a8ed-21fa40b0f8a4">
+    <BuildType Solution="All|*" Project="Debug" />
+  </Project>
   <Project Path="WutheringWavesTool/Haiyu.csproj" Id="ee4fdbd7-face-4eba-bf07-cd8fbdcf1997">
     <BuildType Solution="All|Any CPU" Project="Release" />
     <BuildType Solution="All|x64" Project="Debug" />

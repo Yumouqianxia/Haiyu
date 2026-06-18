@@ -1,4 +1,4 @@
-﻿namespace Haiyu.Controls;
+namespace Haiyu.Controls;
 
 public sealed partial class PopupMessage : UserControl
 {
@@ -12,7 +12,7 @@ public sealed partial class PopupMessage : UserControl
         this.InitializeComponent();
         _popup = new Popup();
         _popup.Child = this;
-        this.RequestedTheme = Instance.Host.Services.GetRequiredService<IThemeService>().CurrentTheme;
+        this.RequestedTheme = Application.Current.RequestedTheme == ApplicationTheme.Dark ? ElementTheme.Dark : ElementTheme.Light;
         this.Loaded += PopupNoticeLoaded;
     }
 
@@ -33,6 +33,7 @@ public sealed partial class PopupMessage : UserControl
     private void PopupNoticeLoaded(object sender, RoutedEventArgs e)
     {
         PopupContent.Text = _popupContent;
+
         this.PopupIn.Begin();
         this.PopupIn.Completed += PopupInCompleted;
         this.Width = uIElement.ActualWidth;

@@ -473,9 +473,19 @@ partial class KuroGameContextBaseV2
             {
                 return _launcher.ResourceDefault.CdnList.FirstOrDefault()?.Url + resourceUrl;
             }
+            var firstResource = resources.FirstOrDefault();
+            string baseUrl = "";
+            if (firstResource != null && !string.IsNullOrWhiteSpace(firstResource.FromFolder))
+            {
+                baseUrl = firstResource.FromFolder;
+            }
+            else
+            {
+                baseUrl = preiveResource;
+            }
             var cdnResult = await TestCdnAsync(
                 _launcher.ResourceDefault.CdnList,
-                isResource ? resources.First().FromFolder! : preiveResource,
+                baseUrl,
                 resources
             );
             if (cdnResult == null || !cdnResult.Value.Success)
@@ -490,8 +500,8 @@ partial class KuroGameContextBaseV2
                 );
                 return _launcher.ResourceDefault.CdnList.FirstOrDefault()?.Url + resourceUrl;
             }
-            var baseUrl = cdnResult!.Value.Url + (isResource ? resources.First().FromFolder : preiveResource);
-            return baseUrl;
+            var valueUrl = cdnResult!.Value.Url + baseUrl;
+            return valueUrl;
         }
         catch (Exception)
         {

@@ -6,7 +6,7 @@
     <UseWinUI>true</UseWinUI>
     <Nullable>enable</Nullable>
     <Platforms>x64</Platforms>
-    <RuntimeIdentifiers>win-x64</RuntimeIdentifiers>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
     <LangVersion>preview</LangVersion>
     <OutputType>Library</OutputType>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>

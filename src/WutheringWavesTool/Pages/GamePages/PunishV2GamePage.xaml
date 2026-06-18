@@ -783,6 +783,7 @@
                                     Glyph="&#xE8AB;" />
                             </Button>
                         </StackPanel>
+
                         <TextBlock
                             Margin="15,5,0,0"
                             HorizontalAlignment="Left"
@@ -805,6 +806,13 @@
                                 <ColumnDefinition />
                                 <ColumnDefinition Width="auto" />
                             </Grid.ColumnDefinitions>
+                            <ani:Implicit.ShowAnimations>
+                                <ani:OpacityAnimation To="1" Duration="0:0:0.3" />
+                            </ani:Implicit.ShowAnimations>
+                            <ani:Implicit.HideAnimations>
+
+                                <ani:OpacityAnimation To="0" Duration="0:0:0.3" />
+                            </ani:Implicit.HideAnimations>
                             <TextBlock
                                 Margin="0,0,0,0"
                                 HorizontalAlignment="Left"
@@ -844,6 +852,13 @@
                                 <ColumnDefinition />
                                 <ColumnDefinition />
                             </Grid.ColumnDefinitions>
+                            <ani:Implicit.ShowAnimations>
+                                <ani:OpacityAnimation To="1" Duration="0:0:0.3" />
+                            </ani:Implicit.ShowAnimations>
+                            <ani:Implicit.HideAnimations>
+
+                                <ani:OpacityAnimation To="0" Duration="0:0:0.3" />
+                            </ani:Implicit.HideAnimations>
                             <Grid
                                 Grid.Row="0"
                                 Grid.Column="0"
@@ -1035,6 +1050,13 @@
                             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                             CornerRadius="5"
                             Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}">
+                            <ani:Implicit.ShowAnimations>
+                                <ani:OpacityAnimation To="1" Duration="0:0:0.3" />
+                            </ani:Implicit.ShowAnimations>
+                            <ani:Implicit.HideAnimations>
+
+                                <ani:OpacityAnimation To="0" Duration="0:0:0.3" />
+                            </ani:Implicit.HideAnimations>
                             <TextBlock
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
@@ -1044,7 +1066,15 @@
                         <ProgressRing
                             Grid.Row="2"
                             Grid.RowSpan="4"
-                            Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                            <ani:Implicit.ShowAnimations>
+                                <ani:OpacityAnimation To="1" Duration="0:0:0.3" />
+                            </ani:Implicit.ShowAnimations>
+                            <ani:Implicit.HideAnimations>
+
+                                <ani:OpacityAnimation To="0" Duration="0:0:0.3" />
+                            </ani:Implicit.HideAnimations>
+                        </ProgressRing>
                     </Grid>
 
                 </control:CardSwitcher.Card1>

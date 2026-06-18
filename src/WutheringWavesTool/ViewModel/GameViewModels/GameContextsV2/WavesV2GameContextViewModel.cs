@@ -150,6 +150,7 @@ public partial class WavesV2GameContextViewModel : KuroGameContextViewModelV2
             var starter = await this.GameContext.GetLauncherStarterAsync(this.CTS.Token);
             if (starter == null)
                 return;
+           
             this.SlideShows = starter.Slideshow.ToObservableCollection();
             this.Notice = starter.Guidance.Notice;
             this.News = starter.Guidance.News;

@@ -31,7 +31,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
     public IIoCircuitBreaker IoCircuitBreaker { get; }
     public IWallpaperService WallpaperService { get; }
 
-    protected KuroGameContextViewModelV2(IAppContext<App> appContext, ITipShow tipShow,IIoCircuitBreaker ioCircuitBreaker)
+    protected KuroGameContextViewModelV2(IAppContext<App> appContext, ITipShow tipShow)
     {
         this.Logger = Instance.Host.Services.GetKeyedService<LoggerService>("AppLog");
         DialogManager = Instance.Host.Services.GetRequiredKeyedService<IDialogManager>(
@@ -39,7 +39,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         );
         AppContext = appContext;
         TipShow = tipShow;
-        IoCircuitBreaker = ioCircuitBreaker;
+        IoCircuitBreaker = Instance.Host.Services.GetRequiredService<IIoCircuitBreaker>();
         WallpaperService = Instance.GetService<IWallpaperService>();
         RegisterMessager();
     }
@@ -353,11 +353,9 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                         this.PreProgress = 100;
                     }
                     //释放
-                    this.IoCircuitBreaker.Release();
                 }
                 else
                 {
-                    this.IoCircuitBreaker.Release();
                     await RefreshCoreAsync(isRefreshBackground: false);
                 }
                 if (actionType == Waves.Core.Models.Enums.GameContextActionType.GameExit)
@@ -991,11 +989,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
 
     private async void StartBackground(Func<Task> taskFunc)
     {
-        if (!this.IoCircuitBreaker.TryAcquire())
-        {
-            await this.DialogManager.ShowMessageDialog("当前有其他核心正在执行任务，无法进行", "警告", "关闭");
-            return;
-        }
+        
         _ = Task.Run(async () =>
         {
             try

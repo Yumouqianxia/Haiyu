@@ -39,13 +39,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-    <PackageReference Include="DevWinUI" Version="9.6.0" />
-    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.26100.7175" />
-	  <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.251106002" />
-	  <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.0" />
-    <PackageReference Include="NPOI" Version="2.7.5" />
-    <PackageReference Include="Syncfusion.Grid.WinUI" Version="31.2.16" />
-    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.8" />
+    <PackageReference Include="DevWinUI" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1839" />
+	  <PackageReference Include="Microsoft.WindowsAppSDK" Version="2.2.0" />
+	  <PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.1" />
+    <PackageReference Include="NPOI" Version="2.8.0" />
+    <PackageReference Include="Syncfusion.Grid.WinUI" Version="33.2.13" />
+    <PackageReference Include="System.Security.Cryptography.Xml" Version="10.0.9" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\LanguageEditer.Model\LanguageEditer.Model.csproj" />

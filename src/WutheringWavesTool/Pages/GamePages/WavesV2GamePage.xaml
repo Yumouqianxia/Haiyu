@@ -798,7 +798,15 @@
                                     <ContentThemeTransition />
                                 </TransitionCollection>
                             </Grid.ChildrenTransitions>
-                            <ProgressRing Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}" />
+                            <ProgressRing Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <ani:Implicit.ShowAnimations>
+                                    <ani:OpacityAnimation To="1" Duration="0:0:0.3" />
+                                </ani:Implicit.ShowAnimations>
+                                <ani:Implicit.HideAnimations>
+
+                                    <ani:OpacityAnimation To="0" Duration="0:0:0.3" />
+                                </ani:Implicit.HideAnimations>
+                            </ProgressRing>
                             <Grid Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}">
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="auto" />
@@ -807,6 +815,13 @@
                                     <RowDefinition Height="auto" />
                                     <RowDefinition Height="80" />
                                 </Grid.RowDefinitions>
+                                <ani:Implicit.ShowAnimations>
+                                    <ani:OpacityAnimation To="1" Duration="0:0:0.3" />
+                                </ani:Implicit.ShowAnimations>
+                                <ani:Implicit.HideAnimations>
+
+                                    <ani:OpacityAnimation To="0" Duration="0:0:0.3" />
+                                </ani:Implicit.HideAnimations>
                                 <TextBlock
                                     Margin="3,0,0,0"
                                     FontFamily="{ThemeResource DefaultFont}"

@@ -35,4 +35,16 @@
       <BuildType Solution="All|*" Project="Debug" />
     </Project>
   </Folder>
+  <Folder Name="/UITests/">
+    <Project Path="Haiyu.Controls/Haiyu.Controls.csproj">
+      <BuildType Solution="All|*" Project="Debug" />
+    </Project>
+    <Project Path="Tests/UnitTestApp1/UnitTestApp1.csproj" Id="0274477e-e67f-47b2-87cd-db4a0412130a">
+      <BuildType Solution="All|*" Project="Debug" />
+      <Platform Solution="*|Any CPU" Project="x64" />
+      <Platform Solution="*|x64" Project="x64" />
+      <Platform Solution="*|x86" Project="x86" />
+      <Deploy />
+    </Project>
+  </Folder>
 </Solution>

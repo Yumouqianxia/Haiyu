@@ -16,7 +16,6 @@ public sealed partial class ShellPage : Page
         this.ViewModel.HomeNavigationService.RegisterView(this.frame);
         this.ViewModel.HomeNavigationViewService.Register(this.navigationView);
         this.ViewModel.TipShow.Owner = this.panel;
-        //this.ViewModel.Image = this.image;
         this.ViewModel.AppContext.SetTitleControl(this.titlebar);
     }
 
@@ -53,8 +52,6 @@ public sealed partial class ShellPage : Page
         this.ViewModel.DialogManager.RegisterRoot(this.XamlRoot);
         this.ViewModel.AppContext.WallpaperService.RegisterMediaHost(mediaControl);
 
-        // 强制创建 Composition visual，使 Implicit 动画能注册成功
-        _ = ElementCompositionPreview.GetElementVisual(SwitchGame);
     }
 
     private void ComboBox_SizeChanged(object sender, SizeChangedEventArgs e)

@@ -1,7 +1,6 @@
 using Haiyu.Plugin.Contracts;
 using Haiyu.Plugin.Services;
 using Microsoft.Extensions.DependencyInjection;
-using Waves.Api.Helper;
 using Waves.Api.Models.Enums;
 using Waves.Api.Models.Record;
 using Waves.Core;

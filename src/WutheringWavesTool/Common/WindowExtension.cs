@@ -334,10 +334,15 @@ public static class NativeWindowHelper
                 int newPixelWidth = (int)Math.Round(targetDipWidth.Value * newScale);
                 int newPixelHeight = (int)Math.Round(targetDipHeight.Value * newScale);
 
+                // Let WinUI 3 process DPI change first so it updates internal state
+                var result = CallWindowProc(originalWndProc, wndHwnd, msg, wParam, lParam);
+
+                // Then override to maintain fixed DIP size
                 var rect = Marshal.PtrToStructure<RECT>(lParam);
                 window.AppWindow.Move(new Windows.Graphics.PointInt32 { X = rect.Left, Y = rect.Top });
                 window.AppWindow.Resize(new Windows.Graphics.SizeInt32 { Width = newPixelWidth, Height = newPixelHeight });
-                return IntPtr.Zero;
+
+                return result;
             }
 
             try

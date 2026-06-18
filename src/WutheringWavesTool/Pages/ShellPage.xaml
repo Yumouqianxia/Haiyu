@@ -258,25 +258,7 @@
                     </Button>
                 </StackPanel>
             </ui:TitleBar.Footer>
-            <Grid
-                Margin="8,5,0,0"
-                VerticalAlignment="Center"
-                CornerRadius="5">
-                <SystemBackdropElement CornerRadius="5">
-                    <SystemBackdropElement.SystemBackdrop>
-                        <DesktopAcrylicBackdrop />
-                    </SystemBackdropElement.SystemBackdrop>
-                </SystemBackdropElement>
-                <Button
-                    Width="40"
-                    Command="{x:Bind ViewModel.OpenGameSelectorCommand}"
-                    Style="{ThemeResource TransparentButtonStyle}">
-                    <FontIcon
-                        FontFamily="Segoe Fluent Icons"
-                        FontSize="12"
-                        Glyph="&#xF1CB;" />
-                </Button>
-            </Grid>
+
         </ui:TitleBar>
 
         <ui:ApplicationBackgroundControl
@@ -446,108 +428,5 @@
                 </SplitView.Pane>
             </SplitView>
         </Grid>
-        <Grid
-            x:Name="SwitchGame"
-            Grid.Row="1"
-            Visibility="{x:Bind ViewModel.SwitchGame, Mode=OneWay}">
-            <Grid.Background>
-                <SolidColorBrush Opacity="0.95" Color="{ThemeResource SolidBackgroundFillColorBase}" />
-            </Grid.Background>
-            <ani:Implicit.ShowAnimations>
-                <ani:OpacityAnimation
-                    EasingMode="EaseOut"
-                    EasingType="Cubic"
-                    From="0"
-                    To="1"
-                    Duration="0:0:0.35" />
-                <ani:TranslationAnimation
-                    EasingMode="EaseOut"
-                    EasingType="Cubic"
-                    From="0,-100,0"
-                    To="0"
-                    Duration="0:0:0.35" />
-            </ani:Implicit.ShowAnimations>
-            <ani:Implicit.HideAnimations>
-                <ani:OpacityAnimation
-                    EasingMode="EaseIn"
-                    EasingType="Cubic"
-                    To="0"
-                    Duration="0:0:0.2" />
-                <ani:ScalarAnimation
-                    EasingMode="EaseIn"
-                    EasingType="Cubic"
-                    Target="Translation.Y"
-                    To="-100"
-                    Duration="0:0:0.2" />
-            </ani:Implicit.HideAnimations>
-            <Grid
-                Width="200"
-                Height="200"
-                BorderBrush="Red"
-                BorderThickness="2"
-                CornerRadius="5">
-
-                <ui:ImageEx
-                    cui:UIElementExtensions.ClipToBounds="True"
-                    CornerRadius="5"
-                    Source="https://haowallpaper.com/link//common/file/previewFileImg/18193731367128448"
-                    Stretch="UniformToFill">
-                    <ani:Explicit.Animations>
-                        <ani:AnimationSet x:Name="ImageScaleUp">
-                            <ani:Vector3Animation
-                                Target="CenterPoint"
-                                To="100,100,0"
-                                Duration="0:0:0.001" />
-                            <ani:ScaleAnimation
-                                EasingMode="EaseOut"
-                                EasingType="Cubic"
-                                From="1"
-                                To="1.2"
-                                Duration="0:0:0.2" />
-                        </ani:AnimationSet>
-                        <ani:AnimationSet x:Name="ImageScaleDown">
-                            <ani:Vector3Animation
-                                Target="CenterPoint"
-                                To="100,100,0"
-                                Duration="0:0:0.001" />
-                            <ani:ScaleAnimation
-                                EasingMode="EaseOut"
-                                EasingType="Cubic"
-                                From="1.2"
-                                To="1"
-                                Duration="0:0:0.2" />
-                        </ani:AnimationSet>
-                    </ani:Explicit.Animations>
-                    <i:Interaction.Behaviors>
-                        <i:EventTriggerBehavior EventName="PointerEntered" />
-                        <i:EventTriggerBehavior EventName="PointerExited" />
-                    </i:Interaction.Behaviors>
-                </ui:ImageEx>
-                <Border Background="{ThemeResource AppBarBackgroundThemeBrush}">
-                    <ani:Implicit.ShowAnimations>
-                        <ani:OpacityAnimation To="0" Duration="0:0:0.2" />
-                    </ani:Implicit.ShowAnimations>
-                    <ani:Explicit.Animations>
-                        <ani:AnimationSet x:Name="BorderOpacityUp">
-                            <ani:OpacityAnimation To="0.5" Duration="0:0:0.2" />
-                        </ani:AnimationSet>
-                        <ani:AnimationSet x:Name="BorderOpacityDown">
-                            <ani:OpacityAnimation To="0" Duration="0:0:0.2" />
-                        </ani:AnimationSet>
-                    </ani:Explicit.Animations>
-                    <i:Interaction.Behaviors>
-                        <i:EventTriggerBehavior EventName="PointerEntered">
-                            <b:StartAnimationAction Animation="{x:Bind BorderOpacityUp}" />
-                            <b:StartAnimationAction Animation="{x:Bind ImageScaleUp}" />
-                        </i:EventTriggerBehavior>
-                        <i:EventTriggerBehavior EventName="PointerExited">
-                            <b:StartAnimationAction Animation="{x:Bind BorderOpacityDown}" />
-                            <b:StartAnimationAction Animation="{x:Bind ImageScaleDown}" />
-                        </i:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                </Border>
-            </Grid>
-        </Grid>
-
     </Grid>
 </Page>

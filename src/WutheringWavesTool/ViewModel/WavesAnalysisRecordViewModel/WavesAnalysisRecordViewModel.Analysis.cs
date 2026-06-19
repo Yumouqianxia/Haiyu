@@ -6,6 +6,7 @@ using LiveChartsCore;
 using LiveChartsCore.Defaults;
 using LiveChartsCore.Kernel;
 using LiveChartsCore.SkiaSharpView;
+using Waves.Api.Models.Enums;
 using Windows.ApplicationModel.VoiceCommands;
 
 namespace Haiyu.ViewModel;
@@ -195,7 +196,14 @@ partial class WavesAnalysisRecordViewModel
                 )
                 .Item1;
             ArgumentNullException.ThrowIfNull(temp1);
-            StarItems = temp1.Format(this.AllRole, true).Reverse().ToObservableCollection();
+            var isWeaponPool =
+                value.Id == (int)CardPoolType.WeaponsActivity
+                || value.Id == (int)CardPoolType.WeaponsResident
+                || value.Id == (int)CardPoolType.WeaponNovice
+                || value.Id == (int)CardPoolType.WeaponCollaboration;
+            StarItems = isWeaponPool
+                ? temp1.Format(this.AllWeapon, true).Reverse().ToObservableCollection()
+                : temp1.Format(this.AllRole, true).Reverse().ToObservableCollection();
             StarItems.Insert(
                 0,
                 new RecordActivityFiveStarItemWrapper()

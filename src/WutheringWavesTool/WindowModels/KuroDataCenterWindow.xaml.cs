@@ -31,6 +31,6 @@ public sealed partial class KuroDataCenterWindow : WindowModelBase
     {
         hostInitializer = new KuroCommunityWebViewHostInitializer();
         await hostInitializer.InitializeAsync(webView2, Context);
-        this.webView2.CoreWebView2.Navigate(Context.GetDataCenterUrl());
+        this.webView2.CoreWebView2.Navigate(Context.GetPageUrl());
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Text.Encodings.Web;
+using System.Text.Encodings.Web;
+using System.Text.Json;
 
 namespace Haiyu.Common.KuroWebView;
 
@@ -72,12 +73,9 @@ public sealed class KuroCommunityWebViewHostInitializer
 
     private static string BuildBootstrapScript(WebSessionContext session)
     {
-        var json = JsonSerializer.Serialize(new KuroSession
-        {
-            Token = session.Token,
-            Did = session.Did,
-            UserId = session.UserId
-        },KuroSessionContext.Default.KuroSession);
+        var json = JsonSerializer.Serialize(
+            CreateBootstrapPayload(session),
+            KuroSessionContext.Default.KuroBootstrapPayload);
 
         return $$"""
             (() => {
@@ -85,18 +83,55 @@ public sealed class KuroCommunityWebViewHostInitializer
                 const asJson = (value) => JSON.stringify(value ?? {});
                 const ok = (payload) => asJson(payload);
 
+                const writeValue = (storage, key, value) => {
+                    if (!storage || value === undefined || value === null) {
+                        return;
+                    }
+
+                    try {
+                        storage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
+                    } catch {
+                    }
+                };
+
                 function getHostAuth() {
                     const fallback = {
                         token: bootstrapSession.token ?? '',
                         did: bootstrapSession.did ?? '',
-                        userId: bootstrapSession.userId ?? ''
+                        userId: bootstrapSession.userId ?? '',
+                        serverId: bootstrapSession.serverId ?? '',
+                        roleId: bootstrapSession.roleId ?? '',
+                        serverName: bootstrapSession.serverName ?? '',
+                        roleName: bootstrapSession.roleName ?? '',
+                        requestIp: bootstrapSession.requestIp ?? '',
+                        userName: bootstrapSession.userName ?? '',
+                        headUrl: bootstrapSession.headUrl ?? '',
+                        appVersion: bootstrapSession.appVersion ?? '3.0.2',
+                        channelId: bootstrapSession.channelId ?? '2',
+                        enterSource: bootstrapSession.enterSource ?? '12',
+                        ua: bootstrapSession.ua ?? 'KuroGameBox',
+                        os: bootstrapSession.os ?? 'Android',
+                        gameId: Number(bootstrapSession.gameId ?? 3) || 3
                     };
 
                     if (window.__HOST_AUTH__) {
                         return {
                             token: window.__HOST_AUTH__.token ?? fallback.token,
                             did: window.__HOST_AUTH__.did ?? fallback.did,
-                            userId: window.__HOST_AUTH__.userId ?? fallback.userId
+                            userId: window.__HOST_AUTH__.userId ?? fallback.userId,
+                            serverId: window.__HOST_AUTH__.serverId ?? fallback.serverId,
+                            roleId: window.__HOST_AUTH__.roleId ?? fallback.roleId,
+                            serverName: window.__HOST_AUTH__.serverName ?? fallback.serverName,
+                            roleName: window.__HOST_AUTH__.roleName ?? fallback.roleName,
+                            requestIp: window.__HOST_AUTH__.requestIp ?? fallback.requestIp,
+                            userName: window.__HOST_AUTH__.userName ?? fallback.userName,
+                            headUrl: window.__HOST_AUTH__.headUrl ?? fallback.headUrl,
+                            appVersion: window.__HOST_AUTH__.appVersion ?? fallback.appVersion,
+                            channelId: window.__HOST_AUTH__.channelId ?? fallback.channelId,
+                            enterSource: window.__HOST_AUTH__.enterSource ?? fallback.enterSource,
+                            ua: window.__HOST_AUTH__.ua ?? fallback.ua,
+                            os: window.__HOST_AUTH__.os ?? fallback.os,
+                            gameId: Number(window.__HOST_AUTH__.gameId ?? fallback.gameId) || fallback.gameId
                         };
                     }
 
@@ -104,7 +139,20 @@ public sealed class KuroCommunityWebViewHostInitializer
                         return {
                             token: window.localStorage.getItem('token') ?? fallback.token,
                             did: window.localStorage.getItem('did') ?? fallback.did,
-                            userId: window.localStorage.getItem('userId') ?? fallback.userId
+                            userId: window.localStorage.getItem('userId') ?? fallback.userId,
+                            serverId: window.localStorage.getItem('mc_serverId') ?? fallback.serverId,
+                            roleId: window.localStorage.getItem('mc_roleId') ?? fallback.roleId,
+                            serverName: fallback.serverName,
+                            roleName: window.localStorage.getItem('mc_roleName') ?? fallback.roleName,
+                            requestIp: window.localStorage.getItem('REQUEST_IP') ?? fallback.requestIp,
+                            userName: fallback.userName,
+                            headUrl: fallback.headUrl,
+                            appVersion: fallback.appVersion,
+                            channelId: fallback.channelId,
+                            enterSource: fallback.enterSource,
+                            ua: fallback.ua,
+                            os: fallback.os,
+                            gameId: fallback.gameId
                         };
                     } catch {
                         return fallback;
@@ -114,43 +162,86 @@ public sealed class KuroCommunityWebViewHostInitializer
                 function applySession() {
                     const values = getHostAuth();
 
-                    const initUserInfo = {
+                    const userInfo = {
+                        appVersion: values.appVersion,
+                        os: values.os,
+                        headUrl: values.headUrl,
+                        userName: values.userName,
+                        ua: values.ua,
                         userId: values.userId,
-                        token: values.token,
                         did: values.did,
-                        channelId: 1
+                        channelId: values.channelId,
+                        enterSource: values.enterSource,
+                        token: values.token
                     };
 
-                    for (const [key, value] of Object.entries(values)) {
-                        try {
-                            window.localStorage.setItem(key, value);
-                            window.sessionStorage.setItem(key, value);
-                        } catch {
-                        }
-                    }
+                    const roleInfo = {
+                        userId: values.userId,
+                        gameId: values.gameId,
+                        serverId: values.serverId,
+                        serverName: values.serverName,
+                        roleId: values.roleId,
+                        roleName: values.roleName
+                    };
 
-                    try {
-                        window.localStorage.setItem('initUserInfo', JSON.stringify(initUserInfo));
-                        window.sessionStorage.setItem('initUserInfo', JSON.stringify(initUserInfo));
-                    } catch {
+                    const compactRoleInfo = {
+                        gameId: String(values.gameId),
+                        roleId: values.roleId,
+                        roleName: values.roleName,
+                        serverName: values.serverName,
+                        userId: values.userId,
+                        serverId: values.serverId,
+                        token: values.token
+                    };
+
+                    for (const storage of [window.localStorage, window.sessionStorage]) {
+                        writeValue(storage, 'token', values.token);
+                        writeValue(storage, 'did', values.did);
+                        writeValue(storage, 'userId', values.userId);
+                        writeValue(storage, 'initUserInfo', userInfo);
+                        writeValue(storage, 'mc-growth-simulator-user-info', userInfo);
+                        writeValue(storage, 'mc-growth-simulator-role-info', roleInfo);
+                        writeValue(storage, 'mcResMonReport_APP_USER_INFO', userInfo);
+                        writeValue(storage, 'mcResMonReport_ROLE_INFO', roleInfo);
+                        writeValue(storage, 'mcResMonReport_GUIDE_ETSRC', values.enterSource);
+                        writeValue(storage, 'mc_userInfo', compactRoleInfo);
+                        writeValue(storage, 'mc_serverId', values.serverId);
+                        writeValue(storage, 'mc_roleId', values.roleId);
+                        writeValue(storage, 'mc_roleName', values.roleName);
+
+                        if (values.requestIp) {
+                            writeValue(storage, 'REQUEST_IP', values.requestIp);
+                        }
                     }
 
                     window.__HOST_AUTH__ = values;
                     window.__KURO_HOST_ENV__ = {
                         platform: 'android',
-                        appName: 'KuroGameBox'
+                        appName: values.ua
                     };
                 }
 
                 function createResponse(handlerName, data) {
                     const values = getHostAuth();
+                    const appUserInfo = {
+                        token: values.token,
+                        did: values.did,
+                        userId: values.userId,
+                        appVersion: values.appVersion,
+                        os: values.os,
+                        headUrl: values.headUrl,
+                        userName: values.userName,
+                        ua: values.ua,
+                        channelId: values.channelId,
+                        enterSource: values.enterSource
+                    };
 
                     switch (handlerName) {
                         case 'getUserInfo':
-                            return ok({ token: values.token, did: values.did, userId: values.userId, channelId: 1 });
+                            return ok(appUserInfo);
                         case 'refreshToken':
                         case 'refreshTokenV2':
-                            return ok({ code: 0, token: values.token, userId: values.userId, did: values.did, channelId: 1 });
+                            return ok({ code: 0, ...appUserInfo });
                         case 'getSystemStatus':
                             return ok({ darkMode: false, theme: 'light' });
                         case 'setToolInfo':
@@ -181,6 +272,7 @@ public sealed class KuroCommunityWebViewHostInitializer
                 };
 
                 window.WebViewJavascriptBridge = bridge;
+                window.jsBridge = bridge;
                 window.WVJBCallbacks = window.WVJBCallbacks || [];
                 applySession();
 
@@ -193,46 +285,130 @@ public sealed class KuroCommunityWebViewHostInitializer
 
     private static string BuildApplySessionScript(WebSessionContext session)
     {
-        var encodedToken = JavaScriptEncoder.Default.Encode(session.Token ?? string.Empty);
-        var encodedDid = JavaScriptEncoder.Default.Encode(session.Did ?? string.Empty);
-        var encodedUserId = JavaScriptEncoder.Default.Encode(session.UserId ?? string.Empty);
+        var payload = CreateBootstrapPayload(session);
+        var json = JavaScriptEncoder.Default.Encode(
+            JsonSerializer.Serialize(payload, KuroSessionContext.Default.KuroBootstrapPayload));
 
         return $$"""
             (() => {
-                const values = {
-                    token: '{{encodedToken}}',
-                    did: '{{encodedDid}}',
-                    userId: '{{encodedUserId}}'
-                };
+                const bootstrapSession = JSON.parse('{{json}}');
 
-                const initUserInfo = {
-                    userId: values.userId,
-                    token: values.token,
-                    did: values.did,
-                    channelId: 1
-                };
+                const writeValue = (storage, key, value) => {
+                    if (!storage || value === undefined || value === null) {
+                        return;
+                    }
 
-                for (const [key, value] of Object.entries(values)) {
                     try {
-                        window.localStorage.setItem(key, value);
-                        window.sessionStorage.setItem(key, value);
+                        storage.setItem(key, typeof value === 'string' ? value : JSON.stringify(value));
                     } catch {
                     }
-                }
+                };
 
-                try {
-                    window.localStorage.setItem('initUserInfo', JSON.stringify(initUserInfo));
-                    window.sessionStorage.setItem('initUserInfo', JSON.stringify(initUserInfo));
-                } catch {
+                const values = {
+                    token: bootstrapSession.token ?? '',
+                    did: bootstrapSession.did ?? '',
+                    userId: bootstrapSession.userId ?? '',
+                    serverId: bootstrapSession.serverId ?? '',
+                    roleId: bootstrapSession.roleId ?? '',
+                    serverName: bootstrapSession.serverName ?? '',
+                    roleName: bootstrapSession.roleName ?? '',
+                    requestIp: bootstrapSession.requestIp ?? '',
+                    userName: bootstrapSession.userName ?? '',
+                    headUrl: bootstrapSession.headUrl ?? '',
+                    appVersion: bootstrapSession.appVersion ?? '3.0.2',
+                    channelId: bootstrapSession.channelId ?? '2',
+                    enterSource: bootstrapSession.enterSource ?? '12',
+                    ua: bootstrapSession.ua ?? 'KuroGameBox',
+                    os: bootstrapSession.os ?? 'Android',
+                    gameId: Number(bootstrapSession.gameId ?? 3) || 3
+                };
+
+                const userInfo = {
+                    appVersion: values.appVersion,
+                    os: values.os,
+                    headUrl: values.headUrl,
+                    userName: values.userName,
+                    ua: values.ua,
+                    userId: values.userId,
+                    did: values.did,
+                    channelId: values.channelId,
+                    enterSource: values.enterSource,
+                    token: values.token
+                };
+
+                const roleInfo = {
+                    userId: values.userId,
+                    gameId: values.gameId,
+                    serverId: values.serverId,
+                    serverName: values.serverName,
+                    roleId: values.roleId,
+                    roleName: values.roleName
+                };
+
+                const compactRoleInfo = {
+                    gameId: String(values.gameId),
+                    roleId: values.roleId,
+                    roleName: values.roleName,
+                    serverName: values.serverName,
+                    userId: values.userId,
+                    serverId: values.serverId,
+                    token: values.token
+                };
+
+                for (const storage of [window.localStorage, window.sessionStorage]) {
+                    writeValue(storage, 'token', values.token);
+                    writeValue(storage, 'did', values.did);
+                    writeValue(storage, 'userId', values.userId);
+                    writeValue(storage, 'initUserInfo', userInfo);
+                    writeValue(storage, 'mc-growth-simulator-user-info', userInfo);
+                    writeValue(storage, 'mc-growth-simulator-role-info', roleInfo);
+                    writeValue(storage, 'mcResMonReport_APP_USER_INFO', userInfo);
+                    writeValue(storage, 'mcResMonReport_ROLE_INFO', roleInfo);
+                    writeValue(storage, 'mcResMonReport_GUIDE_ETSRC', values.enterSource);
+                    writeValue(storage, 'mc_userInfo', compactRoleInfo);
+                    writeValue(storage, 'mc_serverId', values.serverId);
+                    writeValue(storage, 'mc_roleId', values.roleId);
+                    writeValue(storage, 'mc_roleName', values.roleName);
+
+                    if (values.requestIp) {
+                        writeValue(storage, 'REQUEST_IP', values.requestIp);
+                    }
                 }
 
                 window.__HOST_AUTH__ = values;
                 window.__KURO_HOST_ENV__ = {
                     platform: 'android',
-                    appName: 'KuroGameBox'
+                    appName: values.ua
                 };
+
+                if (!window.jsBridge && window.WebViewJavascriptBridge) {
+                    window.jsBridge = window.WebViewJavascriptBridge;
+                }
             })();
             """;
+    }
+
+    private static KuroBootstrapPayload CreateBootstrapPayload(WebSessionContext session)
+    {
+        return new KuroBootstrapPayload
+        {
+            Token = session.Token,
+            Did = session.Did,
+            UserId = session.UserId,
+            ServerId = session.ServerId,
+            RoleId = session.RoleId,
+            ServerName = session.ServerName,
+            RoleName = session.RoleName,
+            RequestIp = session.RequestIp,
+            UserName = session.UserName,
+            HeadUrl = session.HeadUrl,
+            AppVersion = session.AppVersion,
+            ChannelId = session.ChannelId,
+            EnterSource = session.EnterSource,
+            UserAgentName = session.UserAgentName,
+            Os = session.Os,
+            GameId = session.GameId
+        };
     }
 
     private static void ApplyCookieSession(WebView2 webView, WebSessionContext session)

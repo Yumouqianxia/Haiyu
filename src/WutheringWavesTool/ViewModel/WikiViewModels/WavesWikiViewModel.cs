@@ -113,13 +113,19 @@ public partial class WavesWikiViewModel : WikiViewModelBase
     [RelayCommand]
     void OpenDataCenter()
     {
-        var session = this.WavesClient.AccountService.Current;
-        var win = WindowNative.GetWindowHandle(AppContext.App.MainWindow);
-        KuroDataCenterWindow window = new KuroDataCenterWindow(win,new WebSessionContext(session.Token,session.TokenDid,session.TokenId,this.SelectGamer.ServerId,this.SelectGamer.RoleId));
-        window.Manager.Width = 400;
-        window.Manager.Height = 700;
+        OpenKuroCommunityWindow(CreateDataCenterSessionContext());
+    }
 
-        window.AppWindow.Show();
+    [RelayCommand]
+    void OpenGrowthCalculator()
+    {
+        OpenKuroCommunityWindow(CreateGrowthCalculatorSessionContext());
+    }
+
+    [RelayCommand]
+    void OpenResourceBriefing()
+    {
+        OpenKuroCommunityWindow(CreateResourceBriefingSessionContext());
     }
 
     [RelayCommand]
@@ -182,5 +188,84 @@ public partial class WavesWikiViewModel : WikiViewModelBase
         WeaponActive = null;
         RoleActive = null;
         base.Dispose();
+    }
+
+    private void OpenKuroCommunityWindow(WebSessionContext? context)
+    {
+        if (context is null)
+        {
+            return;
+        }
+
+        var win = WindowNative.GetWindowHandle(AppContext.App.MainWindow);
+        KuroDataCenterWindow window = new KuroDataCenterWindow(win, context);
+        window.Manager.Width = 400;
+        window.Manager.Height = 700;
+        window.AppWindow.Show();
+    }
+
+    private WebSessionContext? CreateDataCenterSessionContext()
+    {
+        var snapshot = CreateLoginSnapshot();
+        if (snapshot is null || SelectGamer is null)
+        {
+            return null;
+        }
+
+        return WebSessionContext.CreateDataCenter(
+            snapshot,
+            SelectGamer.ServerId,
+            SelectGamer.RoleId,
+            SelectGamer.ServerName,
+            SelectGamer.RoleName);
+    }
+
+    private WebSessionContext? CreateGrowthCalculatorSessionContext()
+    {
+        var snapshot = CreateLoginSnapshot();
+        if (snapshot is null || SelectGamer is null)
+        {
+            return null;
+        }
+
+        return WebSessionContext.CreateGrowthCalculator(
+            snapshot,
+            SelectGamer.ServerId,
+            SelectGamer.RoleId,
+            SelectGamer.ServerName,
+            SelectGamer.RoleName);
+    }
+
+    private WebSessionContext? CreateResourceBriefingSessionContext()
+    {
+        var snapshot = CreateLoginSnapshot();
+        if (snapshot is null || SelectGamer is null)
+        {
+            return null;
+        }
+
+        return WebSessionContext.CreateResourceBriefing(
+            snapshot,
+            SelectGamer.ServerId,
+            SelectGamer.RoleId,
+            SelectGamer.ServerName,
+            SelectGamer.RoleName);
+    }
+
+    private KuroLoginSnapshot? CreateLoginSnapshot()
+    {
+        var session = WavesClient.AccountService.Current;
+        if (session is null)
+        {
+            return null;
+        }
+
+        return new KuroLoginSnapshot
+        {
+            Token = session.Token ?? string.Empty,
+            Did = session.TokenDid ?? string.Empty,
+            UserId = session.TokenId ?? string.Empty,
+            AppVersion = App.AppVersion,
+        };
     }
 }

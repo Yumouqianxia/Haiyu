@@ -22,7 +22,7 @@
             IsExtendsContentIntoTitleBar="True"
             TitleHorizontalAlignment="Center">
             <ui:TitleBar.Title>
-                <TextBlock Margin="10,0,0,0" Text="数据面板" />
+                <TextBlock Margin="10,0,0,0" Text="数据" />
             </ui:TitleBar.Title>
         </ui:TitleBar>
         <WebView2

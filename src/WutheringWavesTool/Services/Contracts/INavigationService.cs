@@ -1,4 +1,4 @@
-﻿namespace Haiyu.Services.Contracts;
+namespace Haiyu.Services.Contracts;
 
 public interface INavigationService
 {
@@ -16,9 +16,9 @@ public interface INavigationService
 
     public bool GoForward();
 
-    public bool NavigationTo(string key, object args, NavigationTransitionInfo transition);
+    public bool NavigationTo(string key, object? args, NavigationTransitionInfo transition);
 
-    public bool NavigationTo<ViewModel>(object args, NavigationTransitionInfo transition)
+    public bool NavigationTo<ViewModel>(object? args, NavigationTransitionInfo transition)
         where ViewModel : ObservableObject;
 
     public event NavigatedEventHandler Navigated;

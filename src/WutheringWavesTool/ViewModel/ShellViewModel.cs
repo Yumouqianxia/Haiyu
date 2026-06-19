@@ -1,4 +1,7 @@
+using Haiyu.Pages.GamePages;
 using Haiyu.Services.DialogServices;
+using Haiyu.ViewModel.GameViewModels;
+using Haiyu.ViewModel.GameViewModels.GameContexts;
 using Waves.Core.Models.Enums;
 using Waves.Core.Services;
 using Windows.ApplicationModel.DataTransfer;
@@ -56,6 +59,7 @@ public sealed partial class ShellViewModel : ViewModelBase
     public IWallpaperService WallpaperService { get; }
     public IKuroClient KuroClient { get; }
     public SystemEventPublisher SystemEventPublisher { get; }
+
     [ObservableProperty]
     public partial string ServerName { get; set; }
 
@@ -63,8 +67,7 @@ public sealed partial class ShellViewModel : ViewModelBase
     public partial object SelectItem { get; set; }
 
     [ObservableProperty]
-    public partial Visibility SwitchGame { get; set; } =  Visibility.Collapsed;
-
+    public partial Visibility SwitchGame { get; set; } = Visibility.Collapsed;
 
     [ObservableProperty]
     public partial Visibility LoginBthVisibility { get; set; } = Visibility.Collapsed;
@@ -155,10 +158,37 @@ public sealed partial class ShellViewModel : ViewModelBase
     [RelayCommand]
     void OpenMain()
     {
-        this.HomeNavigationService.NavigationTo<HomeViewModel>(
-            null,
-            new DrillInNavigationTransitionInfo()
-        );
+        var launcheArgs = AppSettings.LauncheBth;
+        switch (launcheArgs)
+        {
+            case "Home":
+                this.HomeNavigationService.NavigationTo<HomeViewModel>(
+                    null,
+                    new DrillInNavigationTransitionInfo()
+                );
+                break;
+            case "WutheringWaves":
+                this.HomeNavigationService.NavigationTo<WavesV2GameContextViewModel>(
+                    null,
+                    new DrillInNavigationTransitionInfo()
+                );
+                break;
+            case "PunishingGrayRaven":
+                this.HomeNavigationService.NavigationTo<PunishV2GameContextViewModel>(
+                    null,
+                    new DrillInNavigationTransitionInfo()
+                );
+                break;
+            case "CloudWutheringWaves":
+                this.HomeNavigationService.NavigationTo<WavesCloudGameViewModel>(
+                    null,
+                    new DrillInNavigationTransitionInfo()
+                );
+                break;
+            default:
+                break;
+        }
+        ;
     }
 
     [RelayCommand]
@@ -166,8 +196,6 @@ public sealed partial class ShellViewModel : ViewModelBase
     {
         this.Messages.Clear();
     }
-    
-
 
     [RelayCommand]
     async Task ShowOpenLocalUser()
@@ -225,8 +253,6 @@ public sealed partial class ShellViewModel : ViewModelBase
     {
         var result = await DialogManager.GetQRLoginResultAsync();
     }
-
-   
 
     [RelayCommand]
     async Task Login()
@@ -327,12 +353,16 @@ public sealed partial class ShellViewModel : ViewModelBase
         }
     }
 
-    private async Task AutoRemoveAsync(SystemMessagerModel model, TimeSpan delay, CancellationToken ct)
+    private async Task AutoRemoveAsync(
+        SystemMessagerModel model,
+        TimeSpan delay,
+        CancellationToken ct
+    )
     {
         try
         {
             await Task.Delay(delay, ct);
-            await AppContext.TryInvokeAsync(async() => Messages.Remove(model));
+            await AppContext.TryInvokeAsync(async () => Messages.Remove(model));
         }
         catch (OperationCanceledException) { }
     }

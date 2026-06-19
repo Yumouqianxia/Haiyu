@@ -126,7 +126,7 @@ public class AppSettings : SettingBase
 
     public string? UpdateType
     {
-        get => Read();
+        get => Read(defaultValue:"Github");
         set => Write(value);
     }
 
@@ -141,7 +141,7 @@ public class AppSettings : SettingBase
         get => NullBoolAdaptive.Instance.GetForward(Read());
         set => Write(NullBoolAdaptive.Instance.GetBack(value));
     }
-    public string MirrorKey
+    public string? MirrorKey
     {
         get => Read();
         set => Write(value);
@@ -160,5 +160,11 @@ public class AppSettings : SettingBase
             return 1;
         }
         set => Write(nameof(MaxIoConcurrent), Math.Clamp(value, 1, 4).ToString());
+    }
+
+    public string? LauncheBth
+    {
+        get => Read(defaultValue:"Home");
+        set => Write(value);
     }
 }

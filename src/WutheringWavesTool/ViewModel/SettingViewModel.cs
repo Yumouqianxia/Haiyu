@@ -1,4 +1,5 @@
-﻿using Haiyu.Services.DialogServices;
+using Haiyu.Models.Settings;
+using Haiyu.Services.DialogServices;
 using Waves.Core.Helpers;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.Security.Credentials.UI;
@@ -65,6 +66,19 @@ public sealed partial class SettingViewModel : ViewModelBase
     [ObservableProperty]
     public partial bool CheckUpdateVisibility { get; set; }
 
+    [ObservableProperty]
+    public partial ObservableCollection<LauncheBthWrapper> AppLauncheBths { get; set; } = LauncheBthWrapper.CreateDefault();
+
+    [ObservableProperty]
+    public partial LauncheBthWrapper  SelectAppLauncheBth { get; set; }
+
+    partial void OnSelectAppLauncheBthChanged(LauncheBthWrapper value)
+    {
+        if (value == null)
+            return;
+        AppSettings.LauncheBth = value.Memory;
+    }
+
     [RelayCommand]
     async Task Loaded()
     {
@@ -116,8 +130,24 @@ public sealed partial class SettingViewModel : ViewModelBase
             this.InitCapture();
             GetAllVersion();
             LoadUpdateAppType();
+            await LoadLauncheBth();
         });
         ProgressAction = false;
+    }
+
+    private async Task LoadLauncheBth()
+    {
+        var saveOption = AppSettings.LauncheBth;
+        if (saveOption == null)
+            return;
+        foreach (var item in this.AppLauncheBths)
+        {
+            if(saveOption == item.Memory)
+            {
+                this.SelectAppLauncheBth = item;
+                break;
+            }
+        }
     }
 
     [RelayCommand]

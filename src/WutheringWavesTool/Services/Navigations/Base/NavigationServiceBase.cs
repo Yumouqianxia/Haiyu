@@ -1,4 +1,4 @@
-﻿namespace Haiyu.Services.Navigations.Base;
+namespace Haiyu.Services.Navigations.Base;
 
 public class NavigationServiceBase : INavigationService
 {
@@ -7,7 +7,7 @@ public class NavigationServiceBase : INavigationService
         PageService = pageService;
     }
 
-    public object Paramter { get; set; }
+    public object? Paramter { get; set; }
 
     public IPageService PageService { get; }
 
@@ -45,7 +45,7 @@ public class NavigationServiceBase : INavigationService
 
     public virtual bool NavigationTo(
         string key,
-        object args,
+        object? args,
         NavigationTransitionInfo transitionInfo
     )
     {
@@ -89,7 +89,7 @@ public class NavigationServiceBase : INavigationService
         RootFrame = null;
     }
 
-    public bool NavigationTo<ViewModel>(object args, NavigationTransitionInfo transitionInfo)
+    public bool NavigationTo<ViewModel>(object? args, NavigationTransitionInfo transitionInfo)
         where ViewModel : ObservableObject =>
         NavigationTo(typeof(ViewModel).FullName, args, transitionInfo);
 

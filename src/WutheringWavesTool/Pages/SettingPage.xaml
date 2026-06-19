@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="Haiyu.Pages.SettingPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -12,6 +12,7 @@
     xmlns:item="using:Haiyu.Models"
     xmlns:local="using:Haiyu.Pages"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:settings="using:Haiyu.Models.Settings"
     xmlns:uModel="using:Haiyu.ViewModel"
     xmlns:ui="using:CommunityToolkit.WinUI.Controls"
     xmlns:wui="using:Haiyu.Controls"
@@ -139,6 +140,22 @@
                 <ui:SettingsCard
                     Margin="0,5,0,0"
                     HorizontalAlignment="Stretch"
+                    HorizontalContentAlignment="Stretch"
+                    Header="启动首页">
+                    <ui:SettingsCard.HeaderIcon>
+                        <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE768;" />
+                    </ui:SettingsCard.HeaderIcon>
+                    <ComboBox ItemsSource="{x:Bind ViewModel.AppLauncheBths, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectAppLauncheBth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate x:DataType="settings:LauncheBthWrapper">
+                                <TextBlock Text="{x:Bind Display}" />
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
+                </ui:SettingsCard>
+                <ui:SettingsCard
+                    Margin="0,5,0,0"
+                    HorizontalAlignment="Stretch"
                     HorizontalContentAlignment="Stretch">
                     <ui:SettingsCard.Header>
                         <StackPanel Orientation="Horizontal">
@@ -204,7 +221,7 @@
                                         Margin="5,0,0,0"
                                         Command="{x:Bind ViewModel.SetMirrorKeyCommand}"
                                         Content="确认" />
-                                    <Button Click="Button_Click" Margin="5,0,0,0">
+                                    <Button Margin="5,0,0,0" Click="Button_Click">
                                         <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE897;" />
                                     </Button>
                                 </StackPanel>

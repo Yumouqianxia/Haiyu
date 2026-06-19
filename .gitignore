@@ -365,3 +365,4 @@ FodyWeavers.xsd
 /src/Setup/Msix.WPFSetup/Resources/Installer
 /src/Setup/Project.WPFSetup/Resources/unstaller.exe
 /src/Setup/Project.WPFSetup/Resources/uninstall.exe
+/src/.tmp-npm-cache

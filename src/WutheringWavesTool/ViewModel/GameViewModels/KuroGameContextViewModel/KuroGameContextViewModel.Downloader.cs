@@ -1,4 +1,4 @@
-﻿namespace Haiyu.ViewModel.GameViewModels;
+namespace Haiyu.ViewModel.GameViewModels;
 
 partial class KuroGameContextViewModel
 {
@@ -10,7 +10,6 @@ partial class KuroGameContextViewModel
 
     [ObservableProperty]
     public partial int DownloadSpeedValue { get; set; }
-
 
     private async Task GameContext_GameContextOutput(object sender, GameContextOutputArgs args)
     {
@@ -26,7 +25,7 @@ partial class KuroGameContextViewModel
             )
             {
                 this.MaxProgressValue = args.TotalSize;
-                this.CurrentProgressValue = args.CurrentSize; 
+                this.CurrentProgressValue = args.CurrentSize;
                 if (args.Type == Waves.Core.Models.Enums.GameContextActionType.Verify)
                 {
                     if (args.IsAction && args.IsPause)
@@ -61,7 +60,7 @@ partial class KuroGameContextViewModel
                 {
                     this.PauseIcon = "\uE769";
                     this.BottomBarContent =
-                            $"[{args.CurrentDecompressCount}/{args.MaxDecompressValue}] 已解压:{Math.Round((double)args.CurrentSize / 1024 / 1024 / 1024, 2)}GB,剩余:{Math.Round((double)(args.TotalSize - args.CurrentSize) / 1024 / 1024 / 1024, 2)}GB";
+                        $"[{args.CurrentDecompressCount}/{args.MaxDecompressValue}] 已解压:{Math.Round((double)args.CurrentSize / 1024 / 1024 / 1024, 2)}GB,剩余:{Math.Round((double)(args.TotalSize - args.CurrentSize) / 1024 / 1024 / 1024, 2)}GB";
                     PauseStartEnable = false;
                 }
                 ShowGameDownloadingBth(status);
@@ -74,7 +73,11 @@ partial class KuroGameContextViewModel
                 this.BottomBarContent = args.DeleteString;
                 PauseStartEnable = false;
             }
-            if (args.Type == Waves.Core.Models.Enums.GameContextActionType.None || args.Type == Waves.Core.Models.Enums.GameContextActionType.GameExit && !status.IsPredownloaded)
+            if (
+                args.Type == Waves.Core.Models.Enums.GameContextActionType.None
+                || args.Type == Waves.Core.Models.Enums.GameContextActionType.GameExit
+                    && !status.IsPredownloaded
+            )
             {
                 PauseStartEnable = true;
                 this.CurrentProgressValue = 0;
@@ -89,7 +92,11 @@ partial class KuroGameContextViewModel
                 }
                 if (status.IsLauncher)
                 {
-                    await ShowGameLauncherBth(status.IsUpdate, status.DisplayVersion, status.Gameing);
+                    await ShowGameLauncherBth(
+                        status.IsUpdate,
+                        status.DisplayVersion,
+                        status.Gameing
+                    );
                 }
                 if (
                     status.IsGameExists
@@ -112,11 +119,24 @@ partial class KuroGameContextViewModel
                     this.AppContext.App.MainWindow.Show();
                 }
             }
-            if (args.Type == Waves.Core.Models.Enums.GameContextActionType.TipMessage && !status.IsPredownloaded)
+            if (
+                args.Type == Waves.Core.Models.Enums.GameContextActionType.TipMessage
+                && !status.IsPredownloaded
+            )
             {
-                await DialogManager.ShowMessageDialog(args.TipMessage, "确认", "关闭");
+                await DialogManager.ShowMessageDialog(
+                    new ShowDialogOption()
+                    {
+                        Context = args.TipMessage,
+                        CloseText = "确定",
+                        ShowPrimaryButton = false,
+                    }
+                );
             }
-            if(args.Type == Waves.Core.Models.Enums.GameContextActionType.CdnSelect && !status.IsPredownloaded)
+            if (
+                args.Type == Waves.Core.Models.Enums.GameContextActionType.CdnSelect
+                && !status.IsPredownloaded
+            )
             {
                 ShowGameDownloadingBth(status);
                 PauseStartEnable = false;
@@ -183,5 +203,4 @@ partial class KuroGameContextViewModel
         Logger.WriteInfo($"设置下载限速");
         await GameContext.SetSpeedLimitAsync(DownloadSpeedValue * 1024 * 1024);
     }
-
 }

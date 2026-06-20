@@ -32,7 +32,7 @@ public interface IDialogManager
     public Task ShowDeleteGameResource(string contentName);
     public void CloseDialog();
 
-    public Task<ContentDialogResult> ShowMessageDialog(string header, string content, string closeText);
+    public Task<ContentDialogResult> ShowMessageDialog(ShowDialogOption option);
     Task ShowWebGameDialogAsync();
 
     Task ShowGameLauncherChacheDialogAsync(GameLauncherCacheArgs args);

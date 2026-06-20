@@ -296,7 +296,14 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
             //显示消息
             if (args.Type == Waves.Core.Models.Enums.GameContextActionType.TipMessage)
             {
-                await DialogManager.ShowMessageDialog(args.TipMessage, "确认", "关闭");
+                await DialogManager.ShowMessageDialog(
+                    new ShowDialogOption()
+                    {
+                        Context = args.TipMessage,
+                        CloseText = "确定",
+                        ShowPrimaryButton = false,
+                    }
+                );
             }
             if (
                 actionType == Waves.Core.Models.Enums.GameContextActionType.None
@@ -881,15 +888,27 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         var state = await this.GameContext.GetGameContextStatusAsync(this.CTS.Token);
         if (state.IsPredownloaded && state.PredownloaAcion)
         {
-            await TipShow.ShowMessageAsync("预下载期间禁止修复游戏！", Symbol.Clear);
+            await DialogManager.ShowMessageDialog(
+                    new ShowDialogOption()
+                    {
+                        Context = "预下载期间，禁止修复游戏",
+                        CloseText = "确定",
+                        ShowPrimaryButton = false,
+                    }
+                );
             return;
         }
         if (
             (
                 await DialogManager.ShowMessageDialog(
-                    "修复游戏会将游戏缓存全部删除，保持与服务器最新文件保持一致\r\n（包含画面设置、滤镜设置、预下载等内容)",
-                    "确认修复",
-                    "取消"
+                    new ShowDialogOption()
+                    {
+                        Context =
+                            "修复游戏会将游戏缓存全部删除，保持与服务器最新文件保持一致\r\n（包含画面设置、滤镜设置、预下载等内容)",
+                        CloseText = "取消",
+                        PrimaryText = "确认修复",
+                        ShowPrimaryButton = true,
+                    }
                 )
             ) == ContentDialogResult.Primary
         )

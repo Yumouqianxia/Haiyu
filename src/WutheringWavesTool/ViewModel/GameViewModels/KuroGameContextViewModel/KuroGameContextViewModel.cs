@@ -1,4 +1,4 @@
-﻿using System.Diagnostics.Contracts;
+using System.Diagnostics.Contracts;
 using Haiyu.Models.Dialogs;
 using Haiyu.Services.DialogServices;
 using Haiyu.ViewModel.GameViewModels.Contracts;
@@ -33,13 +33,14 @@ public abstract partial class KuroGameContextViewModel
             this.GameType == GameType.Waves
                 ? ServerDisplay.GetWavesV2Games
                 : ServerDisplay.GetPunishV2Games;
-        var openService = this.GameType == GameType.Waves?AppSettings.WavesAutoOpenContext:AppSettings.PunishAutoOpenContext;
+        var openService =
+            this.GameType == GameType.Waves
+                ? AppSettings.WavesAutoOpenContext
+                : AppSettings.PunishAutoOpenContext;
 
-        var selectServer = Servers.Where(x=>x.Key == openService).FirstOrDefault();
+        var selectServer = Servers.Where(x => x.Key == openService).FirstOrDefault();
         this.SelectServer = selectServer == null ? Servers[0] : selectServer;
     }
-
-
 
     [ObservableProperty]
     public partial bool IsDx11Launcher { get; set; } = false;
@@ -142,11 +143,11 @@ public abstract partial class KuroGameContextViewModel
         {
             this.IsDx11Launcher = flag;
         }
-        if(this.GameContext.GameType == GameType.Waves)
+        if (this.GameContext.GameType == GameType.Waves)
         {
             AppSettings.WavesAutoOpenContext = this.GameContext.ContextName;
         }
-        else if(this.GameContext.GameType == GameType.Punish)
+        else if (this.GameContext.GameType == GameType.Punish)
         {
             AppSettings.PunishAutoOpenContext = this.GameContext.ContextName;
         }
@@ -164,7 +165,7 @@ public abstract partial class KuroGameContextViewModel
         StartGame = 3,
         PrepareUpdate = 4,
         InGame = 5,
-        InstallPreDownload = 6
+        InstallPreDownload = 6,
     }
 
     private ButtonActionType _buttonAction = ButtonActionType.None;
@@ -228,7 +229,7 @@ public abstract partial class KuroGameContextViewModel
                     PredDownloadDoneVisibility = Visibility.Collapsed;
                     PreDownloadIcon = "\uE769";
                 }
-                else if(status.PredownloaAcion && !status.PredownloadedDone && !status.IsPause)
+                else if (status.PredownloaAcion && !status.PredownloadedDone && !status.IsPause)
                 {
                     PredCardVisibility = Visibility.Visible;
                     PredDownloadBthVisibility = Visibility.Collapsed;
@@ -250,7 +251,6 @@ public abstract partial class KuroGameContextViewModel
                     PredDownloadDoneVisibility = Visibility.Visible;
                     this.PredDownloadingVisibility = Visibility.Collapsed;
                 }
-                
             }
             else
             {
@@ -272,7 +272,7 @@ public abstract partial class KuroGameContextViewModel
             }
             this.VersionLogo = new BitmapImage(new(background.Slogan));
             var coreConfig = await GameContext.ReadContextConfigAsync(this.CTS.Token);
-            this.DownloadSpeedValue = coreConfig.LimitSpeed/1000/1000;
+            this.DownloadSpeedValue = coreConfig.LimitSpeed / 1000 / 1000;
             await ShowCardAsync(showCard);
             await LoadAfter();
             ProcessAction = false;
@@ -296,14 +296,23 @@ public abstract partial class KuroGameContextViewModel
             var launcher = await GameContext.GetGameLauncherSourceAsync(null, this.CTS.Token);
             this.CurrentProgressValue = 0;
             this.MaxProgressValue = 0;
-            var localPredVersion = await GameContext.GameLocalConfig.GetConfigAsync(GameLocalSettingName.ProdDownloadVersion);
-            var localVersion = await GameContext.GameLocalConfig.GetConfigAsync(GameLocalSettingName.LocalGameVersion);
-            var doneDownload = await GameContext.GameLocalConfig.GetConfigAsync(GameLocalSettingName.ProdDownloadFolderDone);
+            var localPredVersion = await GameContext.GameLocalConfig.GetConfigAsync(
+                GameLocalSettingName.ProdDownloadVersion
+            );
+            var localVersion = await GameContext.GameLocalConfig.GetConfigAsync(
+                GameLocalSettingName.LocalGameVersion
+            );
+            var doneDownload = await GameContext.GameLocalConfig.GetConfigAsync(
+                GameLocalSettingName.ProdDownloadFolderDone
+            );
             if (launcher == null)
                 return;
-            if(launcher.ResourceDefault.Version == localPredVersion && localVersion != launcher.ResourceDefault.Version)
+            if (
+                launcher.ResourceDefault.Version == localPredVersion
+                && localVersion != launcher.ResourceDefault.Version
+            )
             {
-                if(bool.TryParse(doneDownload,out var done))
+                if (bool.TryParse(doneDownload, out var done))
                 {
                     _buttonAction = ButtonActionType.InstallPreDownload;
                     BottomBarContent = "游戏有更新";
@@ -383,13 +392,17 @@ public abstract partial class KuroGameContextViewModel
                 return;
             }
             Logger.WriteInfo($"选择游戏安装路径：{result.InstallFolder},即将进入通知核心进行下载");
-            StartBackground(() => this.GameContext.StartDownloadTaskAsync(result.InstallFolder, result.Launcher));
+            StartBackground(() =>
+                this.GameContext.StartDownloadTaskAsync(result.InstallFolder, result.Launcher)
+            );
         }
         else
         {
             Logger.WriteInfo($"继续更新触发");
             var launcher = await GameContext.GetGameLauncherSourceAsync(null, this.CTS.Token);
-            var folder = await GameContext.GameLocalConfig.GetConfigAsync(GameLocalSettingName.GameLauncherBassFolder);
+            var folder = await GameContext.GameLocalConfig.GetConfigAsync(
+                GameLocalSettingName.GameLauncherBassFolder
+            );
             StartBackground(() => this.GameContext.StartDownloadTaskAsync(folder, launcher));
         }
     }
@@ -410,7 +423,9 @@ public abstract partial class KuroGameContextViewModel
             if (File.Exists(result.InstallFolder + $"//{this.GameContext.Config.GameExeName}"))
             {
                 this.PauseIcon = "\uE769";
-                StartBackground(() => this.GameContext.StartDownloadTaskAsync(result.InstallFolder, result.Launcher));
+                StartBackground(() =>
+                    this.GameContext.StartDownloadTaskAsync(result.InstallFolder, result.Launcher)
+                );
             }
             else
             {
@@ -422,7 +437,10 @@ public abstract partial class KuroGameContextViewModel
             Logger.WriteInfo($"继续进行下载");
             var launcher = await GameContext.GetGameLauncherSourceAsync(null, this.CTS.Token);
             this.PauseIcon = "\uE769";
-            var folder = await GameContext.GameLocalConfig.GetConfigAsync(GameLocalSettingName.GameLauncherBassFolder) ?? "";
+            var folder =
+                await GameContext.GameLocalConfig.GetConfigAsync(
+                    GameLocalSettingName.GameLauncherBassFolder
+                ) ?? "";
             StartBackground(() => this.GameContext.StartDownloadTaskAsync(folder, launcher));
         }
     }
@@ -437,7 +455,7 @@ public abstract partial class KuroGameContextViewModel
         GameInstallBthVisibility = Visibility.Visible;
         GameDownloadingBthVisibility = Visibility.Collapsed;
         GameLauncherBthVisibility = Visibility.Collapsed;
-        if(status.LasterArgs==null)
+        if (status.LasterArgs == null)
             BottomBarContent = "游戏文件不存在";
     }
 
@@ -471,7 +489,7 @@ public abstract partial class KuroGameContextViewModel
     async Task RepirGame()
     {
         var state = await this.GameContext.GetGameContextStatusAsync(this.CTS.Token);
-        if(state.IsPredownloaded && state.PredownloaAcion)
+        if (state.IsPredownloaded && state.PredownloaAcion)
         {
             await TipShow.ShowMessageAsync("预下载期间禁止修复游戏！", Symbol.Clear);
             return;
@@ -479,9 +497,14 @@ public abstract partial class KuroGameContextViewModel
         if (
             (
                 await DialogManager.ShowMessageDialog(
-                    "修复游戏会将游戏缓存全部删除，保持与服务器最新文件保持一致\r\n（包含画面设置、滤镜设置、预下载等内容)",
-                    "确认修复",
-                    "取消"
+                    new ShowDialogOption()
+                    {
+                        Context =
+                            "修复游戏会将游戏缓存全部删除，保持与服务器最新文件保持一致\r\n（包含画面设置、滤镜设置、预下载等内容)",
+                        CloseText = "取消",
+                        PrimaryText = "确认修复",
+                        ShowPrimaryButton = true,
+                    }
                 )
             ) == ContentDialogResult.Primary
         )
@@ -539,8 +562,6 @@ public abstract partial class KuroGameContextViewModel
         );
     }
 
-    
-
     public abstract Task LoadAfter();
 
     public abstract void DisposeAfter();
@@ -585,7 +606,9 @@ public abstract partial class KuroGameContextViewModel
             catch (Exception ex)
             {
                 Logger.WriteError($"后台任务异常: {ex.Message}");
-                await AppContext.TryInvokeAsync(() => TipShow.ShowMessageAsync(ex.Message, Symbol.Clear));
+                await AppContext.TryInvokeAsync(() =>
+                    TipShow.ShowMessageAsync(ex.Message, Symbol.Clear)
+                );
             }
         });
     }

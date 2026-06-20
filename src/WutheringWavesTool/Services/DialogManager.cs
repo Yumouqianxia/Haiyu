@@ -8,7 +8,7 @@ namespace Haiyu.Services;
 
 public abstract class DialogManager : IDialogManager
 {
-    ContentDialog _dialog = null;
+    ContentDialog? _dialog = null;
     public XamlRoot Root { get; private set; }
 
     public void RegisterRoot(XamlRoot root)
@@ -34,6 +34,11 @@ public abstract class DialogManager : IDialogManager
 
     public async Task ShowGameResourceV2DialogAsync(string contextName)
     {
+        if(_dialog != null)
+        {
+            _dialog.Hide();
+            _dialog = null;
+        }
         var dialog = Instance.Host.Services.GetRequiredService<GameResourceDialogV2>();
         dialog.SetData(contextName);
         dialog.XamlRoot = this.Root;
@@ -45,7 +50,10 @@ public abstract class DialogManager : IDialogManager
         where T : ContentDialog, IDialog
     {
         if (_dialog != null)
-            return;
+        {
+            _dialog.Hide();
+            _dialog = null;
+        }
         var dialog = Instance.Host.Services.GetRequiredService<T>();
         dialog.XamlRoot = this.Root;
         this._dialog = dialog;
@@ -87,6 +95,7 @@ public abstract class DialogManager : IDialogManager
     {
         if (_dialog != null)
         {
+            _dialog.Hide();
             _dialog = null;
         }
         var dialog = Instance.Host.Services.GetRequiredService<T>();
@@ -153,22 +162,32 @@ public abstract class DialogManager : IDialogManager
         await GetDialogResultAsync<QRLoginDialog, QRScanResult>(null);
 
     public async Task<ContentDialogResult> ShowMessageDialog(
-        string header,
-        string content,
-        string closeText
+        ShowDialogOption option
     )
     {
+        if (_dialog != null)
+        {
+            _dialog.Hide();
+            _dialog = null;
+        }
         var dialog = new ContentDialog();
         dialog.XamlRoot = this.Root;
         dialog.Style = Application.Current.Resources["DefaultContentDialogStyle"] as Style;
-        dialog.PrimaryButtonText = content;
-        dialog.CloseButtonText = closeText;
+        if (option.ShowPrimaryButton)
+        {
+            dialog.PrimaryButtonText = option.PrimaryText;
+        }
+        else
+        {
+            dialog.IsPrimaryButtonEnabled = false;
+        }
+        dialog.CloseButtonText = option.CloseText ;
         dialog.RequestedTheme = Instance
             .Host.Services.GetRequiredService<IThemeService>()
             .CurrentTheme;
         dialog.IsSecondaryButtonEnabled = false;
         dialog.DefaultButton = ContentDialogButton.Close;
-        dialog.Content = new TextBlock() { Text = header, TextWrapping = TextWrapping.Wrap };
+        dialog.Content = new TextBlock() { Text = option.Context, TextWrapping = TextWrapping.Wrap };
         var result = await dialog.ShowAsync();
         this._dialog = null;
         return result;
@@ -185,14 +204,11 @@ public abstract class DialogManager : IDialogManager
     public async Task<ContentDialogResult> ShowOKDialogAsync(string header, string content)
     {
         ContentDialog dialog = new ContentDialog();
-
-        // XamlRoot must be set in the case of a ContentDialog running in a Desktop app
         dialog.XamlRoot = this.Root;
         dialog.Title = header;
         dialog.PrimaryButtonText = "确定";
         dialog.DefaultButton = ContentDialogButton.None;
         dialog.Content = content;
-
         var result = await dialog.ShowAsync();
         return result;
     }

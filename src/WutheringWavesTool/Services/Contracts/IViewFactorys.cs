@@ -10,9 +10,7 @@ public interface IViewFactorys
 
     public WindowModelBase ShowSignWindow(GameRoilDataItem role);
 
-    public WindowModelBase ShowRolesDataWindow(ShowRoleData detily);
 
-    public WindowModelBase ShowWavesDataCenter(GameRoilDataItem item);
 
     public TransparentWindow CreateTransperentWindow();
 

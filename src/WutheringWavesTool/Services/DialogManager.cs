@@ -23,15 +23,6 @@ public abstract class DialogManager : IDialogManager
 
     public async Task ShowLoginDialogAsync() => await ShowDialogAsync<LoginDialog>();
 
-    public async Task ShowGameResourceDialogAsync(string contextName)
-    {
-        var dialog = Instance.Host.Services.GetRequiredService<GameResourceDialog>();
-        dialog.SetData(contextName);
-        dialog.XamlRoot = this.Root;
-        this._dialog = dialog;
-        await _dialog.ShowAsync();
-    }
-
     public async Task ShowGameResourceV2DialogAsync(string contextName)
     {
         if(_dialog != null)
@@ -108,9 +99,6 @@ public abstract class DialogManager : IDialogManager
         return result;
     }
 
-    public async Task<SelectDownloadFolderResult> ShowSelectGameFolderAsync(Type type) =>
-        await GetDialogResultAsync<SelectGameFolderDialog, SelectDownloadFolderResult>(type);
-
     public async Task<SelectDownloadFolderResult> ShowSelectGameFolderV2Async(Type type) =>
         await GetDialogResultAsync<SelectGameFolderDialogV2, SelectDownloadFolderResult>(type);
 
@@ -142,9 +130,6 @@ public abstract class DialogManager : IDialogManager
 
     public async Task ShowDeleteGameResource(string contentName) =>
         await ShowDialogAsync<DeleteFileDialog>(contentName);
-
-    public async Task<SelectDownloadFolderResult> ShowSelectDownloadFolderAsync(Type type) =>
-        await GetDialogResultAsync<SelectDownoadGameDialog, SelectDownloadFolderResult>(type);
 
     public async Task<SelectDownloadFolderResult> ShowSelectDownloadFolderV2Async(Type type) =>
         await GetDialogResultAsync<SelectDownoadGameDialogV2, SelectDownloadFolderResult>(type);

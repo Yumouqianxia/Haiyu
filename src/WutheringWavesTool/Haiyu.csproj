@@ -279,9 +279,6 @@
 		<Page Update="WindowModels\KuroDataCenterWindow.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
-		<Page Update="Pages\Communitys\KuroDataCenterWindow.xaml">
-		  <Generator>MSBuild:Compile</Generator>
-		</Page>
 		<Page Update="Pages\Dialogs\GameResourceDialogV2.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>

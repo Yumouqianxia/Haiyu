@@ -1,4 +1,6 @@
-﻿namespace Haiyu.Pages.Communitys;
+using Haiyu.ViewModel.Communitys;
+
+namespace Haiyu.Pages.Communitys;
 
 public sealed partial class GamerSignPage : Page, IWindowPage
 {

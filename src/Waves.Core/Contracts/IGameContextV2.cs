@@ -7,6 +7,7 @@ public interface IGameContextV2
 
     public Task InitAsync();
     public string ContextName { get; }
+    public string DisplayName { get; }
     public string GamerConfigPath { get; internal set; }
     GameLocalConfig GameLocalConfig { get; }
 

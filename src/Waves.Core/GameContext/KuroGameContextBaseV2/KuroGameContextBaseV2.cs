@@ -78,6 +78,8 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
 
     public DownloadState? ProdDownloadState { get; private set; }
 
+    public string DisplayName { get; }
+
     /// <summary>
     /// CDN测速工具
     /// </summary>
@@ -87,11 +89,12 @@ public abstract partial class KuroGameContextBaseV2 : IGameContextV2
     private IAsyncDisposable? _currentRunningAction;
     private long _operationGeneration;
 
-    public KuroGameContextBaseV2(KuroGameApiConfig config, string contextName)
+    public KuroGameContextBaseV2(KuroGameApiConfig config, string contextName,string display)
     {
         Logger = new LoggerService();
         Config = config;
         ContextName = contextName;
+        this.DisplayName = display;
     }
 
     /// <summary>

@@ -86,6 +86,7 @@ public static class InstanceBuilderExtensions
                     )
                     .AddSingleton<AppSettings>()
                     .AddSingleton<IIoCircuitBreaker,IoCircuitBreaker>()
+                    .AddTransient<IAppActivation,AppActivation>()
                     #region XBox
                     .AddSingleton<XBoxConfig>()
                     .AddSingleton<XBoxController>()

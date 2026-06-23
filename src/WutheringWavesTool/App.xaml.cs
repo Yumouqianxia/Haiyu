@@ -1,14 +1,16 @@
+using System.Globalization;
 using Haiyu.Helpers;
 using LiveChartsCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Windows.ApplicationModel.Resources;
 using Microsoft.Windows.AppLifecycle;
-using System.Globalization;
 using Waves.Core.Services;
 using Waves.Core.Settings;
+using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Background;
 using Windows.Globalization;
 using Windows.UI.StartScreen;
+using WinRT;
 
 namespace Haiyu;
 
@@ -33,9 +35,10 @@ public partial class App : ClientApplication
         mainInstance.Activated += MainInstance_Activated;
     }
 
-    private void MainInstance_Activated(object sender, AppActivationArguments e)
+    private async void MainInstance_Activated(object sender, AppActivationArguments e)
     {
-        if (e.Kind == Microsoft.Windows.AppLifecycle.ExtendedActivationKind.File) { }
+        var active = Instance.Host.Services.GetRequiredService<IAppActivation>();
+        await active.ExecLaunchActivatedEventArgs(e);
     }
 
     void CreateFolder()

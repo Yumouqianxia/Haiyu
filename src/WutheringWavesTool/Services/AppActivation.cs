@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using Microsoft.Windows.AppLifecycle;
+using Waves.Core.Services;
 using Windows.ApplicationModel.Activation;
 using Windows.UI.StartScreen;
 using WinRT;
@@ -10,6 +11,13 @@ namespace Haiyu.Services
 {
     public sealed partial class AppActivation : IAppActivation
     {
+        public AppActivation(SystemEventPublisher systemEventPublisher)
+        {
+            SystemEventPublisher = systemEventPublisher;
+        }
+
+        public SystemEventPublisher SystemEventPublisher { get; }
+
         public async Task<JumpListItem?> CreateJumpListsAndInitCoreAsync(IGameContextV2 context)
         {
             var status = await context.GetGameContextStatusAsync();
@@ -34,10 +42,19 @@ namespace Haiyu.Services
                 {
                     var argument = launchArgs.Arguments.Split(" ");
                     var launcheArgument = argument.Last().Split("/");
-                    //快速启动游戏
                     if (launcheArgument.Length == 2 && launcheArgument[1] == "startGame")
                     {
                         var context = Instance.Host.Services.GetRequiredKeyedService<IGameContextV2>(launcheArgument[0]);
+                        var status = await context.GetGameContextStatusAsync();
+                        if (status.IsUpdate)
+                        {
+                            SystemEventPublisher.Publish(new SystemMessagerModel()
+                            {
+                                Message = "游戏有更新，无法启动",
+                                Delay = TimeSpan.FromSeconds(30).TotalSeconds
+                            });
+                            return;
+                        }
                         await context.StartGameAsync();
                     }
                 }

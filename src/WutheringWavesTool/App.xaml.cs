@@ -8,6 +8,7 @@ using Waves.Core.Services;
 using Waves.Core.Settings;
 using Windows.ApplicationModel.Background;
 using Windows.Globalization;
+using Windows.UI.StartScreen;
 
 namespace Haiyu;
 

@@ -1,4 +1,4 @@
-namespace Haiyu.Controls.Controls;
+namespace Haiyu.Controls;
 
 public sealed partial class GameSelectionCard : UserControl
 {

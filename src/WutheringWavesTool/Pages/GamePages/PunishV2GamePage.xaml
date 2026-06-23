@@ -1079,7 +1079,10 @@
                             ItemsSource="{x:Bind ViewModel.SlideShows, Mode=OneWay}"
                             Style="{ThemeResource DefaultFlipViewStyle}">
                             <i:Interaction.Behaviors>
-                                <bs:FilpViewAutoPlayBehavior IsPlay="True" Duration="0:0:8" />
+                                <bs:FilpViewAutoPlayBehavior
+                                    x:Name="filpViewAutoPlay"
+                                    IsPlay="True"
+                                    Duration="0:0:8" />
                             </i:Interaction.Behaviors>
                             <FlipView.ItemTemplate>
                                 <DataTemplate x:DataType="launcheModel:Slideshow">

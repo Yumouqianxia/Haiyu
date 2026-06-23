@@ -1,4 +1,4 @@
-﻿using Haiyu.ViewModel.GameViewModels.GameContexts;
+using Haiyu.ViewModel.GameViewModels.GameContexts;
 
 namespace Haiyu.Pages.GamePages;
 
@@ -30,5 +30,13 @@ public sealed partial class WavesV2GamePage : Page,IPage
     private void Button_Click(object sender, RoutedEventArgs e)
     {
         switcher.Switch();
+        if (switcher.CurrentIndex == 1)
+        {
+            filpViewAutoPlay.IsPlay = true;
+        }
+        else
+        {
+            filpViewAutoPlay.IsPlay = false;
+        }
     }
 }

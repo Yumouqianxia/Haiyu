@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -119,11 +119,13 @@ namespace Haiyu.Controls
             {
                 Canvas.SetZIndex(CardFront, 1);
                 Canvas.SetZIndex(CardBack, -1);
+                this.CurrentIndex = 1;
             }
             else
             {
                 Canvas.SetZIndex(CardFront, -1);
                 Canvas.SetZIndex(CardBack, 1);
+                this.CurrentIndex = 2;
             }
         }
 
@@ -132,6 +134,8 @@ namespace Haiyu.Controls
             get { return (int)GetValue(StartCardIndexProperty); }
             set { SetValue(StartCardIndexProperty, value); }
         }
+
+        public int CurrentIndex { get; set; }
 
         public static readonly DependencyProperty StartCardIndexProperty =
             DependencyProperty.Register(nameof(StartCardIndex), typeof(int), typeof(CardSwitcher), new PropertyMetadata(0,OnStartIndexChanged));

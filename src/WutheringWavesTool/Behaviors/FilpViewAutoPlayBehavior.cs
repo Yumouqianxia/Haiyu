@@ -1,4 +1,4 @@
-﻿namespace Haiyu.Behaviors;
+namespace Haiyu.Behaviors;
 
 public sealed class FilpViewAutoPlayBehavior : Behavior<FlipView>
 {
@@ -63,6 +63,8 @@ public sealed class FilpViewAutoPlayBehavior : Behavior<FlipView>
 
     private void Timer_Tick(object? sender, object e)
     {
+        if (!IsPlay)
+            return;
         var max = this.AssociatedObject.Items.Count - 1;
         var index = this.AssociatedObject.SelectedIndex;
         if (index == max)

@@ -74,7 +74,7 @@ public static class GameContextFactory
         };
     #endregion
 
-    public static IReadOnlyCollection<string> GetAllContextName() =>
+    public static IReadOnlyCollection<string> GetAllLocalContextName() =>
         [
             nameof(WavesBiliBiliGameContextV2),
             nameof(WavesGlobalGameContextV2),
@@ -83,5 +83,9 @@ public static class GameContextFactory
             nameof(PunishGlobalGameContextV2),
             nameof(PunishMainGameContextV2),
             nameof(PunishTwGameContextV2),
+        ];
+
+    public static IReadOnlyCollection<string> GetAllCloudContextName() => [
+        nameof(KuroCloudGameContext)
         ];
 }

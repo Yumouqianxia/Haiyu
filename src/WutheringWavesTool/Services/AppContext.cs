@@ -111,6 +111,7 @@ public class AppContext<T> : IAppContext<T>
             this.App.MainWindow.Activate();
             (win.AppWindow.Presenter as OverlappedPresenter)!.SetBorderAndTitleBar(true, false);
             this.App.MainWindow.AppWindow.Closing += AppWindow_Closing;
+            await InitGameCoreAsync();
             await CreateJumpListAsync();
         }
         catch (Exception ex)
@@ -134,16 +135,28 @@ public class AppContext<T> : IAppContext<T>
         }
     }
 
+    private async Task InitGameCoreAsync()
+    {
+        foreach (var item in GameContextFactory.GetAllLocalContextName())
+        {
+            var context = Instance.Host.Services.GetRequiredKeyedService<IGameContextV2>(item);
+            await context.InitAsync();
+        }
+        foreach (var item in GameContextFactory.GetAllCloudContextName())
+        {
+            var context = Instance.Host.Services.GetRequiredKeyedService<IKuroCloudGameContext>(item);
+            await context.InitAsync();
+        }
+    }
+
     private async Task CreateJumpListAsync()
     {
         var jumpList = await JumpList.LoadCurrentAsync();
         #region 鸣潮
         jumpList.Items.Clear();
-        await jumpList.SaveAsync();
-        foreach (var item in GameContextFactory.GetAllContextName())
+        foreach (var item in GameContextFactory.GetAllLocalContextName())
         {
             var context = Instance.Host.Services.GetRequiredKeyedService<IGameContextV2>(item);
-            await context.InitAsync();
             var jumpItem = await AppActivation.CreateJumpListsAndInitCoreAsync(context);
             if(jumpItem != null)
             {

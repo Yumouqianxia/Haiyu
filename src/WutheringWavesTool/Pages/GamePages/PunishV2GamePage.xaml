@@ -755,17 +755,20 @@
                         Opacity="1">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
-                            <RowDefinition Height="auto" />
-                            <RowDefinition />
-                            <RowDefinition />
+                            <RowDefinition Height="*" />
                         </Grid.RowDefinitions>
                         <SystemBackdropElement Grid.RowSpan="8" CornerRadius="5">
                             <SystemBackdropElement.SystemBackdrop>
                                 <DesktopAcrylicBackdrop />
                             </SystemBackdropElement.SystemBackdrop>
                         </SystemBackdropElement>
+                        <TextBlock
+                            Margin="15,5,0,0"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Center"
+                            FontFamily="{ThemeResource DefaultFont}"
+                            FontSize="16"
+                            Text="{x:Bind ViewModel.LocalUserTitle, Mode=OneWay}" />
                         <StackPanel
                             Margin="0,5,5,0"
                             HorizontalAlignment="Right"
@@ -783,90 +786,131 @@
                                     Glyph="&#xE8AB;" />
                             </Button>
                         </StackPanel>
-                        <TextBlock
-                            Margin="15,5,0,0"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Center"
-                            FontFamily="{ThemeResource DefaultFont}"
-                            FontSize="16"
-                            Text="{x:Bind ViewModel.LocalUserTitle, Mode=OneWay}" />
 
-                        <NavigationViewItemSeparator Grid.Row="1" />
-
-
-                        <Grid
-                            Grid.Row="2"
-                            Margin="15,10,15,10"
-                            ColumnSpacing="4"
-                            RowSpacing="4"
-                            Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition />
-                                <ColumnDefinition Width="auto" />
-                            </Grid.ColumnDefinitions>
-                            <TextBlock
-                                Margin="0,0,0,0"
-                                HorizontalAlignment="Left"
-                                FontFamily="{ThemeResource DefaultFont}">
-                                <Run Text="等级" />
-                                <Run Text="{x:Bind ViewModel.GameItem.PlayerLevel, Mode=OneWay}" />
-                            </TextBlock>
-                            <TextBlock
-                                Grid.Column="1"
-                                Margin="0,0,5,0"
-                                HorizontalAlignment="Right"
-                                FontFamily="{ThemeResource DefaultFont}">
-                                <Run Text="识别码:" />
-                                <Run Text="{x:Bind ViewModel.GameItem.RoleId, Mode=OneWay}" />
-                            </TextBlock>
-                            <Button
-                                Grid.Column="2"
-                                Padding="3"
-                                VerticalAlignment="Center"
-                                Command="{x:Bind ViewModel.CopyGameItemIdCommand}">
-                                <FontIcon
-                                    FontFamily="Segoe Fluent Icons"
-                                    FontSize="10"
-                                    Glyph="&#xE8C8;" />
-                            </Button>
-                        </Grid>
-                        <NavigationViewItemSeparator Grid.Row="3" Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}" />
-                        <Grid
-                            Grid.Row="4"
-                            Margin="0,10,0,0"
-                            Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}">
+                        <Grid Grid.Row="1">
                             <Grid.RowDefinitions>
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
+                                <RowDefinition Height="auto" />
                                 <RowDefinition />
                                 <RowDefinition />
                             </Grid.RowDefinitions>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition />
-                                <ColumnDefinition />
-                            </Grid.ColumnDefinitions>
+                            <NavigationViewItemSeparator Grid.Row="1" />
                             <Grid
-                                Grid.Row="0"
-                                Grid.Column="0"
-                                BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
-                                CornerRadius="8">
-
+                                Grid.Row="2"
+                                Margin="15,10,15,10"
+                                ColumnSpacing="4"
+                                RowSpacing="4"
+                                Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition />
+                                    <ColumnDefinition />
+                                    <ColumnDefinition Width="auto" />
+                                </Grid.ColumnDefinitions>
+                                <TextBlock
+                                    Margin="0,0,0,0"
+                                    HorizontalAlignment="Left"
+                                    FontFamily="{ThemeResource DefaultFont}">
+                                    <Run Text="等级" />
+                                    <Run Text="{x:Bind ViewModel.GameItem.PlayerLevel, Mode=OneWay}" />
+                                </TextBlock>
+                                <TextBlock
+                                    Grid.Column="1"
+                                    Margin="0,0,5,0"
+                                    HorizontalAlignment="Right"
+                                    FontFamily="{ThemeResource DefaultFont}">
+                                    <Run Text="识别码:" />
+                                    <Run Text="{x:Bind ViewModel.GameItem.RoleId, Mode=OneWay}" />
+                                </TextBlock>
+                                <Button
+                                    Grid.Column="2"
+                                    Padding="3"
+                                    VerticalAlignment="Center"
+                                    Command="{x:Bind ViewModel.CopyGameItemIdCommand}">
+                                    <FontIcon
+                                        FontFamily="Segoe Fluent Icons"
+                                        FontSize="10"
+                                        Glyph="&#xE8C8;" />
+                                </Button>
+                            </Grid>
+                            <NavigationViewItemSeparator Grid.Row="3" Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}" />
+                            <Grid
+                                Grid.Row="4"
+                                Margin="0,10,0,0"
+                                Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}">
                                 <Grid.RowDefinitions>
+                                    <RowDefinition />
                                     <RowDefinition />
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto" />
+                                    <ColumnDefinition />
                                     <ColumnDefinition />
                                 </Grid.ColumnDefinitions>
-                                <control:ImageEx
-                                    Grid.RowSpan="2"
-                                    Width="30"
-                                    Height="30"
-                                    Margin="15,0,0,0"
-                                    Source="Assets/GameAssets/Punish/stats-item-1-eb0f9193.png" />
-                                <StackPanel
-                                    Grid.Column="1"
-                                    VerticalAlignment="Center"
-                                    Orientation="Vertical">
+                                <Grid
+                                    Grid.Row="0"
+                                    Grid.Column="0"
+                                    BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                                    CornerRadius="8">
+
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <control:ImageEx
+                                        Grid.RowSpan="2"
+                                        Width="30"
+                                        Height="30"
+                                        Margin="15,0,0,0"
+                                        Source="Assets/GameAssets/Punish/stats-item-1-eb0f9193.png" />
+                                    <StackPanel
+                                        Grid.Column="1"
+                                        VerticalAlignment="Center"
+                                        Orientation="Vertical">
+                                        <TextBlock
+                                            Grid.Column="1"
+                                            Margin="4,0,0,0"
+                                            HorizontalAlignment="Left"
+                                            VerticalAlignment="Center"
+                                            FontFamily="{ThemeResource DefaultFont}">
+                                            <Run
+                                                FontSize="17"
+                                                Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                                Text="{x:Bind ViewModel.GameItem.ActionPoint, Mode=OneWay}" />
+                                            <Run Text="/" />
+                                            <Run FontSize="14" Text="{x:Bind ViewModel.GameItem.ActionPointTotal, Mode=OneWay}" />
+                                        </TextBlock>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock
+                                                Margin="3,0,0,0"
+                                                HorizontalAlignment="Left"
+                                                VerticalAlignment="Center"
+                                                FontFamily="{ThemeResource DefaultFont}"
+                                                FontSize="12">
+                                                <Run Text="{x:Bind ViewModel.GameItem.ActionPointNextExpiredEndTime, Mode=OneWay}" />
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Grid.Column="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <control:ImageEx
+                                        Grid.RowSpan="2"
+                                        Width="30"
+                                        Height="30"
+                                        Margin="15,0,0,0"
+                                        Source="Assets/GameAssets/Punish/stats-item-2.png" />
                                     <TextBlock
                                         Grid.Column="1"
                                         Margin="4,0,0,0"
@@ -874,172 +918,133 @@
                                         VerticalAlignment="Center"
                                         FontFamily="{ThemeResource DefaultFont}">
                                         <Run
-                                            FontSize="17"
+                                            FontSize="15"
                                             Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                            Text="{x:Bind ViewModel.GameItem.ActionPoint, Mode=OneWay}" />
+                                            Text="{x:Bind ViewModel.GameItem.Activeness, Mode=OneWay}" />
                                         <Run Text="/" />
-                                        <Run FontSize="14" Text="{x:Bind ViewModel.GameItem.ActionPointTotal, Mode=OneWay}" />
+                                        <Run FontSize="12" Text="{x:Bind ViewModel.GameItem.ActivenessTotal, Mode=OneWay}" />
                                     </TextBlock>
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Orientation="Horizontal">
+                                        <FontIcon
+                                            Margin="4,0,0,0"
+                                            VerticalAlignment="Center"
+                                            FontFamily="Segoe Fluent Icons"
+                                            FontSize="12"
+                                            Glyph="&#xE72E;"
+                                            Visibility="{x:Bind ViewModel.GameItem.ActivenessUnlocked, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}" />
+                                    </StackPanel>
+                                </Grid>
+
+                                <Grid Grid.Row="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <control:ImageEx
+                                        Grid.RowSpan="2"
+                                        Width="30"
+                                        Height="30"
+                                        Margin="15,0,0,0"
+                                        Source="Assets/GameAssets/Punish/stats-item-3-8be0b58b.png" />
+                                    <TextBlock
+                                        Grid.Column="1"
+                                        Margin="4,0,0,0"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center"
+                                        FontFamily="{ThemeResource DefaultFont}">
+                                        <Run
+                                            FontSize="15"
+                                            Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                            Text="{x:Bind ViewModel.GameItem.BossSingleRewardCount, Mode=OneWay}" />
+                                        <Run Text="/" />
+                                        <Run FontSize="12" Text="{x:Bind ViewModel.GameItem.BossSingleRewardCountTotal, Mode=OneWay}" />
+                                    </TextBlock>
+                                    <StackPanel
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Margin="4,0,0,0"
+                                        Orientation="Horizontal">
                                         <TextBlock
-                                            Margin="3,0,0,0"
+                                            Margin="0,0,0,0"
                                             HorizontalAlignment="Left"
                                             VerticalAlignment="Center"
                                             FontFamily="{ThemeResource DefaultFont}"
-                                            FontSize="12">
-                                            <Run Text="{x:Bind ViewModel.GameItem.ActionPointNextExpiredEndTime, Mode=OneWay}" />
+                                            FontSize="12"
+                                            Visibility="{x:Bind ViewModel.GameItem.BossSingleUnlocked, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
+                                            <Run Text="{x:Bind ViewModel.GameItem.BossSingleEndtimeText, Mode=OneWay}" />
                                         </TextBlock>
+                                        <FontIcon
+                                            Margin="4,0,0,0"
+                                            VerticalAlignment="Center"
+                                            FontFamily="Segoe Fluent Icons"
+                                            FontSize="12"
+                                            Glyph="&#xE72E;"
+                                            Visibility="{x:Bind ViewModel.GameItem.BossSingleUnlocked, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}" />
                                     </StackPanel>
-                                </StackPanel>
-                            </Grid>
+                                </Grid>
 
-                            <Grid Grid.Column="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto" />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <control:ImageEx
-                                    Grid.RowSpan="2"
-                                    Width="30"
-                                    Height="30"
-                                    Margin="15,0,0,0"
-                                    Source="Assets/GameAssets/Punish/stats-item-2.png" />
-                                <TextBlock
-                                    Grid.Column="1"
-                                    Margin="4,0,0,0"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    FontFamily="{ThemeResource DefaultFont}">
-                                    <Run
-                                        FontSize="15"
-                                        Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                        Text="{x:Bind ViewModel.GameItem.Activeness, Mode=OneWay}" />
-                                    <Run Text="/" />
-                                    <Run FontSize="12" Text="{x:Bind ViewModel.GameItem.ActivenessTotal, Mode=OneWay}" />
-                                </TextBlock>
-                                <StackPanel
-                                    Grid.Row="1"
-                                    Grid.Column="1"
-                                    Orientation="Horizontal">
-                                    <FontIcon
-                                        Margin="4,0,0,0"
-                                        VerticalAlignment="Center"
-                                        FontFamily="Segoe Fluent Icons"
-                                        FontSize="12"
-                                        Glyph="&#xE72E;"
-                                        Visibility="{x:Bind ViewModel.GameItem.ActivenessUnlocked, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}" />
-                                </StackPanel>
-                            </Grid>
-
-                            <Grid Grid.Row="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto" />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <control:ImageEx
-                                    Grid.RowSpan="2"
-                                    Width="30"
-                                    Height="30"
-                                    Margin="15,0,0,0"
-                                    Source="Assets/GameAssets/Punish/stats-item-3-8be0b58b.png" />
-                                <TextBlock
-                                    Grid.Column="1"
-                                    Margin="4,0,0,0"
-                                    HorizontalAlignment="Left"
-                                    VerticalAlignment="Center"
-                                    FontFamily="{ThemeResource DefaultFont}">
-                                    <Run
-                                        FontSize="15"
-                                        Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                        Text="{x:Bind ViewModel.GameItem.BossSingleRewardCount, Mode=OneWay}" />
-                                    <Run Text="/" />
-                                    <Run FontSize="12" Text="{x:Bind ViewModel.GameItem.BossSingleRewardCountTotal, Mode=OneWay}" />
-                                </TextBlock>
-                                <StackPanel
-                                    Grid.Row="1"
-                                    Grid.Column="1"
-                                    Margin="4,0,0,0"
-                                    Orientation="Horizontal">
+                                <Grid Grid.Row="1" Grid.Column="1">
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition />
+                                        <RowDefinition />
+                                    </Grid.RowDefinitions>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="auto" />
+                                        <ColumnDefinition />
+                                    </Grid.ColumnDefinitions>
+                                    <control:ImageEx
+                                        Grid.RowSpan="2"
+                                        Width="30"
+                                        Height="30"
+                                        Margin="15,0,0,0"
+                                        Source="Assets/GameAssets/Punish/stats-item-4-0075a871.png" />
                                     <TextBlock
-                                        Margin="0,0,0,0"
+                                        Grid.Column="1"
+                                        Margin="4,0,0,0"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Center"
-                                        FontFamily="{ThemeResource DefaultFont}"
-                                        FontSize="12"
-                                        Visibility="{x:Bind ViewModel.GameItem.BossSingleUnlocked, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <Run Text="{x:Bind ViewModel.GameItem.BossSingleEndtimeText, Mode=OneWay}" />
+                                        FontFamily="{ThemeResource DefaultFont}">
+                                        <Run
+                                            FontSize="15"
+                                            Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
+                                            Text="{x:Bind ViewModel.GameItem.ArenaRewardCount, Mode=OneWay}" />
+                                        <Run Text="/" />
+                                        <Run FontSize="12" Text="{x:Bind ViewModel.GameItem.ArenaRewardCountTotal, Mode=OneWay}" />
                                     </TextBlock>
-                                    <FontIcon
-                                        Margin="4,0,0,0"
-                                        VerticalAlignment="Center"
-                                        FontFamily="Segoe Fluent Icons"
-                                        FontSize="12"
-                                        Glyph="&#xE72E;"
-                                        Visibility="{x:Bind ViewModel.GameItem.BossSingleUnlocked, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}" />
-                                </StackPanel>
-                            </Grid>
+                                    <StackPanel
+                                        Grid.Row="1"
+                                        Grid.Column="1"
+                                        Orientation="Horizontal">
 
-                            <Grid Grid.Row="1" Grid.Column="1">
-                                <Grid.RowDefinitions>
-                                    <RowDefinition />
-                                    <RowDefinition />
-                                </Grid.RowDefinitions>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="auto" />
-                                    <ColumnDefinition />
-                                </Grid.ColumnDefinitions>
-                                <control:ImageEx
-                                    Grid.RowSpan="2"
-                                    Width="30"
-                                    Height="30"
-                                    Margin="15,0,0,0"
-                                    Source="Assets/GameAssets/Punish/stats-item-4-0075a871.png" />
+                                        <FontIcon
+                                            VerticalAlignment="Center"
+                                            FontFamily="Segoe Fluent Icons"
+                                            FontSize="12"
+                                            Glyph="&#xE72E;"
+                                            Visibility="{x:Bind ViewModel.GameItem.ArenaUnlocked, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}" />
+                                    </StackPanel>
+                                </Grid>
+                            </Grid>
+                            <Grid
+                                Grid.Row="5"
+                                Margin="10"
+                                Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                                CornerRadius="5"
+                                Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}">
+
                                 <TextBlock
-                                    Grid.Column="1"
-                                    Margin="4,0,0,0"
-                                    HorizontalAlignment="Left"
+                                    HorizontalAlignment="Center"
                                     VerticalAlignment="Center"
-                                    FontFamily="{ThemeResource DefaultFont}">
-                                    <Run
-                                        FontSize="15"
-                                        Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                                        Text="{x:Bind ViewModel.GameItem.ArenaRewardCount, Mode=OneWay}" />
-                                    <Run Text="/" />
-                                    <Run FontSize="12" Text="{x:Bind ViewModel.GameItem.ArenaRewardCountTotal, Mode=OneWay}" />
-                                </TextBlock>
-                                <StackPanel
-                                    Grid.Row="1"
-                                    Grid.Column="1"
-                                    Orientation="Horizontal">
-
-                                    <FontIcon
-                                        VerticalAlignment="Center"
-                                        FontFamily="Segoe Fluent Icons"
-                                        FontSize="12"
-                                        Glyph="&#xE72E;"
-                                        Visibility="{x:Bind ViewModel.GameItem.ArenaUnlocked, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}" />
-                                </StackPanel>
+                                    FontFamily="{ThemeResource DefaultFont}"
+                                    Text="敬请期待" />
                             </Grid>
-                        </Grid>
-                        <Grid
-                            Grid.Row="5"
-                            Margin="10"
-                            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-                            CornerRadius="5"
-                            Visibility="{x:Bind ViewModel.IsLocalUserRefresh, Mode=OneWay, Converter={StaticResource BoolToVisibilityReversalConverter}}">
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                FontFamily="{ThemeResource DefaultFont}"
-                                Text="敬请期待" />
                         </Grid>
                         <ProgressRing
                             Grid.Row="2"
@@ -1074,7 +1079,10 @@
                             ItemsSource="{x:Bind ViewModel.SlideShows, Mode=OneWay}"
                             Style="{ThemeResource DefaultFlipViewStyle}">
                             <i:Interaction.Behaviors>
-                                <bs:FilpViewAutoPlayBehavior IsPlay="True" Duration="0:0:8" />
+                                <bs:FilpViewAutoPlayBehavior
+                                    x:Name="filpViewAutoPlay"
+                                    IsPlay="True"
+                                    Duration="0:0:8" />
                             </i:Interaction.Behaviors>
                             <FlipView.ItemTemplate>
                                 <DataTemplate x:DataType="launcheModel:Slideshow">

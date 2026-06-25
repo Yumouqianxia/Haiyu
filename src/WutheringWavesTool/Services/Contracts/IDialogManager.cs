@@ -12,15 +12,12 @@ public interface IDialogManager
     public void SetDialog(ContentDialog contentDialog);
     public void RegisterRoot(XamlRoot root);
     public Task ShowLoginDialogAsync();
-    public Task ShowGameResourceDialogAsync(string contextName);
     public Task<Result> GetDialogResultAsync<T, Result>(object? data)
         where T : ContentDialog, IResultDialog<Result>, new()
         where Result : new();
     public Task ShowLocalUserManagerAsync();
     public Task ShowUpdateDialog(DisplayVersionInfo info);
-    public Task<SelectDownloadFolderResult> ShowSelectGameFolderAsync(Type type);
     public Task<SelectDownloadFolderResult> ShowSelectGameFolderV2Async(Type type);
-    public Task<SelectDownloadFolderResult> ShowSelectDownloadFolderAsync(Type type);
     public Task<SelectDownloadFolderResult> ShowSelectDownloadFolderV2Async(Type type);
     public Task<CloseWindowResult> ShowCloseWindowResult();
     public Task<QRScanResult> GetQRLoginResultAsync();
@@ -32,7 +29,7 @@ public interface IDialogManager
     public Task ShowDeleteGameResource(string contentName);
     public void CloseDialog();
 
-    public Task<ContentDialogResult> ShowMessageDialog(string header, string content, string closeText);
+    public Task<ContentDialogResult> ShowMessageDialog(ShowDialogOption option);
     Task ShowWebGameDialogAsync();
 
     Task ShowGameLauncherChacheDialogAsync(GameLauncherCacheArgs args);

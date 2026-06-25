@@ -8,44 +8,16 @@ namespace Waves.Core.GameContext
         )
         {
             var cacheConfig = apiConfig ?? this.Config;
-            var url = "";
+            var address = GetLauncherHeaderUrl();
+            var url = $"{address}/launcher/game/{cacheConfig.GameID}/{cacheConfig.AppId}_{cacheConfig.AppKey}/index.json?_t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
             try
             {
-                if (this.ContextName == nameof(PunishGlobalGameContextV2)
-                    || this.ContextName == nameof(PunishTwGameContextV2)
-                || this.ContextName == nameof(WavesGlobalGameContextV2)
-                )
-                {
-                    url =
-                        $"{KuroGameApiConfig.BaseAddress[1]}/launcher/game/{cacheConfig.GameID}/{cacheConfig.AppId}_{cacheConfig.AppKey}/index.json?_t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
-                }
-                else
-                {
-                    url =
-                        $"{KuroGameApiConfig.BaseAddress[0]}/launcher/game/{cacheConfig.GameID}/{cacheConfig.AppId}_{cacheConfig.AppKey}/index.json?_t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
-                }
+               
                 var result = await HttpClientService.HttpClient.GetAsync(url);
                 var jsonStr = await result.Content.ReadAsStringAsync();
-                var laucherIndex =  await result.Content.ReadFromJsonAsync<GameLauncherSource>(
+                var laucherIndex = await result.Content.ReadFromJsonAsync<GameLauncherSource>(
                     GameLauncherSourceContext.Default.GameLauncherSource
                 );
-               
-                #region 测试
-                //launcherIndex.Predownload = new Predownload()
-                //{
-                //    Changelog = launcherIndex.ResourceDefault.Changelog,
-                //    Config = launcherIndex.ResourceDefault.Config,
-                //    Resources = launcherIndex.ResourceDefault.Resources,
-                //    ResourcesBasePath = launcherIndex.ResourceDefault.ResourcesBasePath,
-                //    ResourcesDiff = launcherIndex.ResourceDefault.ResourcesDiff,
-                //    ResourcesExcludePath = launcherIndex.ResourceDefault.ResourcesExcludePath,
-                //    ResourcesExcludePathNeedUpdate = launcherIndex
-                //        .ResourceDefault
-                //        .ResourcesExcludePathNeedUpdate,
-                //    SampleHashSwitch = launcherIndex.ResourceDefault.SampleHashSwitch,
-                //    Version = launcherIndex.ResourceDefault.Version,
-                //};
-                #endregion
                 return laucherIndex;
             }
             catch (Exception ex)
@@ -65,10 +37,12 @@ namespace Waves.Core.GameContext
                 ResourceDefault.CdnList.Where(x => x.P != 0).OrderBy(x => x.P).First().Url
                 + ResourceDefault.Config.IndexFile;
             var result = await HttpClientService.HttpClient.GetAsync(resourceIndexUrl, token);
-            return result.Content.ReadFromJsonAsync<IndexGameResource>(
-                IndexGameResourceContext.Default.IndexGameResource,
-                token
-            ).Result;
+            return result
+                .Content.ReadFromJsonAsync<IndexGameResource>(
+                    IndexGameResourceContext.Default.IndexGameResource,
+                    token
+                )
+                .Result;
         }
 
         public async Task<PatchIndexGameResource?> GetPatchGameResourceAsync(
@@ -80,10 +54,12 @@ namespace Waves.Core.GameContext
             {
                 var result = await HttpClientService.HttpClient.GetAsync(url, token);
                 result.EnsureSuccessStatusCode();
-                return result.Content.ReadFromJsonAsync<PatchIndexGameResource>(
-                    PathIndexGameResourceContext.Default.PatchIndexGameResource,
-                    token
-                ).Result;
+                return result
+                    .Content.ReadFromJsonAsync<PatchIndexGameResource>(
+                        PathIndexGameResourceContext.Default.PatchIndexGameResource,
+                        token
+                    )
+                    .Result;
             }
             catch (Exception ex)
             {
@@ -97,28 +73,17 @@ namespace Waves.Core.GameContext
             CancellationToken token = default
         )
         {
-            string url = "";
+            var address = GetLauncherHeaderUrl();
+            string url = $"{address}/launcher/{this.Config.AppId}_{this.Config.AppKey}/{this.Config.GameID}/information/{this.Config.Language}.json?_t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
             try
             {
-                if ( this.ContextName == nameof(PunishGlobalGameContextV2)
-                    || this.ContextName == nameof(PunishTwGameContextV2)
-                || this.ContextName == nameof(WavesGlobalGameContextV2)
-                )
-                {
-                    url =
-                        $"{KuroGameApiConfig.BaseAddress[1]}/launcher/{this.Config.AppId}_{this.Config.AppKey}/{this.Config.GameID}/information/{this.Config.Language}.json?_t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
-                }
-                else
-                {
-                    url =
-                        $"{KuroGameApiConfig.BaseAddress[0]}/launcher/{this.Config.AppId}_{this.Config.AppKey}/{this.Config.GameID}/information/{this.Config.Language}.json?_t={DateTimeOffset.UtcNow.ToUnixTimeSeconds()}";
-                }
+                
                 var result = await HttpClientService.HttpClient.GetAsync(url, token);
                 result.EnsureSuccessStatusCode();
-                return result.Content.ReadFromJsonAsync<GameLauncherStarter>(
+                return await result.Content.ReadFromJsonAsync<GameLauncherStarter>(
                     GameLauncherStarterContext.Default.GameLauncherStarter,
                     token
-                ).Result;
+                );
             }
             catch (Exception ex)
             {
@@ -132,20 +97,9 @@ namespace Waves.Core.GameContext
             CancellationToken token = default
         )
         {
-            string url = "";
-            if ( this.ContextName == nameof(PunishGlobalGameContextV2)
-                || this.ContextName == nameof(PunishTwGameContextV2)
-                || this.ContextName == nameof(WavesGlobalGameContextV2)
-            )
-            {
-                url =
-                    $"{KuroGameApiConfig.BaseAddress[1]}/launcher/launcher/{this.Config.AppId}_{this.Config.AppKey}/{this.Config.GameID}/index.json";
-            }
-            else
-            {
-                url =
-                    $"{KuroGameApiConfig.BaseAddress[0]}/launcher/launcher/{this.Config.AppId}_{this.Config.AppKey}/{this.Config.GameID}/index.json";
-            }
+            var address = GetLauncherHeaderUrl();
+            string url = $"{address}/launcher/launcher/{this.Config.AppId}_{this.Config.AppKey}/{this.Config.GameID}/index.json";
+            
             var result = await HttpClientService.HttpClient.GetAsync(url, token);
             result.EnsureSuccessStatusCode();
             return await result.Content.ReadFromJsonAsync<LIndex>(
@@ -159,19 +113,10 @@ namespace Waves.Core.GameContext
             CancellationToken token = default
         )
         {
-            var address = "";
-            if (this.ContextName == nameof(PunishGlobalGameContextV2)
-                || this.ContextName == nameof(PunishTwGameContextV2)
-                || this.ContextName == nameof(WavesGlobalGameContextV2)
-            )
-            {
-                address = $"{KuroGameApiConfig.BaseAddress[1]}";
-            }
-            else
-            {
-                address = $"{KuroGameApiConfig.BaseAddress[0]}";
-            }
-            address +=
+
+            var address = GetLauncherHeaderUrl();
+            
+             address +=
                 $"/launcher/{this.Config.AppId}_{this.Config.AppKey}/{this.Config.GameID}/background/{backgroundCode}/{this.Config.Language}.json";
             var result = await HttpClientService.HttpClient.GetAsync(address, token);
             result.EnsureSuccessStatusCode();
@@ -179,6 +124,28 @@ namespace Waves.Core.GameContext
                 LauncherConfig.Default.LauncherBackgroundData,
                 token
             );
+        }
+
+        private string GetLauncherHeaderUrl()
+        {
+            if (
+                this.ContextName == nameof(PunishGlobalGameContextV2)
+                || this.ContextName == nameof(PunishTwGameContextV2)
+                || this.ContextName == nameof(WavesGlobalGameContextV2)
+            )
+            {
+                return $"{KuroGameApiConfig.BaseAddress[1]}";
+            }
+            else
+            {
+                return $"{KuroGameApiConfig.BaseAddress[0]}";
+            }
+        }
+
+        public virtual async Task<LauncherHeader?> GetLauncherHeaderAsync(
+            CancellationToken token = default)
+        {
+            return new();
         }
     }
 }

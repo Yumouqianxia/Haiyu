@@ -13,7 +13,7 @@ public class SettingBase
         _settingsCache = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
     }
 
-    internal virtual string? Read([CallerMemberName] string key = null)
+    internal virtual string? Read([CallerMemberName] string key = null,string? defaultValue = null)
     {
         if (string.IsNullOrWhiteSpace(key)) return null;
 
@@ -23,8 +23,11 @@ public class SettingBase
         {
             lock (_lockObj)
             {
-                _settingsCache.TryGetValue(key, out var value);
-                return value;
+                if(_settingsCache.TryGetValue(key, out var value))
+                {
+                    return value;
+                }
+                return defaultValue;
             }
         }
         catch (Exception)

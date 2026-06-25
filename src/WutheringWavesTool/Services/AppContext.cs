@@ -8,6 +8,7 @@ using Waves.Core.GameContext.ContextsV2.Punish;
 using Waves.Core.GameContext.ContextsV2.Waves;
 using Waves.Core.Services;
 using Waves.Core.Settings;
+using Windows.UI.StartScreen;
 using TitleBar = Haiyu.Controls.TitleBar;
 
 namespace Haiyu.Services;
@@ -20,7 +21,8 @@ public class AppContext<T> : IAppContext<T>
         IWallpaperService wallpaperService,
         [FromKeyedServices(nameof(MainDialogService))] IDialogManager dialogManager,
         [FromKeyedServices("AppLog")] LoggerService loggerService,
-        AppSettings appSettings
+        AppSettings appSettings,
+        IAppActivation appActivation
     )
     {
         KuroClient = wavesClient;
@@ -28,6 +30,7 @@ public class AppContext<T> : IAppContext<T>
         DialogManager = dialogManager;
         LoggerService = loggerService;
         AppSettings = appSettings;
+        AppActivation = appActivation;
     }
 
     private ContentDialog _dialog;
@@ -39,6 +42,7 @@ public class AppContext<T> : IAppContext<T>
     public IDialogManager DialogManager { get; }
     public LoggerService LoggerService { get; }
     public AppSettings AppSettings { get; }
+    public IAppActivation AppActivation { get; }
 
     public async Task LauncherAsync(T app)
     {
@@ -99,6 +103,7 @@ public class AppContext<T> : IAppContext<T>
                 var page = Instance.Host.Services!.GetRequiredService<ShellPage>();
                 page.titlebar.Window = win;
                 win.Content = page;
+
             }
             catch (Exception ex) { }
 
@@ -106,7 +111,8 @@ public class AppContext<T> : IAppContext<T>
             this.App.MainWindow.Activate();
             (win.AppWindow.Presenter as OverlappedPresenter)!.SetBorderAndTitleBar(true, false);
             this.App.MainWindow.AppWindow.Closing += AppWindow_Closing;
-            await InitCoreAsync();
+            await InitGameCoreAsync();
+            await CreateJumpListAsync();
         }
         catch (Exception ex)
         {
@@ -129,50 +135,38 @@ public class AppContext<T> : IAppContext<T>
         }
     }
 
-    async Task InitCoreAsync()
+    private async Task InitGameCoreAsync()
     {
-        await Instance.Host.Services.GetRequiredService<IKuroClient>().InitAsync();
-        await Instance
-            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                nameof(PunishMainGameContextV2)
-            )
-            .InitAsync();
-        await Instance
-            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                nameof(PunishBiliBiliGameContextV2)
-            )
-            .InitAsync();
-        await Instance
-            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                nameof(PunishGlobalGameContextV2)
-            )
-            .InitAsync();
-        await Instance
-            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                nameof(PunishTwGameContextV2)
-            )
-            .InitAsync();
-        await Instance
-            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                nameof(WavesMainGameContextV2)
-            )
-            .InitAsync();
-        await Instance
-            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                nameof(WavesBiliBiliGameContextV2)
-            )
-            .InitAsync();
-        await Instance
-            .Host.Services!.GetRequiredKeyedService<IGameContextV2>(
-                nameof(WavesGlobalGameContextV2)
-            )
-            .InitAsync();
-        await Instance
-            .Host.Services!.GetRequiredKeyedService<IKuroCloudGameContext>(
-                nameof(Waves.Core.Services.KuroCloudGameContext)
-            )
-            .InitAsync();
+        foreach (var item in GameContextFactory.GetAllLocalContextName())
+        {
+            var context = Instance.Host.Services.GetRequiredKeyedService<IGameContextV2>(item);
+            await context.InitAsync();
+        }
+        foreach (var item in GameContextFactory.GetAllCloudContextName())
+        {
+            var context = Instance.Host.Services.GetRequiredKeyedService<IKuroCloudGameContext>(item);
+            await context.InitAsync();
+        }
     }
+
+    private async Task CreateJumpListAsync()
+    {
+        var jumpList = await JumpList.LoadCurrentAsync();
+        #region 鸣潮
+        jumpList.Items.Clear();
+        foreach (var item in GameContextFactory.GetAllLocalContextName())
+        {
+            var context = Instance.Host.Services.GetRequiredKeyedService<IGameContextV2>(item);
+            var jumpItem = await AppActivation.CreateJumpListsAndInitCoreAsync(context);
+            if(jumpItem != null)
+            {
+                jumpList.Items.Add(jumpItem);
+            }
+        }
+        #endregion
+        await jumpList.SaveAsync();
+    }
+
 
     private void AppWindow_Closing(
         Microsoft.UI.Windowing.AppWindow sender,

@@ -1,3 +1,4 @@
+using Haiyu.Pages.Communitys;
 using Waves.Api.Models.CloudGame;
 using Waves.Core.Models.CloudGame;
 
@@ -46,14 +47,6 @@ public class ViewFactorys : IViewFactorys
         return win;
     }
 
-    public WindowModelBase ShowRolesDataWindow(ShowRoleData detily)
-    {
-        var window = this.ShowWindowBase<GamerRoilsDetilyPage>(detily);
-        window.Manager.MaxHeight = 530;
-        window.Manager.MaxWidth = 750;
-        return window;
-    }
-
 
 
     public TransparentWindow CreateTransperentWindow()
@@ -62,13 +55,6 @@ public class ViewFactorys : IViewFactorys
     }
 
 
-
-    public WindowModelBase ShowWavesDataCenter(GameRoilDataItem item)
-    {
-        return this.ShowWindowBase<CommunityPage>(item);
-    }
-
-    
 
     public Window CreateAllowTransparent()
     {

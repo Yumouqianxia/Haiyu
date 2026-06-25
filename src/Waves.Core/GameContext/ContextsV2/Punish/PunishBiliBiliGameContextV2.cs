@@ -4,7 +4,7 @@ public class PunishBiliBiliGameContextV2: KuroGameContextBaseV2
 {
     public override string GameContextNameKey => nameof(PunishBiliBiliGameContextV2);
     public PunishBiliBiliGameContextV2(KuroGameApiConfig config, string name)
-        : base(config, name) { }
+        : base(config, name,"战双BiliBili") { }
 
     public override Type ContextType => typeof(PunishBiliBiliGameContextV2);
     public override GameType GameType => GameType.Punish;

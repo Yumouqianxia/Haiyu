@@ -16,21 +16,12 @@ public sealed partial class PageService : IPageService
     {
         _pages = new();
         this.RegisterView<SettingPage, SettingViewModel>();
-        this.RegisterView<CommunityPage, CommunityViewModel>();
         this.RegisterView<HomePage, HomeViewModel>();
         #region GameContext
         this.RegisterView<PunishV2GamePage, PunishV2GameContextViewModel>();
         this.RegisterView<WavesV2GamePage, WavesV2GameContextViewModel>();
         this.RegisterView<WavesCloudGamePage, WavesCloudGameViewModel>();
         #endregion
-        this.RegisterView<GamerRoilsPage, GameRoilsViewModel>();
-        this.RegisterView<GamerDockPage, GamerDockViewModel>();
-        this.RegisterView<GamerChallengePage, GamerChallengeViewModel>();
-        this.RegisterView<GamerSlashDetailPage, GamerSlashDetailViewModel>();
-        this.RegisterView<GamerExploreIndexPage, GamerExploreIndexViewModel>();
-        this.RegisterView<GamerTowerPage, GamerTowerViewModel>();
-        this.RegisterView<GamerSkinPage, GamerSkinViewModel>();
-        this.RegisterView<ResourceBriefPage, ResourceBriefViewModel>();
 
         #region Wiki
         this.RegisterView<WavesWikiPage, WavesWikiViewModel>();

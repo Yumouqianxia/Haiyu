@@ -1,4 +1,4 @@
-﻿namespace Haiyu.Pages;
+namespace Haiyu.Pages;
 
 public sealed partial class SettingPage : Page, IPage
 {
@@ -20,11 +20,16 @@ public sealed partial class SettingPage : Page, IPage
 
     public SettingViewModel ViewModel { get; }
 
-    private void Button_Click(object sender, RoutedEventArgs e)
+    private async void Button_Click(object sender, RoutedEventArgs e)
     {
-        ViewModel.DialogManager.ShowMessageDialog("""
+        await ViewModel.DialogManager.ShowMessageDialog(new ShowDialogOption()
+        {
+            Context = """
             Mirror酱是一个第三方应用分发平台，Haiyu通过此平台避开Github的访问问题以提供国内高速下载。
             此下载方式为付费下载，可在Mirror官网了解整个分发服务原理，定价与解释权由Mirror官方提供。
-            """, "确定", "确定？");
+            """,
+            CloseText  = "确定",
+             ShowPrimaryButton = false,
+        });
     }
 }

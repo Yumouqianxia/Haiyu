@@ -1,10 +1,12 @@
 using Haiyu.Helpers;
+using Haiyu.Pages.Communitys;
 using Haiyu.Plugin.Contracts;
 using Haiyu.Plugin.Services;
 using Haiyu.ServiceHost;
 using Haiyu.ServiceHost.XBox.Commons;
 using Haiyu.Services.DialogServices;
 using Haiyu.Services.Navigations.NavigationViewServices;
+using Haiyu.ViewModel.Communitys;
 using Haiyu.ViewModel.GameViewModels;
 using Haiyu.ViewModel.GameViewModels.GameContexts;
 using Haiyu.ViewModel.OOBEViewModels;
@@ -83,6 +85,8 @@ public static class InstanceBuilderExtensions
                         }
                     )
                     .AddSingleton<AppSettings>()
+                    .AddSingleton<IIoCircuitBreaker,IoCircuitBreaker>()
+                    .AddTransient<IAppActivation,AppActivation>()
                     #region XBox
                     .AddSingleton<XBoxConfig>()
                     .AddSingleton<XBoxController>()
@@ -93,25 +97,20 @@ public static class InstanceBuilderExtensions
                     .AddSingleton<ShellViewModel>()
                     .AddSingleton<OOBEPage>()
                     .AddSingleton<OOBEViewModel>()
-                    .AddTransient<CommunityPage>()
                     .AddTransient<WavesAnalysisRecordPage>()
                     .AddTransient<WavesAnalysisRecordViewModel>()
                     .AddTransient<SettingViewModel>()
-                    .AddTransient<CommunityViewModel>()
                     .AddTransient<GameEnhancedDialog>()
                     .AddTransient<GameEnhancedViewModel>()
+                    .AddTransient<GamerSignPage>()
+                    .AddTransient<GamerSignViewModel>()
                     .AddTransient<CloudSelectNodeDialog>()
                     .AddTransient<CloudSelectNodeViewModel>()
-                    .AddTransient<GameResourceDialog>()
-                    .AddTransient<GameResourceViewModel>()
                     .AddTransient<DeviceInfoPage>()
                     .AddTransient<DeviceInfoViewModel>()
-                    .AddTransient<ResourceBriefViewModel>()
                     .AddTransient<HomeViewModel>()
                     .AddTransient<LanguageSelectViewModel>()
                     .AddTransient<CloudGameingViewModel>()
-                    #region ColorGame
-                    #endregion
                     #region GameContext
                     .AddTransient<PunishV2GameContextViewModel>()
                     .AddTransient<WavesV2GameContextViewModel>()
@@ -121,22 +120,6 @@ public static class InstanceBuilderExtensions
                     .AddTransient<WavesWikiViewModel>()
                     .AddTransient<PunishWikiViewModel>()
                     #endregion
-                    #region Community
-                    .AddTransient<GamerSignPage>()
-                    .AddTransient<GamerSignViewModel>()
-                    .AddTransient<GamerRoilsDetilyViewModel>()
-                    .AddTransient<GameRoilsViewModel>()
-                    .AddTransient<GamerDockViewModel>()
-                    .AddTransient<GamerChallengeViewModel>()
-                    .AddTransient<GamerExploreIndexViewModel>()
-                    .AddTransient<GamerTowerViewModel>()
-                    .AddTransient<GamerSkinViewModel>()
-                    .AddTransient<GamerSlashDetailViewModel>()
-                    #endregion
-                    #region Roil
-                    .AddTransient<GamerRoilsDetilyPage>()
-                    .AddTransient<GamerRoilViewModel>()
-                    #endregion
                     #region Dialog
                     .AddTransient<LoginDialog>()
                     .AddTransient<LoginGameViewModel>()
@@ -144,14 +127,10 @@ public static class InstanceBuilderExtensions
                     .AddTransient<GameLauncherCacheViewModel>()
                     .AddTransient<WebGameLogin>()
                     .AddTransient<WebGameViewModel>()
-                    .AddTransient<SelectGameFolderDialog>()
                     .AddTransient<SelectGameFolderDialogV2>()
-                    .AddTransient<SelectGameFolderViewModel>()
                     .AddTransient<SelectGameFolderViewModelV2>()
                     .AddTransient<CloseDialog>()
-                    .AddTransient<SelectDownoadGameDialog>()
                     .AddTransient<SelectDownoadGameDialogV2>()
-                    .AddTransient<SelectDownloadGameViewModel>()
                     .AddTransient<QRLoginDialog>()
                     .AddTransient<QrLoginViewModel>()
                     .AddTransient<UpdateGameDialog>()

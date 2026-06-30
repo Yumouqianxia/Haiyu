@@ -69,6 +69,8 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         await App.TryInvokeAsync(async () =>
         {
             var state = await this.KuroCloudGameContext.GetCloudStateAsync();
+            if (obj == null)
+                return;
             if (obj.CoreType == CloudCoreType.OpeningWeb && obj.QueueResult != null)
             {
                 BottomText = $"正在游戏";

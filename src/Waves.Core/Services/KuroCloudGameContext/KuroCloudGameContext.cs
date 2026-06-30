@@ -35,6 +35,13 @@ public class KuroCloudGameContext : IKuroCloudGameContext
 
     public async Task InitAsync()
     {
+        if (CloudGameProcessTracker != null)
+        {
+            await CloudGameProcessTracker.DisposeAsync();
+            CloudGameProcessTracker = null;
+        }
+        CloudGameProcessTracker = new CloudGameProcessTracker();
+        await CloudGameProcessTracker.StartTrackingAsync(this.CloudGameEventPublisher);
         if (WavesCloudSurivivalService.IsRuning)
         {
             await WavesCloudSurivivalService.StopAsync();
@@ -43,15 +50,8 @@ public class KuroCloudGameContext : IKuroCloudGameContext
         {
             await WavesCloudSurivivalService.StartAsync();
         }
-        if (CloudGameProcessTracker != null)
-        {
-            await CloudGameProcessTracker.DisposeAsync();
-            CloudGameProcessTracker = null;
-        }
         Directory.CreateDirectory(GamerConfigPath);
         this.GameLocalConfig = new GameLocalConfig(GamerConfigPath + "\\Settings.bat");
-        CloudGameProcessTracker = new CloudGameProcessTracker();
-        await CloudGameProcessTracker.StartTrackingAsync(this.CloudGameEventPublisher);
     }
 
     public async Task StartGameAsync(

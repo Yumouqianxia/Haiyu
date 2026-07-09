@@ -86,24 +86,28 @@ public class WriteGameResourceConfig : IAsyncDisposable
         await Task.CompletedTask;
     }
 
-    public async Task WriteDownloadAndUpDateResultAsync(GameLauncherSource source)
+    public async Task WriteDownloadAndUpDateResultAsync(GameLauncherSource source, InstallOption option)
     {
-        var currentVersion = await GameLocalConfig.GetConfigAsync(
-            GameLocalSettingName.LocalGameVersion
-        );
-        var installFolder = await GameLocalConfig.GetConfigAsync(
-            GameLocalSettingName.GameLauncherBassFolder
-        );
-        if (string.IsNullOrWhiteSpace(currentVersion))
+        if (option.IsAdvance && source.Predownload != null)
+        {
+            await this.GameLocalConfig.SaveConfigAsync(
+                  GameLocalSettingName.LocalGameVersion,
+                  source.Predownload.Version
+              );
+            await this.GameLocalConfig.SaveConfigAsync(GameLocalSettingName.ProdIsAdvance, "True");
+            await this.GameLocalConfig.SaveConfigAsync(GameLocalSettingName.ProdDownloadFolderDone, "False");
+            await this.GameLocalConfig.SaveConfigAsync(GameLocalSettingName.ProdDownloadPath, "");
+            await this.GameLocalConfig.SaveConfigAsync(GameLocalSettingName.ProdDownloadVersion, "");
+        }
+        else
         {
             await this.GameLocalConfig.SaveConfigAsync(
                 GameLocalSettingName.LocalGameVersion,
                 source.ResourceDefault.Version
             );
         }
-        await this.GameLocalConfig.SaveConfigAsync(
-            GameLocalSettingName.LocalGameVersion,
-            source.ResourceDefault.Version
+        var installFolder = await GameLocalConfig.GetConfigAsync(
+            GameLocalSettingName.GameLauncherBassFolder
         );
         await this.GameLocalConfig.SaveConfigAsync(
             GameLocalSettingName.LocalGameUpdateing,

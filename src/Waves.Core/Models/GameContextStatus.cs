@@ -1,4 +1,4 @@
-﻿namespace Waves.Core.Models;
+namespace Waves.Core.Models;
 
 public class GameContextStatus
 {
@@ -65,4 +65,5 @@ public class GameContextStatus
     public GameContextOutputArgs? LasterArgs { get; internal set; }
     public bool IsProdownPause { get; internal set; }
     public bool IsPredownloaded { get; internal set; }
+    public bool ProdIsAdvance { get; internal set; }
 }

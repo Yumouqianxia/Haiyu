@@ -47,7 +47,7 @@ public sealed partial class GameResourceViewModelV2 : DialogViewModelBase
             GameLocalSettingName.GameLauncherBassFolder
         );
         var prodFolder = await GameContext.GameLocalConfig.GetConfigAsync(
-            GameLocalSettingName.ProdDownloadFolderPath
+            GameLocalSettingName.ProdDownloadPath
         );
         long gameSize = 0L;
         long prodSize = 0L;

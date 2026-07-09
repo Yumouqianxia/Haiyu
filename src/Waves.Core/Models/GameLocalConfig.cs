@@ -37,9 +37,8 @@ public class GameLocalSettingName
     public const string GameRunTotalTime = nameof(GameRunTotalTime);
 
     /// <summary>
-    /// 预下载路径
+    /// 预下载完成
     /// </summary>
-    public const string ProdDownloadFolderPath = nameof(ProdDownloadFolderPath);
     public const string ProdDownloadFolderDone = nameof(ProdDownloadFolderDone);
 
     /// <summary>
@@ -51,6 +50,11 @@ public class GameLocalSettingName
     /// 预下载版本
     /// </summary>
     public const string ProdDownloadVersion = nameof(ProdDownloadVersion);
+
+    /// <summary>
+    /// 是否已经安装了ProdIsAdvance版本
+    /// </summary>
+    public const string ProdIsAdvance = nameof(ProdIsAdvance);
 
     public const string GameTime = nameof(GameTime);
 }

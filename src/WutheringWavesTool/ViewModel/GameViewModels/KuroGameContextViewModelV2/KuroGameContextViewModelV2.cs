@@ -598,15 +598,16 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 this.CTS.Token
             );
             var wallpaperType = AppSettings.WallpaperType;
-            if (status.IsPredownloaded)
+            
+            if (status.IsPredownloaded && !status.ProdIsAdvance)
             {
-                PredCardVisibility = Visibility.Visible;
                 if (status.PredownloaAcion && !status.PredownloadedDone && status.IsPause) // 正在预下载但已经暂停
                 {
                     PredCardVisibility = Visibility.Visible;
                     PredDownloadBthVisibility = Visibility.Collapsed;
                     PredDownloadingVisibility = Visibility.Visible;
                     PredDownloadDoneVisibility = Visibility.Collapsed;
+                    PreAdvanceVisiblity = Visibility.Collapsed;
                     PreDownloadIcon = "\uE769";
                     PreSetupHeaderText = "预下载暂停";
                 }
@@ -616,6 +617,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                     PredDownloadBthVisibility = Visibility.Collapsed;
                     PredDownloadingVisibility = Visibility.Visible;
                     PredDownloadDoneVisibility = Visibility.Collapsed;
+                    PreAdvanceVisiblity = Visibility.Collapsed;
                     PreDownloadIcon = "\uE768";
                 }
                 else if (!status.PredownloadedDone)
@@ -624,6 +626,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                     PredDownloadBthVisibility = Visibility.Visible;
                     PredDownloadingVisibility = Visibility.Collapsed;
                     PredDownloadDoneVisibility = Visibility.Collapsed;
+                    PreAdvanceVisiblity = Visibility.Collapsed;
                     PreDownloadIcon = "\uE74B";
                     PreProgress = 0;
                     PreSetupHeaderText = "等待预下载";
@@ -636,7 +639,9 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                     this.PreDownloadIcon = "\uE8FB";
                     this.PreProgress = 100;
                     this.PredDownloadingVisibility = Visibility.Collapsed;
-                    PreSetupHeaderText = "预下载完成";
+                    PreAdvanceVisiblity = Visibility.Visible;
+                    PreSetupHeaderText = "预下载完成，按下可以开始校验预下载内容";
+                    ShowAdvanceInstallBth(status);
                 }
             }
             else
@@ -854,6 +859,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         GameDownloadingBthVisibility = Visibility.Collapsed;
         GameLauncherBthVisibility = Visibility.Collapsed;
         PredCardVisibility = Visibility.Collapsed;
+        PreAdvanceVisiblity = Visibility.Collapsed;
     }
 
     private void ShowGameDownloadingBth(GameContextStatus status)
@@ -866,6 +872,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         GameInstallBthVisibility = Visibility.Collapsed;
         GameLauncherBthVisibility = Visibility.Collapsed;
         GameDownloadingBthVisibility = Visibility.Visible;
+        PreAdvanceVisiblity = Visibility.Collapsed;
         PredCardVisibility = Visibility.Collapsed;
     }
 
@@ -880,6 +887,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         GameDownloadingBthVisibility = Visibility.Collapsed;
         GameLauncherBthVisibility = Visibility.Collapsed;
         PredCardVisibility = Visibility.Collapsed;
+        PreAdvanceVisiblity = Visibility.Collapsed;
     }
 
     [RelayCommand]

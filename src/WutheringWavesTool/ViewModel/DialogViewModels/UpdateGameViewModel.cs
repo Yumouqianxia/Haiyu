@@ -160,6 +160,16 @@ public sealed partial class UpdateGameViewModel : DialogViewModelBase
                 : launcher
                     .Predownload.Config.PatchConfig.Where(x => x.Version == localVersion)
                     .FirstOrDefault();
+        if(patche == null)
+        {
+            WindowExtension.MessageBox(
+                IntPtr.Zero,
+                "请联系开发者处理此问题：本地版本过于等于预下载版本，流程被打乱，无法进行预下载",
+                "Haiyu",
+                0
+            );
+            return;
+        }
         PatcherFileSize = ByteConversion.BytesToGigabytes(patche.Size, 2);
         string? driveLetter = Path.GetPathRoot(_localPath);
         DriveInfo? driveInfo = DriveInfo

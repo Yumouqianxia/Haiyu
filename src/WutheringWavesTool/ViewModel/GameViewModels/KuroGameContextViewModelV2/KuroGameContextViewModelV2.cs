@@ -601,7 +601,11 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
             
             if (status.IsPredownloaded && !status.ProdIsAdvance)
             {
-                if (status.PredownloaAcion && !status.PredownloadedDone && status.IsPause) // 正在预下载但已经暂停
+                if (IsAdvanceInstallAction(status))
+                {
+                    ShowAdvanceInstallActionStatus(status);
+                }
+                else if (status.PredownloaAcion && !status.PredownloadedDone && status.IsPause) // 正在预下载但已经暂停
                 {
                     PredCardVisibility = Visibility.Visible;
                     PredDownloadBthVisibility = Visibility.Collapsed;
@@ -646,7 +650,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
             }
             else
             {
-                PredCardVisibility = Visibility.Collapsed;
+                HidePreDownloadStatus();
             }
             if (isRefreshBackground) //是否刷新资源背景
             {
@@ -887,6 +891,29 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         GameDownloadingBthVisibility = Visibility.Collapsed;
         GameLauncherBthVisibility = Visibility.Collapsed;
         PredCardVisibility = Visibility.Collapsed;
+        PreAdvanceVisiblity = Visibility.Collapsed;
+    }
+
+    private static bool IsAdvanceInstallAction(GameContextStatus status)
+    {
+        return status.IsPredownloaded
+            && status.PredownloadedDone
+            && (status.IsAction || status.IsPause)
+            && !status.PredownloaAcion;
+    }
+
+    private void ShowAdvanceInstallActionStatus(GameContextStatus status)
+    {
+        ShowGameDownloadingBth(status);
+        HidePreDownloadStatus();
+    }
+
+    private void HidePreDownloadStatus()
+    {
+        PredCardVisibility = Visibility.Collapsed;
+        PredDownloadBthVisibility = Visibility.Collapsed;
+        PredDownloadingVisibility = Visibility.Collapsed;
+        PredDownloadDoneVisibility = Visibility.Collapsed;
         PreAdvanceVisiblity = Visibility.Collapsed;
     }
 

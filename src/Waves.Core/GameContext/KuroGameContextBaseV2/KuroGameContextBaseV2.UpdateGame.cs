@@ -893,7 +893,7 @@ partial class KuroGameContextBaseV2
                     {
                         { "resource", installTasks[i].Items.ToList() },
                         { "launcher", launcher },
-                        { "isDelete", true },
+                        { "isDelete", false },
                         { "folder", installTasks[i].Folder },
                         { "httpClient", HttpClientService! },
                         { "downloadState", state },
@@ -951,15 +951,8 @@ partial class KuroGameContextBaseV2
     public async Task AdvanceInstallGameResourceAsync()
     {
         var launcher = await this.GetGameLauncherSourceAsync();
-        var state = await this.GetGameContextStatusAsync();
         var currentVersion = await this.GameLocalConfig.GetConfigAsync(
             GameLocalSettingName.LocalGameVersion
-        );
-        var preDownVersion = await this.GameLocalConfig.GetConfigAsync(
-            GameLocalSettingName.LocalGameVersion
-        );
-        var preDone = await this.GameLocalConfig.GetConfigAsync(
-            GameLocalSettingName.ProdDownloadFolderDone
         );
         if (launcher == null)
         {
@@ -973,9 +966,6 @@ partial class KuroGameContextBaseV2
             );
             return;
         }
-        var currentPrevious = launcher.ResourceDefault.Config.PatchConfig.FirstOrDefault(x =>
-            x.Version == currentVersion
-        );
         var previous = launcher.Predownload.Config.PatchConfig.FirstOrDefault(x =>
             x.Version == currentVersion
         );

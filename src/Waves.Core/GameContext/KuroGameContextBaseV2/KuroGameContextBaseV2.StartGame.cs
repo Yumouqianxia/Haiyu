@@ -14,9 +14,18 @@ namespace Waves.Core.GameContext
         {
             try
             {
-                string gameFolder = await GameLocalConfig.GetConfigAsync(
+                var gameFolder = await GameLocalConfig.GetConfigAsync(
                     GameLocalSettingName.GameLauncherBassFolder
                 );
+                if(string.IsNullOrWhiteSpace(gameFolder) && !Directory.Exists(gameFolder))
+                {
+                    this.GameEventPublisher.Publish(new GameContextOutputArgs()
+                    {
+                        Type = GameContextActionType.TipMessage,
+                        TipMessage = "未找到游戏本体文件"
+                    });
+                    return false;
+                }
                 Process ps = new();
                 string argument = "";
                 if (this.GameType == GameType.Waves)

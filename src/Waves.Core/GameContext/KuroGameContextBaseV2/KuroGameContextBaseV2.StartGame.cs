@@ -10,40 +10,76 @@ namespace Waves.Core.GameContext
         private System.Timers.Timer? gameRunTimer;
         private uint ppid;
 
-        public virtual async Task<bool> StartGameAsync()
+        public async Task<bool> StartGameAsync()
+        {
+            var arguments =
+                await GameLocalConfig.GetConfigAsync(GameLocalSettingName.StartGameArguments)
+                ?? string.Empty;
+            var exeName =
+                await GameLocalConfig.GetConfigAsync(GameLocalSettingName.StartGameExeName)
+                ?? string.Empty;
+
+            if (this.GameType == GameType.Waves)
+            {
+                var dx11 = await GameLocalConfig.GetConfigAsync(GameLocalSettingName.IsDx11);
+                var disableDlss = await GameLocalConfig.GetConfigAsync(
+                    GameLocalSettingName.DisableDlss
+                );
+                bool isDx11 = bool.TryParse(dx11, out var dx11Value) && dx11Value;
+                bool isDisableDlss =
+                    bool.TryParse(disableDlss, out var disableDlssValue) && disableDlssValue;
+
+                return await StartGameAsync(
+                    StartGameOption.BuildWavesGameOption(
+                        isDx11,
+                        isDisableDlss,
+                        arguments,
+                        exeName
+                    )
+                );
+            }
+
+            return await StartGameAsync(StartGameOption.BuildPunishGameOption(arguments, exeName));
+        }
+
+        public virtual async Task<bool> StartGameAsync(StartGameOption option)
         {
             try
             {
                 var gameFolder = await GameLocalConfig.GetConfigAsync(
                     GameLocalSettingName.GameLauncherBassFolder
                 );
-                if(string.IsNullOrWhiteSpace(gameFolder) && !Directory.Exists(gameFolder))
+                if (string.IsNullOrWhiteSpace(gameFolder) || !Directory.Exists(gameFolder))
                 {
-                    this.GameEventPublisher.Publish(new GameContextOutputArgs()
-                    {
-                        Type = GameContextActionType.TipMessage,
-                        TipMessage = "未找到游戏本体文件"
-                    });
+                    this.GameEventPublisher.Publish(
+                        new GameContextOutputArgs()
+                        {
+                            Type = GameContextActionType.TipMessage,
+                            TipMessage = "未找到游戏本体文件",
+                        }
+                    );
                     return false;
                 }
-                Process ps = new();
-                string argument = "";
-                if (this.GameType == GameType.Waves)
+
+                var executablePath = ResolveStartGameExecutablePath(gameFolder, option);
+                if (string.IsNullOrWhiteSpace(executablePath))
                 {
-                    var ixDx11 = await GameLocalConfig.GetConfigAsync(GameLocalSettingName.IsDx11);
-                    if (bool.TryParse(ixDx11, out var flag) && flag)
-                    {
-                        argument = " -dx11";
-                    }
-                    else
-                    {
-                        argument = " -dx12";
-                    }
+                    this.GameEventPublisher.Publish(
+                        new GameContextOutputArgs()
+                        {
+                            Type = GameContextActionType.TipMessage,
+                            TipMessage = "未找到可用的启动对象，请先在游戏设置中选择正确的启动文件",
+                        }
+                    );
+                    return false;
                 }
-                ProcessStartInfo info = new(gameFolder + "\\" + this.Config.GameExeName)
+
+                Process ps = new();
+                string? argument = option.ToString();
+                ProcessStartInfo info = new(executablePath)
                 {
                     Arguments = argument,
-                    WorkingDirectory = gameFolder,
+                    WorkingDirectory =  gameFolder,
                     Verb = "runas",
                     UseShellExecute = true,
                 };
@@ -59,7 +95,9 @@ namespace Waves.Core.GameContext
                 gameRunTimer.Interval = 3000;
                 gameRunTimer.Start();
                 Logger.WriteInfo("正在启动游戏……");
-                this.GameEventPublisher.Publish(new GameContextOutputArgs { Type = GameContextActionType.None });
+                this.GameEventPublisher.Publish(
+                    new GameContextOutputArgs { Type = GameContextActionType.None }
+                );
                 return true;
             }
             catch (Exception ex)
@@ -67,7 +105,9 @@ namespace Waves.Core.GameContext
                 this._isStarting = false;
                 Logger.WriteError($"游戏启动错误{ex.Message}");
                 SystemEventPublisher.Publish(new() { Message = $"游戏启动错误{ex.Message}" });
-                this.GameEventPublisher.Publish(new GameContextOutputArgs { Type = GameContextActionType.None });
+                this.GameEventPublisher.Publish(
+                    new GameContextOutputArgs { Type = GameContextActionType.None }
+                );
                 return false;
             }
         }
@@ -103,14 +143,13 @@ namespace Waves.Core.GameContext
             }
             catch (Exception ex)
             {
-                Logger.WriteError($"检查游戏状态失败: {ex.Message}");
-                SystemEventPublisher.Publish(new() { Message = $"检查游戏状态失败: {ex.Message}" });
+                Logger.WriteError($"检查游戏状态失败 {ex.Message}");
+                SystemEventPublisher.Publish(new() { Message = $"检查游戏状态失败 {ex.Message}" });
             }
         }
 
         private async Task OnGameExited()
         {
-            // 清理资源
             gameRunTimer?.Dispose();
             _gameProcess?.Dispose();
             _gameProcess = null;
@@ -146,9 +185,46 @@ namespace Waves.Core.GameContext
             }
             Process.GetProcessById((int)ppid).Kill();
             _gameProcess?.Kill(true);
-            Logger.WriteInfo("退出游戏………………");
+            Logger.WriteInfo("退出游戏……");
             this._isStarting = false;
             this.GameEventPublisher.Publish(new GameContextOutputArgs { Type = GameContextActionType.GameExit });
+        }
+
+        private static string? ResolveStartGameExecutablePath(string gameFolder, StartGameOption option)
+        {
+            IReadOnlyCollection<string> executableCandidates = option.Type switch
+            {
+                GameType.Waves => StartGameOption.GetWavesExes,
+                GameType.Punish => StartGameOption.GetPunishExes,
+                _ => Array.Empty<string>(),
+            };
+
+            string? selectedExe = option.Type switch
+            {
+                GameType.Waves => option.WavesOption?.BaseExe,
+                GameType.Punish => option.PunishOption?.BaseExe,
+                _ => null,
+            };
+
+            if (!string.IsNullOrWhiteSpace(selectedExe))
+            {
+                var selectedPath = Path.Combine(gameFolder, selectedExe);
+                if (File.Exists(selectedPath))
+                {
+                    return selectedPath;
+                }
+            }
+
+            foreach (var candidate in executableCandidates)
+            {
+                var candidatePath = Path.Combine(gameFolder, candidate);
+                if (File.Exists(candidatePath))
+                {
+                    return candidatePath;
+                }
+            }
+
+            return null;
         }
     }
 }

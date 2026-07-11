@@ -25,6 +25,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="auto" />
             <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
             <RowDefinition />
             <RowDefinition />
             <RowDefinition />
@@ -41,12 +42,23 @@
             Padding="15,10"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="5">
-
-            <NumberBox Header="下载速度限制" Value="{x:Bind ViewModel.DownloadSpeedLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+            <NumberBox Header="下载速度（0为不限速）" Value="{x:Bind ViewModel.DownloadSpeedLimit, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        </Border>
+        <Border
+            Grid.Row="2"
+            Grid.Column="1"
+            Margin="0,0,0,0"
+            Padding="15,10"
+            Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+            CornerRadius="5">
+            <ComboBox
+                Header="启动对象"
+                ItemsSource="{x:Bind ViewModel.LuancheExeNames, Mode=OneWay}"
+                SelectedItem="{x:Bind ViewModel.LauncheExeName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
         </Border>
         <Grid
-            Grid.Row="2"
-            Padding="15,5"
+            Grid.Row="3"
+            Padding="10,5"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Top"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
@@ -68,8 +80,7 @@
                 <ColumnDefinition />
                 <ColumnDefinition Width="auto" />
             </Grid.ColumnDefinitions>
-            <TextBlock VerticalAlignment="Center" Text="Directx11 启动" />
-
+            <TextBlock VerticalAlignment="Center" Text="Directx11" />
             <Border
                 Grid.Column="1"
                 Width="30"
@@ -78,13 +89,14 @@
                 <CheckBox
                     Margin="5"
                     VerticalAlignment="Center"
-                    HorizontalContentAlignment="Right" />
+                    HorizontalContentAlignment="Right"
+                    IsChecked="{x:Bind ViewModel.Directx11Enable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             </Border>
             <NavigationViewItemSeparator Grid.Row="1" Grid.ColumnSpan="2" />
             <TextBlock
                 Grid.Row="2"
                 VerticalAlignment="Center"
-                Text="禁用Dlss" />
+                Text="禁用 Dlss" />
             <Border
                 Grid.Row="2"
                 Grid.Column="1"
@@ -94,20 +106,22 @@
                 <CheckBox
                     Margin="5"
                     VerticalAlignment="Center"
-                    HorizontalContentAlignment="Right" />
+                    HorizontalContentAlignment="Right"
+                    IsChecked="{x:Bind ViewModel.DlssEnable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
             </Border>
         </Grid>
         <Grid
-            Grid.Row="3"
+            Grid.Row="4"
+            Margin="0,0,0,0"
             Padding="15,15"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Top"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
             CornerRadius="5">
-            <TextBox Header="启动参数" />
+            <TextBox Header="其他启动参数" Text="{x:Bind ViewModel.Arguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
         </Grid>
         <Button
-            Grid.Row="4"
+            Grid.Row="5"
             Margin="0,10,0,0"
             HorizontalAlignment="Center"
             Command="{x:Bind ViewModel.CloseCommand}"

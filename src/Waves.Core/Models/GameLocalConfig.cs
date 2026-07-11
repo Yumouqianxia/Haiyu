@@ -34,6 +34,12 @@ public class GameLocalSettingName
     /// </summary>
     public const string IsDx11 = nameof(IsDx11);
 
+    public const string DisableDlss = nameof(DisableDlss);
+
+    public const string StartGameArguments = nameof(StartGameArguments);
+
+    public const string StartGameExeName = nameof(StartGameExeName);
+
     public const string GameRunTotalTime = nameof(GameRunTotalTime);
 
     /// <summary>

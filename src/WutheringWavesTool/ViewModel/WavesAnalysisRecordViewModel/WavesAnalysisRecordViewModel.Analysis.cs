@@ -202,7 +202,7 @@ partial class WavesAnalysisRecordViewModel
                 || value.Id == (int)CardPoolType.WeaponNovice
                 || value.Id == (int)CardPoolType.WeaponCollaboration;
             StarItems = isWeaponPool
-                ? temp1.Format(this.AllWeapon, true).Reverse().ToObservableCollection()
+                ? temp1.Format(this.AllWeapon, false).Reverse().ToObservableCollection()
                 : temp1.Format(this.AllRole, true).Reverse().ToObservableCollection();
             StarItems.Insert(
                 0,

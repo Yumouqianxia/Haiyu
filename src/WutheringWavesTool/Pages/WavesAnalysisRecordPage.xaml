@@ -451,7 +451,7 @@
                     <Grid
                         Grid.Row="2"
                         Grid.ColumnSpan="3"
-                        Padding="10"
+                        Padding="5"
                         Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
                         BorderBrush="{ThemeResource AccentAAFillColorDisabled}"
                         BorderThickness="1"

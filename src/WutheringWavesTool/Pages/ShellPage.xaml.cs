@@ -34,6 +34,7 @@ public sealed partial class ShellPage : Page
         {
             To8.Start();
             this.titlebar.UpDate();
+            this.ViewModel.WallpaperService.PauseVideo();
         }
         ViewModel.SetSelectItem(e.SourcePageType);
         this.ViewModel.HomeNavigationService.ClearHistory();

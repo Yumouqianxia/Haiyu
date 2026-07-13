@@ -34,8 +34,8 @@
 		<ApplicationManifest>app.manifest</ApplicationManifest>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<DefineConstants>DISABLE_XAML_GENERATED_MAIN</DefineConstants>
-		<!--<WindowsPackageType>None</WindowsPackageType>-->
-		<WindowsPackageType>MSIX</WindowsPackageType>
+		<!--<WindowsPackageType>MSIX</WindowsPackageType>-->
+		<WindowsPackageType>None</WindowsPackageType>
 	</PropertyGroup>
 	<ItemGroup>
 		<Compile Remove="AppPackages\**" />
@@ -198,6 +198,9 @@
 		<Content Update="Assets\kLogo.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+		<Content Update="Assets\kuroRobot.png">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 		<Content Update="Assets\Languages\en-US.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
@@ -258,6 +261,12 @@
 		<None Update="Assets\HpatchzResource\hpatchz.exe">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<Page Update="Pages\ToolkitPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="Pages\ToolkitPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 		<Page Update="Pages\Dialogs\KuroGameSettingDialog.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
@@ -345,6 +354,7 @@
 	  <None Remove="Pages\Dialogs\GameSettings\CloudGameSettingDialog.xaml" />
 	  <None Remove="Pages\Dialogs\KuroGameSettingDialog.xaml" />
 	  <None Remove="Pages\GamePages\WavesCloudGamePage.xaml" />
+	  <None Remove="Pages\ToolkitPage.xaml" />
 	  <None Remove="Pages\WavesAnalysisRecordPage.xaml" />
 	  <None Remove="WindowModels\CloudGameWindows.xaml" />
 	</ItemGroup>

@@ -1,3 +1,4 @@
+using Haiyu.Models.Enums;
 using Microsoft.Windows.AppNotifications;
 using Microsoft.Windows.AppNotifications.Builder;
 using Waves.Core.Models.Enums;

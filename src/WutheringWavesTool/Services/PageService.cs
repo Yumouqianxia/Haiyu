@@ -32,6 +32,7 @@ public sealed partial class PageService : IPageService
         this.RegisterView<LanguageSelectPage, LanguageSelectViewModel>();
         #endregion
 
+        this.RegisterView<ToolkitPage, ToolkitViewModel>();
     }
 
     public Type GetPage(string key)

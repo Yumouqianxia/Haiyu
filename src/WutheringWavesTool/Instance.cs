@@ -212,7 +212,11 @@ public static class InstanceBuilderExtensions
                     .AddTransient<IWavesPlayerCardCacheServices, WavesPlayerCardCacheServices>(
                         _ => new WavesPlayerCardCacheServices(AppSettings.WavesRecordFolder)
                     )
-                    #endregion
+                #endregion
+                #region Toolkit
+                    .AddTransient<ToolkitPage>()
+                    .AddTransient<ToolkitViewModel>()
+                #endregion
                     .AddKeyedSingleton<IDialogManager, MainDialogService>(nameof(MainDialogService))
                     .AddKeyedSingleton<LoggerService>(
                         "AppLog",

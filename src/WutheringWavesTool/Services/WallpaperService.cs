@@ -1,4 +1,4 @@
-﻿using Haiyu.Helpers;
+using Haiyu.Helpers;
 using System.Security.Cryptography;
 using Waves.Core.Models.Enums;
 
@@ -7,6 +7,7 @@ namespace Haiyu.Services;
 
 public class WallpaperService : IWallpaperService
 {
+    private string mediaCacheUrl;
 
     public WallpaperService(ITipShow tipShow)
     {
@@ -118,9 +119,10 @@ public class WallpaperService : IWallpaperService
 
     public void SetMediaForUrl(WallpaperShowType type, string backgroundFile)
     {
-        if (Media == null)
+        if (Media == null||mediaCacheUrl == backgroundFile)
             return;
         Media.ShowType = type;
+        
         if (type == WallpaperShowType.Video)
         {
             Media.SetMediaSource(backgroundFile);
@@ -129,16 +131,18 @@ public class WallpaperService : IWallpaperService
         {
             Media.SetImageSource(backgroundFile);
         }
+        this.mediaCacheUrl = backgroundFile;
         this.Media.UpdateMedia();
     }
 
     public void PauseVideo()
     {
-        this.Media.Pause();
+
+        this.Media?.Pause();
     }
 
     public void RestartVideo()
     {
-        this.Media.Play();
+        this.Media?.Play();
     }
 }

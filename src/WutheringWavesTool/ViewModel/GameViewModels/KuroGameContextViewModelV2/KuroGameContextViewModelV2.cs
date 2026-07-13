@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Text;
 using Haiyu.Models.Dialogs;
+using Haiyu.Models.Enums;
 using Haiyu.Services.DialogServices;
 using Waves.Core.Common;
 using Waves.Core.Models.CoreApi;
@@ -140,6 +141,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
     public partial bool ProcessAction { get; set; } = false;
 
     public abstract GameType GameType { get; }
+
 
     async partial void OnSelectServerChanged(ServerDisplay value)
     {
@@ -508,42 +510,6 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         points.Add(new LiveChartsCore.Defaults.DateTimePoint(now, value));
     }
 
-    private static string BuildTrackerProgressSummary(GameProgressTracker tracker)
-    {
-        var segments = new List<string>(6)
-        {
-            $"{tracker.Percentage:F2}%",
-            $"Step {tracker.CurrentStepIndex + 1}/{Math.Max(1, tracker.TotalSteps)}: {tracker.StepName}",
-        };
-
-        if (!string.IsNullOrWhiteSpace(tracker.CurrentStepTip))
-        {
-            segments.Add(tracker.CurrentStepTip);
-        }
-
-        var speedText = tracker.GetSpeedText();
-        if (!string.IsNullOrWhiteSpace(speedText))
-        {
-            segments.Add($"Speed: {speedText}");
-        }
-
-        segments.Add(
-            $"Bytes: {GameProgressTracker.FormatBytes(tracker.CurrentBytes)} / {GameProgressTracker.FormatBytes(tracker.TotalBytes)}"
-        );
-
-        return string.Join(" | ", segments);
-    }
-
-    private enum ButtonActionType
-    {
-        None = 0,
-        SelectInstall = 1,
-        Downloading = 2,
-        StartGame = 3,
-        PrepareUpdate = 4,
-        InGame = 5,
-        InstallPreDownload = 6,
-    }
 
     private ButtonActionType _buttonAction = ButtonActionType.None;
     private bool disposedValue;
@@ -652,7 +618,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
             {
                 HidePreDownloadStatus();
             }
-            if (isRefreshBackground) //是否刷新资源背景
+            if (isRefreshBackground && background!=null) //是否刷新资源背景
             {
                 if (wallpaperType == "Video")
                 {

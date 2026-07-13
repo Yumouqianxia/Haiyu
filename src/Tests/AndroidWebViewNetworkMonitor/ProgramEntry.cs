@@ -114,7 +114,7 @@ internal sealed record MonitorOptions(
     public static MonitorOptions Parse(string[] args)
     {
         string? socketName = null;
-        int port = 9222;
+        int port = 8956;
         string? match = null;
         bool captureBody = false;
         bool reloadAfterAttach = false;

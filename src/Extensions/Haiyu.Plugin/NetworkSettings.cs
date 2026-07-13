@@ -16,6 +16,6 @@ public class NetworkSettings
 
     public async Task<ProxyItem> GetLocalGithubFillterAsync()
     {
-
+        return new();
     }
 }

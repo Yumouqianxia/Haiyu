@@ -17,6 +17,8 @@ public sealed partial class ShellPage : Page
         this.ViewModel.HomeNavigationViewService.Register(this.navigationView);
         this.ViewModel.TipShow.Owner = this.panel;
         this.ViewModel.AppContext.SetTitleControl(this.titlebar);
+        this.ViewModel.DialogManager.RegisterRoot(this.XamlRoot);
+        this.ViewModel.AppContext.WallpaperService.RegisterMediaHost(mediaControl);
     }
 
     private void HomeNavigationService_Navigated(object sender, NavigationEventArgs e)
@@ -50,8 +52,6 @@ public sealed partial class ShellPage : Page
             AppDomain.CurrentDomain.BaseDirectory + "\\Assets\\appLogo.ico",
             "Haiyu"
         );
-        this.ViewModel.DialogManager.RegisterRoot(this.XamlRoot);
-        this.ViewModel.AppContext.WallpaperService.RegisterMediaHost(mediaControl);
 
     }
 

@@ -13,6 +13,6 @@ public class AdbTest
         var devices = await adbClient.GetDevicesAsync();
         var device = devices[0];
         var socket = await adbClient.GetWebViewSocketsAsync(device.Serial);
-        
+        await adbClient.GetWebSocketDebuggerUrlAsync(device.Serial);
     }
 }

@@ -1,9 +1,14 @@
 using System.Diagnostics;
+using System.Net.Http.Json;
+using ChromeCDPSharp.Models;
+using ChromeCDPSharp.Serialization;
 
 namespace ChromeCDPSharp.Common;
 
 public sealed class AdbClient
 {
+    private readonly HttpClient _httpClient = new();
+
     public string AdbPath { get; private set; }
 
     public AdbClient()
@@ -73,6 +78,55 @@ public sealed class AdbClient
     public async Task RemoveForwardAsync(string deviceSerial, int localPort, CancellationToken cancellationToken = default)
     {
         await RunAdbAsync($"-s {Quote(deviceSerial)} forward --remove tcp:{localPort}", cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<DevToolsTargetInfo>> GetDevToolsTargetsAsync(
+        string deviceSerial,
+        string socketName,
+        int localPort,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(deviceSerial);
+        ArgumentException.ThrowIfNullOrWhiteSpace(socketName);
+
+        await RemoveForwardAsync(deviceSerial, localPort, cancellationToken);
+        await ForwardAsync(deviceSerial, localPort, socketName, cancellationToken);
+
+        try
+        {
+            return await GetDevToolsTargetsFromForwardedPortAsync(localPort, cancellationToken);
+        }
+        finally
+        {
+            await RemoveForwardAsync(deviceSerial, localPort, CancellationToken.None);
+        }
+    }
+
+    public async Task<string> GetWebSocketDebuggerUrlAsync(
+        string deviceSerial,
+        string socketName,
+        int localPort = 9222,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<DevToolsTargetInfo> targets = await GetDevToolsTargetsAsync(deviceSerial, socketName, localPort, cancellationToken);
+        DevToolsTargetInfo target = targets.FirstOrDefault(static target => target.IsPageLike)
+            ?? throw new InvalidOperationException("No page-like DevTools target was exposed by the selected WebView socket.");
+
+        if (string.IsNullOrWhiteSpace(target.WebSocketDebuggerUrl))
+        {
+            throw new InvalidOperationException("The selected DevTools target does not expose a WebSocket debugger URL.");
+        }
+
+        return target.WebSocketDebuggerUrl;
+    }
+
+    public async Task<string> GetWebSocketDebuggerUrlAsync(
+        string deviceSerial,
+        int localPort = 9222,
+        CancellationToken cancellationToken = default)
+    {
+        IReadOnlyList<WebViewSocketInfo> sockets = await GetWebViewSocketsAsync(deviceSerial, cancellationToken);
+        return await GetWebSocketDebuggerUrlAsync(deviceSerial, sockets[0].SocketName, localPort, cancellationToken);
     }
 
     public static IReadOnlyList<AdbDeviceInfo> ParseDevices(string output)
@@ -157,6 +211,38 @@ public sealed class AdbClient
     {
         CommandResult result = await RunAdbAsync(arguments, cancellationToken);
         EnsureSuccess(result, message);
+    }
+
+    private async Task<IReadOnlyList<DevToolsTargetInfo>> GetDevToolsTargetsFromForwardedPortAsync(int port, CancellationToken cancellationToken)
+    {
+        Uri[] endpoints =
+        [
+            new($"http://127.0.0.1:{port}/json/list"),
+            new($"http://127.0.0.1:{port}/json")
+        ];
+
+        foreach (Uri endpoint in endpoints)
+        {
+            try
+            {
+                List<DevToolsTargetInfo>? targets = await _httpClient.GetFromJsonAsync(endpoint, CdpJsonContext.Default.ListDevToolsTargetInfo, cancellationToken);
+                if (targets is { Count: > 0 })
+                {
+                    return targets;
+                }
+            }
+            catch (HttpRequestException)
+            {
+            }
+            catch (NotSupportedException)
+            {
+            }
+            catch (System.Text.Json.JsonException)
+            {
+            }
+        }
+
+        throw new InvalidOperationException("Failed to discover DevTools targets from the forwarded WebView endpoint.");
     }
 
     private static WebViewSocketInfo? ParseSocketLine(string line)

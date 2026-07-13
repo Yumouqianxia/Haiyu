@@ -1,4 +1,6 @@
 using ChromeCDPSharp.Common;
+using ChromeCDPSharp.Models;
+using ChromeCDPSharp.Serialization;
 
 namespace Project.Test;
 
@@ -12,7 +14,43 @@ public class AdbTest
         adbClient.InitAdbServer(@"E:\MuMu Player 12\shell\adb.exe");
         var devices = await adbClient.GetDevicesAsync();
         var device = devices[0];
-        var socket = await adbClient.GetWebViewSocketsAsync(device.Serial);
-        await adbClient.GetWebSocketDebuggerUrlAsync(device.Serial);
+        var sockets = await adbClient.GetWebViewSocketsAsync(device.Serial);
+        var socket = sockets[0];
+        string webSocketDebuggerUrl = await adbClient.GetWebSocketDebuggerUrlAsync(device.Serial, socket.SocketName, 9085);
+
+        await using CDPClient cdpClient = new(webSocketDebuggerUrl);
+        await cdpClient.ConnectAsync();
+        await cdpClient.SendCommandAsync(
+            "Network.enable",
+            new NetworkEnableParams(),
+            CdpJsonContext.Default.NetworkEnableParams,
+            CdpJsonContext.Default.CdpCommandResponseEmptyResult);
+
+        using IDisposable requestSubscription = cdpClient.Subscribe(
+            "Network.requestWillBeSent",
+            CdpJsonContext.Default.RequestWillBeSentEvent,
+            static request =>
+            {
+                Console.WriteLine($"REQ {request.RequestId} {request.Request.Method} {request.Request.Url}");
+                return ValueTask.CompletedTask;
+            });
+
+        using IDisposable responseSubscription = cdpClient.Subscribe(
+            "Network.responseReceived",
+            CdpJsonContext.Default.ResponseReceivedEvent,
+            static response =>
+            {
+                Console.WriteLine($"RES {response.RequestId} {response.Response.Status} {response.Response.Url}");
+                return ValueTask.CompletedTask;
+            });
+
+        using IDisposable failedSubscription = cdpClient.Subscribe(
+            "Network.loadingFailed",
+            CdpJsonContext.Default.LoadingFailedEvent,
+            static failed =>
+            {
+                Console.WriteLine($"FAIL {failed.RequestId} {failed.ErrorText}");
+                return ValueTask.CompletedTask;
+            });
     }
 }

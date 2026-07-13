@@ -10,7 +10,7 @@ public sealed partial class AutoKuroTokenPage : Page, IWindowPage
         this.ViewModel = Instance.Host.Services.GetRequiredService<AutoKuroTokenViewModel>();
     }
 
-    public AutoKuroTokenViewModel ViewModel { get; }
+    public AutoKuroTokenViewModel ViewModel { get; private set; }
 
     public void Dispose() { }
 
@@ -21,6 +21,7 @@ public sealed partial class AutoKuroTokenPage : Page, IWindowPage
         this.ViewModel.Window = window;
         this.ViewModel.Window.ExtendsContentIntoTitleBar = true;
         this.titleBar.Window = window;
+        this.ViewModel.Window.AppWindow.Closing += AppWindow_Closing;
         this.ViewModel.Window.ApplyWindowsOption(
             new()
             {
@@ -35,5 +36,12 @@ public sealed partial class AutoKuroTokenPage : Page, IWindowPage
                 IsResizable = false,
             }
         );
+    }
+
+    private void AppWindow_Closing(AppWindow sender, AppWindowClosingEventArgs args)
+    {
+        this.ViewModel.Window.AppWindow.Closing -= AppWindow_Closing;
+        this.ViewModel.Dispose();
+        this.ViewModel = null;
     }
 }

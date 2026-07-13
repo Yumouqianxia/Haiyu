@@ -92,14 +92,7 @@ public sealed class AdbClient
         await RemoveForwardAsync(deviceSerial, localPort, cancellationToken);
         await ForwardAsync(deviceSerial, localPort, socketName, cancellationToken);
 
-        try
-        {
-            return await GetDevToolsTargetsFromForwardedPortAsync(localPort, cancellationToken);
-        }
-        finally
-        {
-            await RemoveForwardAsync(deviceSerial, localPort, CancellationToken.None);
-        }
+        return await GetDevToolsTargetsFromForwardedPortAsync(localPort, cancellationToken);
     }
 
     public async Task<string> GetWebSocketDebuggerUrlAsync(
@@ -117,7 +110,7 @@ public sealed class AdbClient
             throw new InvalidOperationException("The selected DevTools target does not expose a WebSocket debugger URL.");
         }
 
-        return target.WebSocketDebuggerUrl;
+        return NormalizeForwardedWebSocketDebuggerUrl(target.WebSocketDebuggerUrl, localPort);
     }
 
     public async Task<string> GetWebSocketDebuggerUrlAsync(
@@ -228,7 +221,12 @@ public sealed class AdbClient
                 List<DevToolsTargetInfo>? targets = await _httpClient.GetFromJsonAsync(endpoint, CdpJsonContext.Default.ListDevToolsTargetInfo, cancellationToken);
                 if (targets is { Count: > 0 })
                 {
-                    return targets;
+                    return targets
+                        .Select(target => target with
+                        {
+                            WebSocketDebuggerUrl = NormalizeForwardedWebSocketDebuggerUrl(target.WebSocketDebuggerUrl, port)
+                        })
+                        .ToArray();
                 }
             }
             catch (HttpRequestException)
@@ -243,6 +241,29 @@ public sealed class AdbClient
         }
 
         throw new InvalidOperationException("Failed to discover DevTools targets from the forwarded WebView endpoint.");
+    }
+
+    private static string NormalizeForwardedWebSocketDebuggerUrl(string webSocketDebuggerUrl, int localPort)
+    {
+        if (string.IsNullOrWhiteSpace(webSocketDebuggerUrl))
+        {
+            return webSocketDebuggerUrl;
+        }
+
+        Uri uri = new(webSocketDebuggerUrl, UriKind.Absolute);
+        if (uri.Scheme is not ("ws" or "wss"))
+        {
+            return webSocketDebuggerUrl;
+        }
+
+        UriBuilder builder = new(uri)
+        {
+            Scheme = "ws",
+            Host = "127.0.0.1",
+            Port = localPort
+        };
+
+        return builder.Uri.ToString();
     }
 
     private static WebViewSocketInfo? ParseSocketLine(string line)

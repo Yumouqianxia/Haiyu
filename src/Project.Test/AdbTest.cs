@@ -17,12 +17,18 @@ public class AdbTest
         var sockets = await adbClient.GetWebViewSocketsAsync(device.Serial);
         var socket = sockets[0];
         string webSocketDebuggerUrl = await adbClient.GetWebSocketDebuggerUrlAsync(device.Serial, socket.SocketName, 9085);
+        Console.WriteLine(webSocketDebuggerUrl);
 
         await using CDPClient cdpClient = new(webSocketDebuggerUrl);
         await cdpClient.ConnectAsync();
+        Console.WriteLine($"CDP socket state: {cdpClient.State}");
+
         await cdpClient.SendCommandAsync(
             "Network.enable",
-            new NetworkEnableParams(),
+            new NetworkEnableParams(
+                MaxTotalBufferSize: 8 * 1024 * 1024,
+                MaxResourceBufferSize: 1024 * 1024,
+                MaxPostDataSize: 1024 * 1024),
             CdpJsonContext.Default.NetworkEnableParams,
             CdpJsonContext.Default.CdpCommandResponseEmptyResult);
 
@@ -52,5 +58,7 @@ public class AdbTest
                 Console.WriteLine($"FAIL {failed.RequestId} {failed.ErrorText}");
                 return ValueTask.CompletedTask;
             });
+
+        await Task.Delay(TimeSpan.FromSeconds(60));
     }
 }

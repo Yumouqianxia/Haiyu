@@ -35,6 +35,8 @@ public sealed class CDPClient : IAsyncDisposable
 
     public string DebugUrl { get; }
 
+    public WebSocketState State => _webSocket.State;
+
     public async Task ConnectAsync(CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
@@ -203,8 +205,8 @@ public sealed class CDPClient : IAsyncDisposable
             return;
         }
 
-        _disposed = true;
         await DisconnectAsync();
+        _disposed = true;
         _webSocket.Dispose();
         _lifetimeCancellationSource.Dispose();
     }

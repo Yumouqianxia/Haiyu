@@ -45,7 +45,7 @@ public interface IGameContextV2
 
     #region Downloader
     Task<IndexGameResource?> GetGameResourceAsync(
-        ResourceDefault ResourceDefault,
+        string url,
         CancellationToken token = default
     );
     Task<PatchIndexGameResource?> GetPatchGameResourceAsync(
@@ -121,7 +121,7 @@ public interface IGameContextV2
         GameLauncherSource launcher,
         PatchConfig previous,
         PatchIndexGameResource patch,
-        bool isProd = false
+        InstallOption option
     );
     /// <summary>
     /// 开始游戏
@@ -138,9 +138,15 @@ public interface IGameContextV2
         IProgress<(double deletedCount, double totalCount)> progress
     );
 
+    /// <summary>
+    /// 提前安装
+    /// </summary>
+    /// <returns></returns>
+    Task AdvanceInstallGameResourceAsync();
+
     #endregion
 
-    Task StartInstallGameResource(bool isProd = false);
+    Task StartInstallGameResource(InstallOption option);
 
     Task<LIndex?> GetDefaultLauncherValue(CancellationToken token = default);
 

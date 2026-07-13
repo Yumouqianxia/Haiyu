@@ -29,20 +29,16 @@ namespace Waves.Core.GameContext
         }
 
         public async Task<IndexGameResource?> GetGameResourceAsync(
-            ResourceDefault ResourceDefault,
+            string url,
             CancellationToken token = default
         )
         {
-            var resourceIndexUrl =
-                ResourceDefault.CdnList.Where(x => x.P != 0).OrderBy(x => x.P).First().Url
-                + ResourceDefault.Config.IndexFile;
-            var result = await HttpClientService.HttpClient.GetAsync(resourceIndexUrl, token);
-            return result
+            var result = await HttpClientService.HttpClient.GetAsync(url, token);
+            return await result
                 .Content.ReadFromJsonAsync<IndexGameResource>(
                     IndexGameResourceContext.Default.IndexGameResource,
                     token
-                )
-                .Result;
+                );
         }
 
         public async Task<PatchIndexGameResource?> GetPatchGameResourceAsync(

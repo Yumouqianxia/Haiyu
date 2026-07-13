@@ -65,7 +65,10 @@ partial class KuroGameContextBaseV2
             Setups.Add("下载校验");
             Setups.Add("保存数据");
             var downloadMethod = new DownloadAndVerifyResource(this.Logger);
-            var resource = await GetGameResourceAsync(launcher.ResourceDefault);
+            var resourceIndexUrl =
+                launcher.ResourceDefault.CdnList.Where(x => x.P != 0).OrderBy(x => x.P).First().Url
+                + launcher.ResourceDefault.Config.IndexFile;
+            var resource = await GetGameResourceAsync(resourceIndexUrl);
             if (resource == null)
                 return false;
             HttpClientService?.BuildClient();
@@ -99,7 +102,7 @@ partial class KuroGameContextBaseV2
                 );
                 return false;
             }
-            
+
             var baseUrl = cdnResult.Value.url + launcher.ResourceDefault.Config.BaseUrl;
             downloadMethod.SetParam(
                 new Dictionary<string, object>()
@@ -149,7 +152,6 @@ partial class KuroGameContextBaseV2
                         GameLocalSettingName.GameLauncherBassProgram,
                         ""
                     );
-                    
                 }
                 await this.SetCurrentStateNull(false);
                 return true;

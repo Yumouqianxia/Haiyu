@@ -76,8 +76,7 @@
             Grid.ColumnSpan="2"
             VerticalAlignment="Bottom">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="col1" Width="400" />
-                <ColumnDefinition />
+                <ColumnDefinition x:Name="col1" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Grid.Transitions>
@@ -636,6 +635,15 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Visibility="{x:Bind ViewModel.PredCardVisibility, Mode=OneWay}">
+                        <Grid.ChildrenTransitions>
+                            <TransitionCollection>
+                                <RepositionThemeTransition />
+                            </TransitionCollection>
+                        </Grid.ChildrenTransitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
                         <Viewbox
                             Width="80"
                             Height="80"
@@ -686,6 +694,20 @@
                                 </Grid>
                             </Button>
                         </Viewbox>
+                        <Button
+                            Grid.Column="1"
+                            Width="72"
+                            Height="72"
+                            BorderThickness="5"
+                            Command="{x:Bind ViewModel.AdvanceGameCommand}"
+                            CornerRadius="80"
+                            Style="{ThemeResource AccentBorderBurshButtonStyle}"
+                            ToolTipService.ToolTip="提前安装预下载内容"
+                            Visibility="{x:Bind ViewModel.PreAdvanceVisiblity, Mode=OneWay}">
+                            <StackPanel Orientation="Vertical">
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE7B8;" />
+                            </StackPanel>
+                        </Button>
                     </Grid>
                 </Grid>
 

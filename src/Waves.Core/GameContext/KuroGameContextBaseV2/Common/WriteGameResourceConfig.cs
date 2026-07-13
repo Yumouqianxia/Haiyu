@@ -24,31 +24,18 @@ public class WriteGameResourceConfig : IAsyncDisposable
     /// <returns></returns>
     public async Task WriteDownloadComplateAsync(IGameEventPublisher<GameContextOutputArgs> gameEventPublisher,bool isSync = false)
     {
-        var currentVersion = await GameLocalConfig.GetConfigAsync(
-            GameLocalSettingName.LocalGameVersion
-        );
         var installFolder = await GameLocalConfig.GetConfigAsync(
             GameLocalSettingName.GameLauncherBassFolder
         );
-        if (string.IsNullOrWhiteSpace(currentVersion))
-        {
-            await this.GameLocalConfig.SaveConfigAsync(
-                GameLocalSettingName.LocalGameVersion,
-                source.ResourceDefault.Version
-            );
-        }
-        await this.GameLocalConfig.SaveConfigAsync(
-            GameLocalSettingName.LocalGameVersion,
-            source.ResourceDefault.Version
-        );
-        await this.GameLocalConfig.SaveConfigAsync(
-            GameLocalSettingName.LocalGameUpdateing,
-            "False"
-        );
 
-        await this.GameLocalConfig.SaveConfigAsync(
-            GameLocalSettingName.GameLauncherBassProgram,
-            $"{installFolder}\\{this.kuroGameApiConfig.GameExeName}"
+        await this.GameLocalConfig.SaveConfigsAsync(
+            new Dictionary<string, string>
+            {
+                [GameLocalSettingName.LocalGameVersion] = source.ResourceDefault.Version,
+                [GameLocalSettingName.LocalGameUpdateing] = "False",
+                [GameLocalSettingName.GameLauncherBassProgram] =
+                    $"{installFolder}\\{this.kuroGameApiConfig.GameExeName}",
+            }
         );
     }
 
@@ -86,33 +73,39 @@ public class WriteGameResourceConfig : IAsyncDisposable
         await Task.CompletedTask;
     }
 
-    public async Task WriteDownloadAndUpDateResultAsync(GameLauncherSource source)
+    public async Task WriteDownloadAndUpDateResultAsync(GameLauncherSource source, InstallOption option)
     {
-        var currentVersion = await GameLocalConfig.GetConfigAsync(
-            GameLocalSettingName.LocalGameVersion
-        );
         var installFolder = await GameLocalConfig.GetConfigAsync(
             GameLocalSettingName.GameLauncherBassFolder
         );
-        if (string.IsNullOrWhiteSpace(currentVersion))
+
+        if (option.IsAdvance && source.Predownload != null)
         {
-            await this.GameLocalConfig.SaveConfigAsync(
-                GameLocalSettingName.LocalGameVersion,
-                source.ResourceDefault.Version
+            await this.GameLocalConfig.SaveConfigsAsync(
+                new Dictionary<string, string>
+                {
+                    [GameLocalSettingName.LocalGameVersion] = source.Predownload.Version,
+                    [GameLocalSettingName.ProdIsAdvance] = "True",
+                    [GameLocalSettingName.ProdDownloadFolderDone] = "False",
+                    [GameLocalSettingName.ProdDownloadPath] = "",
+                    [GameLocalSettingName.ProdDownloadVersion] = "",
+                    [GameLocalSettingName.LocalGameUpdateing] = "False",
+                    [GameLocalSettingName.GameLauncherBassProgram] =
+                        $"{installFolder}\\{kuroGameApiConfig.GameExeName}",
+                }
             );
         }
-        await this.GameLocalConfig.SaveConfigAsync(
-            GameLocalSettingName.LocalGameVersion,
-            source.ResourceDefault.Version
-        );
-        await this.GameLocalConfig.SaveConfigAsync(
-            GameLocalSettingName.LocalGameUpdateing,
-            "False"
-        );
-
-        await this.GameLocalConfig.SaveConfigAsync(
-            GameLocalSettingName.GameLauncherBassProgram,
-            $"{installFolder}\\{kuroGameApiConfig.GameExeName}"
-        );
+        else
+        {
+            await this.GameLocalConfig.SaveConfigsAsync(
+                new Dictionary<string, string>
+                {
+                    [GameLocalSettingName.LocalGameVersion] = source.ResourceDefault.Version,
+                    [GameLocalSettingName.LocalGameUpdateing] = "False",
+                    [GameLocalSettingName.GameLauncherBassProgram] =
+                        $"{installFolder}\\{kuroGameApiConfig.GameExeName}",
+                }
+            );
+        }
     }
 }

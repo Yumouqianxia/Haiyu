@@ -24,6 +24,9 @@ partial class KuroGameContextViewModelV2
     public partial Visibility PredDownloadDoneVisibility { get; set; } = Visibility.Collapsed;
 
     [ObservableProperty]
+    public partial Visibility PreAdvanceVisiblity { get; set; } = Visibility.Collapsed;
+
+    [ObservableProperty]
     public partial double PreDownloadProgress { get; set; } = 0;
 
     [ObservableProperty]
@@ -109,4 +112,28 @@ partial class KuroGameContextViewModelV2
         }
     }
 
+    /// <summary>
+    /// 提前安装
+    /// </summary>
+    private void ShowAdvanceInstallBth(GameContextStatus status)
+    {
+        PreAdvanceVisiblity = Visibility.Visible;
+    }
+
+    [RelayCommand]
+    public async Task AdvanceGameAsync()
+    {
+        var result = await DialogManager.ShowMessageDialog(new ShowDialogOption()
+        {
+            CloseText = "取消",
+            Context = "提前安装游戏文件之后，在最新版本开服之前无法正常启动游戏，请确认是否安装",
+            ShowPrimaryButton = true,
+            PrimaryText = "确定安装"
+        });
+        if(result == ContentDialogResult.None)
+        {
+            return;
+        }
+        this.StartBackground(this.GameContext.AdvanceInstallGameResourceAsync);
+    }
 }

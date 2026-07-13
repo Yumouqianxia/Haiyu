@@ -49,7 +49,7 @@ partial class KuroGameContextViewModelV2
             if(bool.TryParse(diffDone,out var done) && done)
             {
                 this.PauseIcon = "\uE769";
-                _ = Task.Run(async () => await GameContext.StartInstallGameResource(true));
+                _ = Task.Run(async () => await GameContext.StartInstallGameResource(InstallOption.CreateProdownlad()));
             }
             else
             {

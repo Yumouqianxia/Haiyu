@@ -40,7 +40,7 @@
       <BuildType Solution="All|x86" Project="Debug" />
     </Project>
   </Folder>
-  <Project Path="D:/WorkSpace/Haiyu/src/ProxyExtensions/ProxyExtensions.csproj" Id="5e689f49-98ad-49b7-a9e1-5d8714328cf1">
+  <Project Path="D:/WorkSpace/Haiyu/src/Extensions/ProxyExtensions/ProxyExtensions.csproj" Id="5e689f49-98ad-49b7-a9e1-5d8714328cf1">
     <BuildType Solution="All|*" Project="Debug" />
   </Project>
 </Solution>

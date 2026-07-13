@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "AndroidWebViewNetworkMonitor": {
+      "commandName": "Project",
+      "commandLineArgs": "--body"
+    }
+  }
+}

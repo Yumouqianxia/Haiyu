@@ -4,7 +4,8 @@ public sealed partial class GetGeetWindow : WindowModelBase
 {
     public GeetType Type { get; }
 
-    public GetGeetWindow(nint value, GeetType type) : base(value)
+    public GetGeetWindow(nint value, GeetType type, WindowsOption? windowsOption = null)
+        : base(value, windowsOption)
     {
         this.InitializeComponent();
         this.titleBar.Window = this;

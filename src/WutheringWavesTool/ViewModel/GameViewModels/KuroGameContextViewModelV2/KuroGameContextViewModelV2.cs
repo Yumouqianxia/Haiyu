@@ -641,6 +641,10 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 {
                     WallpaperService.PauseVideo();
                 }
+                else
+                {
+                    WallpaperService.RestartVideo();
+                }
                 await ShowCardAsync(showCard);
                 await LoadAfter();
             }

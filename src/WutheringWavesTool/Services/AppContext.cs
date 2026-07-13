@@ -66,44 +66,9 @@ public class AppContext<T> : IAppContext<T>
             #endregion
             try
             {
-                var scale = TitleBar.GetScaleAdjustment(win);
-                //if (string.IsNullOrWhiteSpace(AppSettings.AutoOOBE))
-                //{
-                //    int targetDipWidth = 800;
-                //    int targetDipHeight = 500;
-                //    var pixelWidth = (int)Math.Round(targetDipWidth * scale);
-                //    var pixelHeight = (int)Math.Round(targetDipHeight * scale);
-                //    win.AppWindow.Resize(
-                //        new Windows.Graphics.SizeInt32 { Width = pixelWidth, Height = pixelHeight }
-                //    );
-                //    var page = Instance.Host.Services!.GetRequiredService<OOBEPage>();
-                //    page.titlebar.Window = win;
-                //    win.Content = page;
-                //}
-                //else
-                //{
-                //    int targetDipWidth = 1150;
-                //    int targetDipHeight = 650;
-                //    var pixelWidth = (int)Math.Round(targetDipWidth * scale);
-                //    var pixelHeight = (int)Math.Round(targetDipHeight * scale);
-                //    win.AppWindow.Resize(
-                //        new Windows.Graphics.SizeInt32 { Width = pixelWidth, Height = pixelHeight }
-                //    );
-                //    var page = Instance.Host.Services!.GetRequiredService<ShellPage>();
-                //    page.titlebar.Window = win;
-                //    win.Content = page;
-                //}
-                int targetDipWidth = 1150;
-                int targetDipHeight = 650;
-                var pixelWidth = (int)Math.Round(targetDipWidth * scale);
-                var pixelHeight = (int)Math.Round(targetDipHeight * scale);
-                win.AppWindow.Resize(
-                    new Windows.Graphics.SizeInt32 { Width = pixelWidth, Height = pixelHeight }
-                );
                 var page = Instance.Host.Services!.GetRequiredService<ShellPage>();
                 page.titlebar.Window = win;
                 win.Content = page;
-
             }
             catch (Exception ex) { }
 

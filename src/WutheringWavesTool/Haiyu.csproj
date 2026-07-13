@@ -120,6 +120,7 @@
 		<ProjectReference Include="..\Extensions\Haiyu.ServiceHost\Haiyu.ServiceHost.csproj" />
 		<ProjectReference Include="..\Extensions\LanguageEditer.Model\LanguageEditer.Model.csproj" />
 		<ProjectReference Include="..\Extensions\Waves.Api\Waves.Api.csproj" />
+		<ProjectReference Include="..\KuroAndroidMonitoring\ChromeCDPSharp.csproj" />
 		<ProjectReference Include="..\Waves.Core\Waves.Core.csproj" />
 		<ProjectReference Include="..\Haiyu.Controls\Haiyu.Controls.csproj" />
 	</ItemGroup>
@@ -261,6 +262,9 @@
 		<None Update="Assets\HpatchzResource\hpatchz.exe">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<Page Update="Pages\Toolkits\AutoKuroTokenPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 		<Page Update="Pages\ToolkitPage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
@@ -355,6 +359,7 @@
 	  <None Remove="Pages\Dialogs\KuroGameSettingDialog.xaml" />
 	  <None Remove="Pages\GamePages\WavesCloudGamePage.xaml" />
 	  <None Remove="Pages\ToolkitPage.xaml" />
+	  <None Remove="Pages\Toolkits\AutoKuroTokenPage.xaml" />
 	  <None Remove="Pages\WavesAnalysisRecordPage.xaml" />
 	  <None Remove="WindowModels\CloudGameWindows.xaml" />
 	</ItemGroup>

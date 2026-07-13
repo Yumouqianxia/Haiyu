@@ -20,8 +20,14 @@ public class AdbTest
         Console.WriteLine(webSocketDebuggerUrl);
 
         await using CDPClient cdpClient = new(webSocketDebuggerUrl);
+        cdpClient.ConnectionStateChanged += static (_, args) =>
+        {
+            Console.WriteLine(
+                $"CDP_STATE {args.PreviousState}->{args.CurrentState} ws={args.WebSocketState} message={args.Message} error={args.Exception?.Message}");
+        };
+
         await cdpClient.ConnectAsync();
-        Console.WriteLine($"CDP socket state: {cdpClient.State}");
+        Console.WriteLine($"CDP socket state: {cdpClient.State}, connection state: {cdpClient.ConnectionState}");
 
         await cdpClient.SendCommandAsync(
             "Network.enable",

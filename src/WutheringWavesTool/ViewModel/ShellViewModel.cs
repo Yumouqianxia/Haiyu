@@ -301,6 +301,7 @@ public sealed partial class ShellViewModel : ViewModelBase
             }
             HeaderUserName = result.Data.Mine.UserName;
             HeaderCover = result.Data.Mine.HeadUrl;
+            GamerRoleListsVisibility = Visibility.Visible;
         }
         this.AppContext.MainTitle.UpDate();
     }

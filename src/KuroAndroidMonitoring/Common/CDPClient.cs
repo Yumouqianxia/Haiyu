@@ -12,14 +12,15 @@ namespace ChromeCDPSharp.Common;
 public sealed class CDPClient : IAsyncDisposable
 {
     private readonly Uri _debugUri;
-    private readonly ClientWebSocket _webSocket = new();
     private readonly ConcurrentDictionary<long, PendingCommand> _pendingCommands = [];
     private readonly Dictionary<string, List<IEventSink>> _subscribers = new(StringComparer.Ordinal);
     private readonly Dictionary<string, List<IEventSink>> _waiters = new(StringComparer.Ordinal);
     private readonly Lock _eventGate = new();
-    private readonly CancellationTokenSource _lifetimeCancellationSource = new();
+    private ClientWebSocket _webSocket = new();
+    private CancellationTokenSource _connectionCancellationSource = new();
     private Task? _readerTask;
     private long _nextCommandId;
+    private CdpConnectionState _connectionState = CdpConnectionState.None;
     private bool _disposed;
 
     public CDPClient(string webSocketDebugUrl)
@@ -37,6 +38,12 @@ public sealed class CDPClient : IAsyncDisposable
 
     public WebSocketState State => _webSocket.State;
 
+    public CdpConnectionState ConnectionState => _connectionState;
+
+    public Exception? LastException { get; private set; }
+
+    public event EventHandler<CdpConnectionStateChangedEventArgs>? ConnectionStateChanged;
+
     public async Task ConnectAsync(CancellationToken cancellationToken = default)
     {
         ThrowIfDisposed();
@@ -48,46 +55,46 @@ public sealed class CDPClient : IAsyncDisposable
 
         if (_webSocket.State != WebSocketState.None)
         {
-            throw new InvalidOperationException($"CDP WebSocket is in an invalid state: {_webSocket.State}.");
+            ResetTransport();
         }
 
-        await _webSocket.ConnectAsync(_debugUri, cancellationToken);
-        _readerTask = Task.Run(() => ReaderLoopAsync(_lifetimeCancellationSource.Token));
+        SetConnectionState(CdpConnectionState.Connecting, message: "Connecting to CDP WebSocket.");
+
+        try
+        {
+            await _webSocket.ConnectAsync(_debugUri, cancellationToken);
+            SetConnectionState(CdpConnectionState.Connected, message: "Connected to CDP WebSocket.");
+            _readerTask = Task.Run(() => ReaderLoopAsync(_connectionCancellationSource.Token));
+        }
+        catch (Exception ex)
+        {
+            LastException = ex;
+            SetConnectionState(CdpConnectionState.Faulted, ex, "Failed to connect to CDP WebSocket.");
+            throw;
+        }
     }
 
     public async Task DisconnectAsync(CancellationToken cancellationToken = default)
     {
-        if (_disposed)
+        await DisconnectCoreAsync(clearEventRegistrations: true, cancellationToken);
+    }
+
+    public async Task ReconnectAsync(CancellationToken cancellationToken = default)
+    {
+        ThrowIfDisposed();
+
+        if (_webSocket.State == WebSocketState.Open)
         {
-            return;
+            await DisconnectCoreAsync(clearEventRegistrations: false, cancellationToken);
+        }
+        else
+        {
+            FailAllPending(new OperationCanceledException("CDP session is reconnecting."));
+            FailAllWaiters(new OperationCanceledException("CDP session is reconnecting."));
         }
 
-        _lifetimeCancellationSource.Cancel();
-
-        if (_webSocket.State is WebSocketState.Open or WebSocketState.CloseReceived)
-        {
-            try
-            {
-                await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", cancellationToken);
-            }
-            catch (WebSocketException)
-            {
-            }
-        }
-
-        if (_readerTask is not null)
-        {
-            try
-            {
-                await _readerTask;
-            }
-            catch (OperationCanceledException)
-            {
-            }
-        }
-
-        FailAllPending(new OperationCanceledException("CDP session has been disconnected."));
-        ClearEventRegistrations();
+        ResetTransport();
+        await ConnectAsync(cancellationToken);
     }
 
     public async Task<TResponse> SendCommandAsync<TParams, TResponse>(
@@ -114,7 +121,7 @@ public sealed class CDPClient : IAsyncDisposable
             throw new InvalidOperationException($"Failed to register CDP command {commandId}.");
         }
 
-        using CancellationTokenSource linkedCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetimeCancellationSource.Token);
+        using CancellationTokenSource linkedCancellationSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _connectionCancellationSource.Token);
         using CancellationTokenRegistration cancellationRegistration = linkedCancellationSource.Token.Register(
             static state => ((PendingCommand)state!).TrySetCanceled(),
             pendingCommand);
@@ -182,7 +189,7 @@ public sealed class CDPClient : IAsyncDisposable
             throw new ArgumentOutOfRangeException(nameof(timeout), "Timeout must be greater than zero.");
         }
 
-        CancellationTokenSource timeoutSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _lifetimeCancellationSource.Token);
+        CancellationTokenSource timeoutSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _connectionCancellationSource.Token);
         timeoutSource.CancelAfter(timeout);
 
         EventWaiter<TEvent> waiter = new(
@@ -208,7 +215,8 @@ public sealed class CDPClient : IAsyncDisposable
         await DisconnectAsync();
         _disposed = true;
         _webSocket.Dispose();
-        _lifetimeCancellationSource.Dispose();
+        _connectionCancellationSource.Dispose();
+        SetConnectionState(CdpConnectionState.Disposed, message: "CDP session has been disposed.");
     }
 
     private async Task ReaderLoopAsync(CancellationToken cancellationToken)
@@ -251,16 +259,24 @@ public sealed class CDPClient : IAsyncDisposable
         }
         catch (OperationCanceledException)
         {
+            if (_connectionState is not CdpConnectionState.Disconnecting and not CdpConnectionState.Disconnected and not CdpConnectionState.Disposed)
+            {
+                SetConnectionState(CdpConnectionState.Disconnected, message: "CDP receive loop was canceled.");
+            }
         }
         catch (WebSocketException ex)
         {
+            LastException = ex;
             FailAllPending(ex);
             FailAllWaiters(ex);
+            SetConnectionState(CdpConnectionState.Faulted, ex, "CDP WebSocket receive loop failed.");
         }
         catch (Exception ex)
         {
+            LastException = ex;
             FailAllPending(ex);
             FailAllWaiters(ex);
+            SetConnectionState(CdpConnectionState.Faulted, ex, "CDP receive loop failed.");
             throw;
         }
     }
@@ -275,6 +291,7 @@ public sealed class CDPClient : IAsyncDisposable
             ValueWebSocketReceiveResult result = await _webSocket.ReceiveAsync(receiveBuffer, cancellationToken);
             if (result.MessageType == WebSocketMessageType.Close)
             {
+                SetConnectionState(CdpConnectionState.Disconnected, message: "CDP WebSocket close frame received.");
                 throw new WebSocketException("CDP WebSocket closed unexpectedly.");
             }
 
@@ -298,7 +315,7 @@ public sealed class CDPClient : IAsyncDisposable
 
         foreach (IEventSink subscriber in subscribers)
         {
-            _ = Task.Run(() => subscriber.TryHandleAsync(payload), _lifetimeCancellationSource.Token);
+            _ = Task.Run(() => subscriber.TryHandleAsync(payload), _connectionCancellationSource.Token);
         }
     }
 
@@ -401,12 +418,82 @@ public sealed class CDPClient : IAsyncDisposable
         }
     }
 
+    private async Task DisconnectCoreAsync(bool clearEventRegistrations, CancellationToken cancellationToken)
+    {
+        if (_disposed)
+        {
+            return;
+        }
+
+        SetConnectionState(CdpConnectionState.Disconnecting, message: "Disconnecting CDP session.");
+        _connectionCancellationSource.Cancel();
+
+        if (_webSocket.State is WebSocketState.Open or WebSocketState.CloseReceived)
+        {
+            try
+            {
+                await _webSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, "Closing", cancellationToken);
+            }
+            catch (WebSocketException)
+            {
+            }
+        }
+
+        if (_readerTask is not null)
+        {
+            try
+            {
+                await _readerTask;
+            }
+            catch (OperationCanceledException)
+            {
+            }
+        }
+
+        FailAllPending(new OperationCanceledException("CDP session has been disconnected."));
+        FailAllWaiters(new OperationCanceledException("CDP session has been disconnected."));
+        if (clearEventRegistrations)
+        {
+            ClearEventRegistrations();
+        }
+
+        SetConnectionState(CdpConnectionState.Disconnected, message: "CDP session has been disconnected.");
+    }
+
+    private void ResetTransport()
+    {
+        _readerTask = null;
+        _webSocket.Dispose();
+        _webSocket = new ClientWebSocket();
+        _connectionCancellationSource.Dispose();
+        _connectionCancellationSource = new CancellationTokenSource();
+    }
+
     private void EnsureConnected()
     {
         if (_webSocket.State != WebSocketState.Open)
         {
             throw new InvalidOperationException("CDPClient is not connected.");
         }
+    }
+
+    private void SetConnectionState(CdpConnectionState state, Exception? exception = null, string? message = null)
+    {
+        CdpConnectionState previousState = _connectionState;
+        if (previousState == state && exception is null && message is null)
+        {
+            return;
+        }
+
+        _connectionState = state;
+        ConnectionStateChanged?.Invoke(
+            this,
+            new CdpConnectionStateChangedEventArgs(
+                previousState,
+                state,
+                _webSocket.State,
+                exception,
+                message));
     }
 
     private void ThrowIfDisposed()

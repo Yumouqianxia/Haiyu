@@ -101,6 +101,7 @@
                         <Button
                             Width="40"
                             Height="40"
+                            Margin="5,0,0,0"
                             Padding="5"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Center"
@@ -280,7 +281,7 @@
                     <ani:OpacityAnimation
                         EasingMode="EaseOut"
                         EasingType="Linear"
-                        To="0.05"
+                        To="0.03"
                         Duration="0:0:0.5" />
                 </ani:AnimationSet>
                 <ani:AnimationSet x:Name="To0" IsSequential="True">

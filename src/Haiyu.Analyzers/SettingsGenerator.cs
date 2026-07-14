@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
-using System.Text.Json;
 using System.Threading;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -12,27 +11,8 @@ namespace Haiyu.Analyzers;
 [Generator]
 public class SettingsGenerator : IIncrementalGenerator
 {
-    private const string AttributeSource = """
-        using System;
-
-        namespace TavernAgent.Analyzers
-        {
-            [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
-            public class SettingsAttribute : Attribute
-            {
-                public string? Name { get; set; }
-                public Type? Type { get; set; }
-                public bool Nullable { get; set; }
-                public string? DefaultValue { get; set; }
-            }
-        }
-        """;
-
     public void Initialize(IncrementalGeneratorInitializationContext context)
     {
-        context.RegisterPostInitializationOutput(ctx =>
-            ctx.AddSource("SettingsAttribute.g.cs", AttributeSource));
-
         var provider = context.SyntaxProvider
             .CreateSyntaxProvider(
                 predicate: (node, _) => node is ClassDeclarationSyntax { AttributeLists.Count: > 0 },
@@ -45,7 +25,7 @@ public class SettingsGenerator : IIncrementalGenerator
 
     private static Candidate? TransformCandidate(GeneratorSyntaxContext ctx, CancellationToken ct)
     {
-        var classDecl = (ClassDeclarationSyntax) ctx.Node;
+        var classDecl = (ClassDeclarationSyntax)ctx.Node;
         var symbol = ctx.SemanticModel.GetDeclaredSymbol(classDecl, ct) as INamedTypeSymbol;
         if (symbol is null) return null;
 
@@ -61,33 +41,54 @@ public class SettingsGenerator : IIncrementalGenerator
         foreach (var attr in settingsAttrs)
         {
             var name = GetNamedArg(attr, "Name") as string;
-            var type = GetNamedArg(attr, "Type") as INamedTypeSymbol;
-            if (name is null || type is null) continue;
+            if (string.IsNullOrWhiteSpace(name)) continue;
 
-            var typeName = type.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+            var typeSymbol = ResolveTypeSymbol(attr);
+            if (typeSymbol is null) continue;
+
+            var typeName = typeSymbol.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
             var nullable = GetNamedArg(attr, "Nullable") as bool? ?? false;
             var defaultValue = GetNamedArg(attr, "DefaultValue") as string;
+            var hasJsonTypeInfo = attr.NamedArguments.Any(x => x.Key == "JsonTypeInfo" && !x.Value.IsNull);
 
-            var isString = type.SpecialType == SpecialType.System_String;
-            var isInt32 = type.SpecialType == SpecialType.System_Int32;
-            var isInt64 = type.SpecialType == SpecialType.System_Int64;
-            var isSingle = type.SpecialType == SpecialType.System_Single;
-            var isDouble = type.SpecialType == SpecialType.System_Double;
-            var isBoolean = type.SpecialType == SpecialType.System_Boolean;
-            var isObject = type.SpecialType == SpecialType.System_Object;
-            var isDateTime = type.Name == "DateTime" && type.ContainingNamespace.ToDisplayString() == "System";
-            var isGuid = type.Name == "Guid" && type.ContainingNamespace.ToDisplayString() == "System";
+            var isString = typeSymbol.SpecialType == SpecialType.System_String;
+            var isInt32 = typeSymbol.SpecialType == SpecialType.System_Int32;
+            var isInt64 = typeSymbol.SpecialType == SpecialType.System_Int64;
+            var isSingle = typeSymbol.SpecialType == SpecialType.System_Single;
+            var isDouble = typeSymbol.SpecialType == SpecialType.System_Double;
+            var isBoolean = typeSymbol.SpecialType == SpecialType.System_Boolean;
+            var isDateTime = typeSymbol.Name == "DateTime" && typeSymbol.ContainingNamespace.ToDisplayString() == "System";
+            var isGuid = typeSymbol.Name == "Guid" && typeSymbol.ContainingNamespace.ToDisplayString() == "System";
+
+            var isComplex = !isString && !isInt32 && !isInt64 && !isSingle
+                && !isDouble && !isBoolean && !isDateTime && !isGuid;
 
             entries.Add(new SettingEntry(
-                name, typeName,
-                nullable, defaultValue,
-                isString, isInt32, isInt64, isSingle, isDouble, isBoolean, isDateTime, isGuid,isObject
-            ));
+                name, typeName, nullable, defaultValue,
+                isString, isInt32, isInt64, isSingle, isDouble,
+                isBoolean, isDateTime, isGuid, isComplex, hasJsonTypeInfo));
         }
 
         if (entries.Count == 0) return null;
 
         return new Candidate(symbol.ContainingNamespace.ToDisplayString(), symbol.Name, entries);
+    }
+
+    private static INamedTypeSymbol? ResolveTypeSymbol(AttributeData attr)
+    {
+        var typeArg = GetNamedArg(attr, "Type") as INamedTypeSymbol;
+        if (typeArg is not null)
+            return typeArg;
+
+        var attrClass = attr.AttributeClass;
+        if (attrClass is { TypeArguments.Length: > 0 })
+        {
+            var firstTypeArg = attrClass.TypeArguments[0] as INamedTypeSymbol;
+            if (firstTypeArg is not null && firstTypeArg.SpecialType != SpecialType.System_Object)
+                return firstTypeArg;
+        }
+
+        return typeArg;
     }
 
     private static object? GetNamedArg(AttributeData attr, string name)
@@ -122,6 +123,8 @@ public class SettingsGenerator : IIncrementalGenerator
         var sb = new StringBuilder();
         sb.AppendLine("using System;");
         sb.AppendLine("using System.Text.Json;");
+        sb.AppendLine("using System.Text.Json.Serialization.Metadata;");
+        sb.AppendLine("using System.Threading;");
         sb.AppendLine("using System.Threading.Tasks;");
         sb.AppendLine();
         sb.AppendLine($"namespace {candidate.Namespace};");
@@ -135,12 +138,12 @@ public class SettingsGenerator : IIncrementalGenerator
             var paramType = entry.Nullable ? entry.TypeName + "?" : entry.TypeName;
 
             sb.AppendLine();
-            sb.AppendLine($"    public async Task<{returnType}> Get{entry.Name}Async()");
+            sb.AppendLine($"    public async Task<{returnType}> Get{entry.Name}Async(CancellationToken ct = default)");
             sb.AppendLine("    {");
             sb.Append(GetReaderSource(entry));
             sb.AppendLine("    }");
             sb.AppendLine();
-            sb.AppendLine($"    public async Task Set{entry.Name}Async({paramType} value)");
+            sb.AppendLine($"    public async Task Set{entry.Name}Async({paramType} value, CancellationToken ct = default)");
             sb.AppendLine("    {");
             sb.Append(GetWriterSource(entry));
             sb.AppendLine("    }");
@@ -158,45 +161,51 @@ public class SettingsGenerator : IIncrementalGenerator
         if (entry.IsString)
         {
             if (entry.HasDefaultValue)
-                return $"        var val = await Read(\"{name}\").ConfigureAwait(false);\n"
+                return $"        var val = await ReadAsync(\"{name}\", ct).ConfigureAwait(false);\n"
                      + $"        return val ?? \"{entry.DefaultValue}\";\n";
 
             if (entry.Nullable)
-                return $"        return await Read(\"{name}\").ConfigureAwait(false);\n";
+                return $"        return await ReadAsync(\"{name}\", ct).ConfigureAwait(false);\n";
 
-            return $"        var val = await Read(\"{name}\").ConfigureAwait(false);\n"
+            return $"        var val = await ReadAsync(\"{name}\", ct).ConfigureAwait(false);\n"
                  + $"        return val ?? string.Empty;\n";
         }
 
         if (entry.IsInt32)
-            return $"        var val = await Read(\"{name}\").ConfigureAwait(false);\n"
+            return $"        var val = await ReadAsync(\"{name}\", ct).ConfigureAwait(false);\n"
                  + $"        return int.TryParse(val, out var r) ? r : {fallback};\n";
 
         if (entry.IsInt64)
-            return $"        var val = await Read(\"{name}\").ConfigureAwait(false);\n"
+            return $"        var val = await ReadAsync(\"{name}\", ct).ConfigureAwait(false);\n"
                  + $"        return long.TryParse(val, out var r) ? r : {fallback};\n";
 
         if (entry.IsSingle)
-            return $"        var val = await Read(\"{name}\").ConfigureAwait(false);\n"
+            return $"        var val = await ReadAsync(\"{name}\", ct).ConfigureAwait(false);\n"
                  + $"        return float.TryParse(val, out var r) ? r : {fallback};\n";
 
         if (entry.IsDouble)
-            return $"        var val = await Read(\"{name}\").ConfigureAwait(false);\n"
+            return $"        var val = await ReadAsync(\"{name}\", ct).ConfigureAwait(false);\n"
                  + $"        return double.TryParse(val, out var r) ? r : {fallback};\n";
 
         if (entry.IsBoolean)
-            return $"        var val = await Read(\"{name}\").ConfigureAwait(false);\n"
+            return $"        var val = await ReadAsync(\"{name}\", ct).ConfigureAwait(false);\n"
                  + $"        return bool.TryParse(val, out var r) ? r : {fallback};\n";
 
         if (entry.IsDateTime)
-            return $"        var val = await Read(\"{name}\").ConfigureAwait(false);\n"
+            return $"        var val = await ReadAsync(\"{name}\", ct).ConfigureAwait(false);\n"
                  + $"        return DateTime.TryParse(val, out var r) ? r : {fallback};\n";
 
         if (entry.IsGuid)
-            return $"        var val = await Read(\"{name}\").ConfigureAwait(false);\n"
+            return $"        var val = await ReadAsync(\"{name}\", ct).ConfigureAwait(false);\n"
                  + $"        return Guid.TryParse(val, out var r) ? r : {fallback};\n";
 
-        return $"        var val = await Read(\"{name}\").ConfigureAwait(false);\n"
+        if (entry.HasJsonTypeInfo)
+            return $"        var val = await ReadAsync(\"{name}\", ct).ConfigureAwait(false);\n"
+                 + $"        if (string.IsNullOrEmpty(val)) return {fallback};\n"
+                 + $"        var jti = (JsonTypeInfo<{entry.TypeName}>)GetJsonTypeInfo(\"{name}\");\n"
+                 + $"        return JsonSerializer.Deserialize(val, jti!);\n";
+
+        return $"        var val = await ReadAsync(\"{name}\", ct).ConfigureAwait(false);\n"
              + $"        if (string.IsNullOrEmpty(val)) return {fallback};\n"
              + $"        return JsonSerializer.Deserialize<{entry.TypeName}>(val);\n";
     }
@@ -209,21 +218,19 @@ public class SettingsGenerator : IIncrementalGenerator
                 return entry.DefaultValue!;
             if (entry.IsSingle)
                 return entry.DefaultValue! + "f";
-
             if (entry.IsBoolean)
-                return entry.DefaultValue!;
-
+                return entry.DefaultValue!.ToLowerInvariant();
             if (entry.IsDateTime)
                 return $"DateTime.Parse(\"{entry.DefaultValue}\")";
-
             if (entry.IsGuid)
                 return $"Guid.Parse(\"{entry.DefaultValue}\")";
-
-            return $"JsonSerializer.Deserialize<{entry.TypeName}>(\"{entry.DefaultValue}\")";
+            if (entry.IsComplex)
+                return $"JsonSerializer.Deserialize<{entry.TypeName}>(\"{entry.DefaultValue}\")";
+            return entry.DefaultValue!;
         }
 
         if (entry.Nullable)
-            return entry.IsString ? "null" : "default";
+            return "default";
 
         if (entry.IsSingle) return "0f";
         if (entry.IsDouble) return "0.0";
@@ -232,6 +239,7 @@ public class SettingsGenerator : IIncrementalGenerator
         if (entry.IsBoolean) return "false";
         if (entry.IsDateTime) return "DateTime.MinValue";
         if (entry.IsGuid) return "Guid.Empty";
+        if (entry.IsComplex) return "default";
 
         return "default";
     }
@@ -241,24 +249,40 @@ public class SettingsGenerator : IIncrementalGenerator
         var name = entry.Name;
 
         if (entry.IsString)
-            return $"        await Write(value, \"{name}\").ConfigureAwait(false);\n";
+            return $"        await WriteAsync(value, \"{name}\", ct).ConfigureAwait(false);\n";
 
-        if (entry.Nullable)
+        if (entry.HasJsonTypeInfo)
         {
-            if (entry.IsBoolean || entry.IsInt32 || entry.IsInt64 || entry.IsSingle || entry.IsDouble
-                || entry.IsDateTime || entry.IsGuid)
-                return $"        await Write(value?.ToString(), \"{name}\").ConfigureAwait(false);\n";
+            if (entry.Nullable)
+                return $"        string? json = null;\n"
+                     + $"        if (value is not null)\n"
+                     + $"        {{\n"
+                     + $"            var jti = (JsonTypeInfo<{entry.TypeName}>)GetJsonTypeInfo(\"{name}\");\n"
+                     + $"            json = JsonSerializer.Serialize(value, jti!);\n"
+                     + $"        }}\n"
+                     + $"        await WriteAsync(json, \"{name}\", ct).ConfigureAwait(false);\n";
 
-            return $"        var json = value is not null ? JsonSerializer.Serialize<{entry.TypeName}>(value) : null;\n"
-                 + $"        await Write(json, \"{name}\").ConfigureAwait(false);\n";
+            return $"        var jti = (JsonTypeInfo<{entry.TypeName}>)GetJsonTypeInfo(\"{name}\");\n"
+                 + $"        var json = JsonSerializer.Serialize(value, jti!);\n"
+                 + $"        await WriteAsync(json, \"{name}\", ct).ConfigureAwait(false);\n";
         }
 
-        if (entry.IsBoolean || entry.IsInt32 || entry.IsInt64 || entry.IsSingle || entry.IsDouble
-            || entry.IsDateTime || entry.IsGuid)
-            return $"        await Write(value.ToString(), \"{name}\").ConfigureAwait(false);\n";
+        if (entry.IsComplex)
+        {
+            if (entry.Nullable)
+                return $"        string? json = null;\n"
+                     + $"        if (value is not null)\n"
+                     + $"            json = JsonSerializer.Serialize<{entry.TypeName}>(value);\n"
+                     + $"        await WriteAsync(json, \"{name}\", ct).ConfigureAwait(false);\n";
 
-        return $"        var json = JsonSerializer.Serialize<{entry.TypeName}>(value);\n"
-             + $"        await Write(json, \"{name}\").ConfigureAwait(false);\n";
+            return $"        var json = JsonSerializer.Serialize<{entry.TypeName}>(value);\n"
+                 + $"        await WriteAsync(json, \"{name}\", ct).ConfigureAwait(false);\n";
+        }
+
+        if (entry.Nullable)
+            return $"        await WriteAsync(value?.ToString(), \"{name}\", ct).ConfigureAwait(false);\n";
+
+        return $"        await WriteAsync(value.ToString(), \"{name}\", ct).ConfigureAwait(false);\n";
     }
 
     private sealed class SettingEntry
@@ -276,11 +300,12 @@ public class SettingsGenerator : IIncrementalGenerator
         public bool IsBoolean { get; }
         public bool IsDateTime { get; }
         public bool IsGuid { get; }
-        public bool IsObject { get; }
-        public SettingEntry(string name, string typeName,
-            bool nullable, string? defaultValue,
-            bool isString, bool isInt32, bool isInt64, bool isSingle,
-            bool isDouble, bool isBoolean, bool isDateTime, bool isGuid, bool isObject)
+        public bool IsComplex { get; }
+        public bool HasJsonTypeInfo { get; }
+
+        public SettingEntry(string name, string typeName, bool nullable, string? defaultValue,
+            bool isString, bool isInt32, bool isInt64, bool isSingle, bool isDouble,
+            bool isBoolean, bool isDateTime, bool isGuid, bool isComplex, bool hasJsonTypeInfo)
         {
             Name = name;
             TypeName = typeName;
@@ -294,7 +319,8 @@ public class SettingsGenerator : IIncrementalGenerator
             IsBoolean = isBoolean;
             IsDateTime = isDateTime;
             IsGuid = isGuid;
-            IsObject = isObject;
+            IsComplex = isComplex;
+            HasJsonTypeInfo = hasJsonTypeInfo;
         }
     }
 

@@ -49,7 +49,7 @@ public class AppContext<T> : IAppContext<T>
         try
         {
             var xboxConfig = Instance.Host.Services.GetRequiredService<XBoxConfig>();
-            if (xboxConfig.IsEnable == true)
+            if ((await xboxConfig.GetIsEnableAsync()) == true)
             {
                 await Instance.Host.Services.GetRequiredService<XBoxService>().StartAsync();
             }
@@ -61,7 +61,7 @@ public class AppContext<T> : IAppContext<T>
                 is IMirrorUpdateService mirror
             )
             {
-                mirror.SetMirrorKey(AppSettings.MirrorKey);
+                mirror.SetMirrorKey(await AppSettings.GetMirrorKeyAsync());
             }
             #endregion
             try
@@ -197,7 +197,7 @@ public class AppContext<T> : IAppContext<T>
 
     public async Task CloseAsync()
     {
-        var close = AppSettings.CloseWindow;
+        var close = await AppSettings.GetCloseWindowAsync();
         if (close == "True")
         {
             Environment.Exit(0);
@@ -234,7 +234,7 @@ public class AppContext<T> : IAppContext<T>
                 return;
             }
             IUpdateService? service = null;
-            if (AppSettings.UpdateType == "Github")
+            if ((await AppSettings.GetUpdateTypeAsync()) == "Github")
             {
                 service =
                     Instance.Host.Services.GetKeyedService<Haiyu.Plugin.Contracts.IUpdateService>(
@@ -255,7 +255,7 @@ public class AppContext<T> : IAppContext<T>
                 var info = await service.GetLasterProgramInfoAsync(token);
                 if (info != null)
                 {
-                    if (!isApply && info.Version == AppSettings.SkipAppVersion)
+                    if (!isApply && info.Version == await AppSettings.GetSkipAppVersionAsync())
                     {
                         return;
                     }

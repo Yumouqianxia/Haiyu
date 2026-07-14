@@ -1,6 +1,6 @@
-﻿namespace Haiyu.Plugin.Contracts;
+namespace Haiyu.Plugin.Contracts;
 
 public interface IMirrorUpdateService
 {
-    public void SetMirrorKey(string key);
+    public void SetMirrorKey(string? key);
 }

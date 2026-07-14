@@ -490,7 +490,7 @@ public sealed partial class KuroClient : IKuroClient
         try
         {
             var users = await AccountService.GetUsersAsync();
-            var tokenId = AccountService.AppSettings.LastSelectUser;
+            var tokenId = await AccountService.AppSettings.GetLastSelectUserAsync().ConfigureAwait(false);
             var defaultSenect = users.FirstOrDefault(x => x.TokenId == tokenId);
             if (tokenId != null && defaultSenect != null)
             {
@@ -508,7 +508,7 @@ public sealed partial class KuroClient : IKuroClient
                 {
                     //有信息则选定这个用户
                     AccountService.SetCurrentUser(defaultSenect);
-                    AccountService.AppSettings.LastSelectUser = defaultSenect.TokenId;
+                    await AccountService.AppSettings.SetLastSelectUserAsync(defaultSenect.TokenId).ConfigureAwait(false);
                 }
 
             }
@@ -544,7 +544,7 @@ public sealed partial class KuroClient : IKuroClient
             }
             //有信息则选定这个用户
             AccountService.SetCurrentUser(item);
-            AccountService.AppSettings.LastSelectUser = item.TokenId;
+            await AccountService.AppSettings.SetLastSelectUserAsync(item.TokenId).ConfigureAwait(false);
         }
     }
 }

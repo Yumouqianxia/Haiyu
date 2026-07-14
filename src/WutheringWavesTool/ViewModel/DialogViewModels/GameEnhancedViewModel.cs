@@ -1,4 +1,4 @@
-﻿using System.Threading.Tasks;
+using System.Threading.Tasks;
 using Haiyu.ServiceHost;
 using Haiyu.ServiceHost.XBox.Commons;
 using Haiyu.Services;
@@ -37,11 +37,11 @@ public sealed partial class GameEnhancedViewModel : DialogViewModelBase
     {
         if (Tag == "Fps")
         {
-            XboxConfig.FpsEnable = XboxEnable ?? false;
+            await XboxConfig.SetFpsEnableAsync(this.XboxEnable ?? false,this.CTS.Token);
         }
         if (Tag == "Xbox")
         {
-            XboxConfig.IsEnable = XboxEnable ?? false;
+            await XboxConfig.SetIsEnableAsync(XboxEnable ?? false);
             if (XboxEnable == true)
             {
                 await XBoxService.StartAsync();

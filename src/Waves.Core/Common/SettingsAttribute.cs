@@ -10,4 +10,6 @@ public class SettingsAttribute<T> : Attribute
     public bool Nullable { get; set; }
     public string? DefaultValue { get; set; }
     public JsonTypeInfo<T>? JsonTypeInfo { get; set; }
+    public Type? JsonTypeInfoContextType { get; set; }
+    public string? JsonTypeInfoPropertyName { get; set; }
 }

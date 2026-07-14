@@ -88,7 +88,7 @@ public static class SocketHttpFactory
     }
 
     public static HttpClient CreateGithubClient(
-        string proxy,
+        string? proxy,
         Dictionary<string, IPAddress[]> address
     )
     {

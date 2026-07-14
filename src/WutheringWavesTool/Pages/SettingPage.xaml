@@ -156,10 +156,10 @@
                 <ui:SettingsCard
                     Margin="0,5,0,0"
                     HorizontalAlignment="Stretch"
-                    HorizontalContentAlignment="Stretch">
+                    HorizontalContentAlignment="Stretch"
+                    Style="{x:Null}">
                     <ui:SettingsCard.Header>
                         <StackPanel Orientation="Horizontal">
-
                             <TextBlock VerticalAlignment="Center" Text="背景类型" />
                             <Button
                                 Margin="10,0,0,0"
@@ -181,7 +181,6 @@
                                 </Button.Flyout>
                             </Button>
                         </StackPanel>
-
                     </ui:SettingsCard.Header>
                     <ui:SettingsCard.HeaderIcon>
                         <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE8B9;" />
@@ -198,6 +197,23 @@
                 </ui:SettingsCard>
                 <ui:SettingsExpander
                     Margin="0,5,0,0"
+                    Header="Github域前置配置"
+                    ItemsSource="{x:Bind ViewModel.GithubIpGroups, Mode=OneWay}">
+                    <ui:SettingsExpander.Content>
+                        <Button Command="{x:Bind ViewModel.SaveGithubIpConfigCommand}" Content="保存校验配置" />
+                    </ui:SettingsExpander.Content>
+                    <ui:SettingsExpander.ItemTemplate>
+                        <DataTemplate x:DataType="uModel:GithubIpDisplayGroup">
+                            <ui:SettingsCard Header="{x:Bind Host, Mode=OneWay}">
+                                <ui:SettingsCard.Content>
+                                    <TextBox Width="500" Text="{x:Bind IpEditorText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </ui:SettingsCard.Content>
+                            </ui:SettingsCard>
+                        </DataTemplate>
+                    </ui:SettingsExpander.ItemTemplate>
+                </ui:SettingsExpander>
+                <ui:SettingsExpander
+                    Margin="0,5,0,0"
                     Description="{x:Bind a:App.AppVersion}"
                     Header="版本"
                     Visibility="{x:Bind ViewModel.CheckUpdateVisibility, Mode=OneWay, Converter={StaticResource BoolToVisibilityConverter}}">
@@ -207,10 +223,21 @@
                     <ui:SettingsExpander.Content>
                         <Button Command="{x:Bind ViewModel.UpdateVersionCommand}" Content="检查更新" />
                     </ui:SettingsExpander.Content>
+
                     <ui:SettingsExpander.Items>
                         <ui:SettingsCard Header="更新源">
                             <ui:SettingsCard.Content>
-                                <ComboBox ItemsSource="{x:Bind ViewModel.UpdateAppType, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectUpdateAppType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                <Grid ColumnSpacing="10">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+                                    <ComboBox ItemsSource="{x:Bind ViewModel.UpdateAppType, Mode=OneWay}" SelectedItem="{x:Bind ViewModel.SelectUpdateAppType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                    <Button
+                                        Grid.Column="1"
+                                        Command="{x:Bind ViewModel.SaveGithubIpConfigCommand}"
+                                        Content="保存Githun域前置配置" />
+                                </Grid>
                             </ui:SettingsCard.Content>
                         </ui:SettingsCard>
                         <ui:SettingsCard Header="Mirror Key">
@@ -237,7 +264,6 @@
                     <ui:SettingsCard.HeaderIcon>
                         <FontIcon FontFamily="Segoe UI Emoji" Glyph="&#x1F5DD;" />
                     </ui:SettingsCard.HeaderIcon>
-
                 </ui:SettingsCard>
                 <ui:SettingsExpander Margin="0,5,0,0" Header="截图">
                     <ToggleSwitch
@@ -385,7 +411,6 @@
                     <ui:SettingsCard.HeaderIcon>
                         <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE72E;" />
                     </ui:SettingsCard.HeaderIcon>
-
                 </ui:SettingsCard>
                 <ui:SettingsCard
                     Margin="0,5,0,0"
@@ -414,11 +439,9 @@
                             <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.WebViewVersion, Mode=OneWay}" />
                         </ui:SettingsCard>
                         <ui:SettingsCard Header="WindowsApp Sdk">
-
                             <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.WindowsAppSdkVersion, Mode=OneWay}" />
                         </ui:SettingsCard>
                         <ui:SettingsCard Header="运行类型">
-
                             <TextBlock IsTextSelectionEnabled="True" Text="{x:Bind ViewModel.RunType, Mode=OneWay}" />
                         </ui:SettingsCard>
                         <ui:SettingsCard Header="框架版本">

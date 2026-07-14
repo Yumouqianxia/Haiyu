@@ -18,7 +18,7 @@ public static class LanguageService
     public static string GetLanguage()
     {
         AppSettings = Instance.Host.Services.GetRequiredService<AppSettings>();
-        return AppSettings.Language??"";
+        return AppSettings.GetLanguageAsync().GetAwaiter().GetResult() ?? "";
     }
 
     public static async Task InitAsync()
@@ -39,21 +39,22 @@ public static class LanguageService
 
     public static string? GetString(string key)
     {
+        var language = AppSettings.GetLanguageAsync().GetAwaiter().GetResult();
         string result = "";
-        if(AppSettings.Language == "en-us" && En_Us.TryGetValue(key,out result))
+        if(language == "en-us" && En_Us.TryGetValue(key,out result))
         {
             return result;
         }
-        if(AppSettings.Language == "zh-Hans" && Zh_Hans.TryGetValue(key, out result))
+        if(language == "zh-Hans" && Zh_Hans.TryGetValue(key, out result))
         {
             return result;
         }
-        if(AppSettings.Language == "zh-Hant" && Zh_Hant.TryGetValue(key, out result))
+        if(language == "zh-Hant" && Zh_Hant.TryGetValue(key, out result))
         {
 
             return result;
         }
-        if(AppSettings.Language == "ja-jp" && Ja_Jp.TryGetValue(key, out result))
+        if(language == "ja-jp" && Ja_Jp.TryGetValue(key, out result))
         {
             return result;
         }
@@ -62,7 +63,7 @@ public static class LanguageService
 
     public static bool SetLanguage(string language)
     {
-        AppSettings.Language = language;
+        AppSettings.SetLanguageAsync(language).GetAwaiter().GetResult();
         return true;
     }
 }

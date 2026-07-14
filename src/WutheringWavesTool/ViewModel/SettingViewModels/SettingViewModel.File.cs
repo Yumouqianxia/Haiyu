@@ -32,14 +32,14 @@ partial class SettingViewModel
     }
 
     [RelayCommand]
-    void SetRpcToken()
+    async Task SetRpcToken()
     {
         if (string.IsNullOrWhiteSpace(this.RpcToken))
         {
             TipShow.ShowMessage("密钥不能为空", Symbol.Clear);
             return;
         }
-        AppSettings.RpcToken = Md5Helper.ComputeMd532(RpcToken);
+        await AppSettings.SetRpcTokenAsync(Md5Helper.ComputeMd532(RpcToken));
         TipShow.ShowMessage("密钥已经更新", Symbol.Accept);
     }
 

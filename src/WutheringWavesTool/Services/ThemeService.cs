@@ -9,10 +9,13 @@ namespace Haiyu.Services;
 
 public sealed class ThemeService : IThemeService
 {
+    private readonly Lazy<string?> _currentTheme;
+
     public ThemeService(IAppContext<App> appContext,AppSettings appSettings)
     {
         AppContext = appContext;
         AppSettings = appSettings;
+        _currentTheme = new(() => AppSettings.GetElementThemeAsync().GetAwaiter().GetResult());
     }
 
     public IAppContext<App> AppContext { get; }
@@ -22,7 +25,7 @@ public sealed class ThemeService : IThemeService
     {
         get
         {
-            switch (AppSettings.ElementTheme)
+            switch (_currentTheme.Value)
             {
                 case "Light":
                     return ElementTheme.Light;

@@ -1,6 +1,7 @@
 using Haiyu.Helpers;
 using Haiyu.Pages.Communitys;
 using Haiyu.Pages.Toolkits;
+using Haiyu.Plugin.Common;
 using Haiyu.Plugin.Contracts;
 using Haiyu.Plugin.Services;
 using Haiyu.ServiceHost;
@@ -87,6 +88,7 @@ public static class InstanceBuilderExtensions
                         }
                     )
                     .AddSingleton<AppSettings>()
+                    .AddSingleton<GithubIpSettings>()
                     .AddSingleton<IIoCircuitBreaker,IoCircuitBreaker>()
                     .AddTransient<IAppActivation,AppActivation>()
                     #region XBox

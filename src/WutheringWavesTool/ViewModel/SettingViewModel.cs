@@ -1,4 +1,5 @@
 using Haiyu.Models.Settings;
+using Haiyu.Plugin.Common;
 using Haiyu.Services.DialogServices;
 using Waves.Core.Helpers;
 using Windows.ApplicationModel.DataTransfer;
@@ -16,7 +17,8 @@ public sealed partial class SettingViewModel : ViewModelBase
         ITipShow tipShow,
         IScreenCaptureService screenCaptureService,
         IPickersService pickersService,
-        IThemeService themeService
+        IThemeService themeService,
+        GithubIpSettings githubIpSettings
     )
     {
         DialogManager = dialogManager;
@@ -27,6 +29,7 @@ public sealed partial class SettingViewModel : ViewModelBase
         ScreenCaptureService = screenCaptureService;
         PickersService = pickersService;
         ThemeService = themeService;
+        GithubIpSettings = githubIpSettings;
         RegisterMessanger();
     }
 
@@ -50,7 +53,7 @@ public sealed partial class SettingViewModel : ViewModelBase
     public IScreenCaptureService ScreenCaptureService { get; }
     public IPickersService PickersService { get; }
     public IThemeService ThemeService { get; }
-
+    public GithubIpSettings GithubIpSettings { get; }
     [ObservableProperty]
     public partial bool? AutoCommunitySign { get; set; }
 
@@ -76,68 +79,66 @@ public sealed partial class SettingViewModel : ViewModelBase
     {
         if (value == null)
             return;
-        AppSettings.LauncheBth = value.Memory;
+        _ = AppSettings.SetLauncheBthAsync(value.Memory);
     }
 
     [RelayCommand]
     async Task Loaded()
     {
         ProgressAction = true;
-        await AppContext.TryInvokeAsync(async () =>
+        var closeWindow = await AppSettings.GetCloseWindowAsync();
+        switch (closeWindow)
         {
-            var closeWindow = AppSettings.CloseWindow;
-            switch (closeWindow)
-            {
-                case "True":
-                    this.SelectCloseIndex = 1;
-                    break;
-                case "False":
-                    this.SelectCloseIndex = 0;
-                    break;
-            }
-            if (AppSettings.WallpaperType == null)
+            case "True":
+                this.SelectCloseIndex = 1;
+                break;
+            case "False":
+                this.SelectCloseIndex = 0;
+                break;
+        }
+        var wallpaperType = await AppSettings.GetWallpaperTypeAsync();
+        if (wallpaperType == null)
+        {
+            this.SelectWallpaperName = WallpaperTypes[0];
+        }
+        else
+        {
+            if (wallpaperType == "Video")
             {
                 this.SelectWallpaperName = WallpaperTypes[0];
             }
             else
             {
-                if (AppSettings.WallpaperType == "Video")
-                {
-                    this.SelectWallpaperName = WallpaperTypes[0];
-                }
-                else
-                {
-                    this.SelectWallpaperName = WallpaperTypes[1];
-                }
+                this.SelectWallpaperName = WallpaperTypes[1];
             }
-            this.AutoCommunitySign = AppSettings.AutoSignCommunity;
-            this.StartGameAllowCloseMain = AppSettings.StartGameAllowCloseMain;
-            switch (AppSettings.ElementTheme)
-            {
-                case "Light":
-                    this.SelectTheme = Themes[1];
-                    break;
-                case "Dark":
-                    this.SelectTheme = Themes[2];
-                    break;
-                case "Default":
-                    this.SelectTheme = Themes[0];
-                    break;
-                default:
-                    this.SelectTheme = Themes[0];
-                    break;
-            }
-            this.InitCapture();
-            GetAllVersion();
-            LoadUpdateAppType();
-            await LoadLauncheBth();
-        });
+        }
+        this.AutoCommunitySign = await AppSettings.GetAutoSignCommunityAsync();
+        this.StartGameAllowCloseMain = await AppSettings.GetStartGameAllowCloseMainAsync();
+        switch (await AppSettings.GetElementThemeAsync())
+        {
+            case "Light":
+                this.SelectTheme = Themes[1];
+                break;
+            case "Dark":
+                this.SelectTheme = Themes[2];
+                break;
+            case "Default":
+                this.SelectTheme = Themes[0];
+                break;
+            default:
+                this.SelectTheme = Themes[0];
+                break;
+        }
+        await this.InitCapture();
+        GetAllVersion();
+        await LoadUpdateAppType();
+        await LoadLauncheBth();
         ProgressAction = false;
     }
 
     private async Task LoadLauncheBth()
     {
-        var saveOption = AppSettings.LauncheBth;
+        var saveOption = await AppSettings.GetLauncheBthAsync();
         if (saveOption == null)
             return;
         foreach (var item in this.AppLauncheBths)
@@ -180,27 +181,32 @@ public sealed partial class SettingViewModel : ViewModelBase
 
     partial void OnSelectCloseIndexChanged(int value)
     {
-        switch (value)
-        {
-            case 0:
-                AppSettings.CloseWindow = "False";
-                break;
-            case 1:
-                AppSettings.CloseWindow = "True";
-                break;
-        }
+        _ = OnSelectCloseIndexChangedAsync(value);
     }
 
     partial void OnStartGameAllowCloseMainChanged(bool? value)
     {
         if (value == null)
             return;
-        AppSettings.StartGameAllowCloseMain = value;
+        _ = AppSettings.SetStartGameAllowCloseMainAsync(value);
     }
 
     partial void OnAutoCommunitySignChanged(bool? value)
     {
-        AppSettings.AutoSignCommunity = value;
+        _ = AppSettings.SetAutoSignCommunityAsync(value);
+    }
+
+    private async Task OnSelectCloseIndexChangedAsync(int value)
+    {
+        switch (value)
+        {
+            case 0:
+                await AppSettings.SetCloseWindowAsync("False");
+                break;
+            case 1:
+                await AppSettings.SetCloseWindowAsync("True");
+                break;
+        }
     }
 
     public override void Dispose()

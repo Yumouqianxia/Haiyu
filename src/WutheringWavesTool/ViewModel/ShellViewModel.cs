@@ -156,9 +156,9 @@ public sealed partial class ShellViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    void OpenMain()
+    async Task OpenMain()
     {
-        var launcheArgs = AppSettings.LauncheBth;
+        var launcheArgs = await AppSettings.GetLauncheBthAsync();
         switch (launcheArgs)
         {
             case "Home":
@@ -309,7 +309,7 @@ public sealed partial class ShellViewModel : ViewModelBase
     [RelayCommand]
     async Task Loaded()
     {
-        if (AppSettings.AutoSignCommunity == false)
+        if (await AppSettings.GetAutoSignCommunityAsync() == false)
             await KuroClient.SetAutoUserAsync(this.CTS.Token);
         var result = await KuroClient.IsLoginAsync(this.CTS.Token);
         if (!result)
@@ -331,7 +331,7 @@ public sealed partial class ShellViewModel : ViewModelBase
             AppDomain.CurrentDomain.BaseDirectory + "Assets\\background.png"
         );
         await RefreshHeaderUser();
-        OpenMain();
+        await OpenMain();
         await AppContext.UpdateAppAsync();
 
         await SystemEventPublisher.SubscribeAsync(OnMessageChanged);

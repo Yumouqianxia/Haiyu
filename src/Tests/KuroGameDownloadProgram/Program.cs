@@ -27,9 +27,11 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddGameContext();
+        services.AddSingleton<AppSettings>();
     })
     .Build();
-
+var appSettings = host.Services.GetService<AppSettings>();
+var a = await appSettings.GetPunishAutoOpenContextAsync();
 var v2 = host.Services.GetRequiredKeyedService<IGameContextV2>(nameof(WavesMainGameContextV2));
 await v2.InitAsync();
 v2.ProgressState.OnProgressChanged += (t) =>

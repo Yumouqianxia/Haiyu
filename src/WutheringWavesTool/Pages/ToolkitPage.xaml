@@ -31,7 +31,7 @@
         <Grid
             Margin="25"
             Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
-            BorderBrush="{ThemeResource CardStrokeColorDefaultSolid}"
+            BorderBrush="{ThemeResource ControlStrokeColorSecondaryBrush}"
             BorderThickness="1"
             CornerRadius="5">
 
@@ -76,6 +76,7 @@
                 <TextBlock
                     Grid.Row="1"
                     Grid.Column="1"
+                    FontSize="13"
                     Foreground="{ThemeResource SystemColorGrayTextBrush}"
                     Text="本工具通过ADB Port调试端口，链接安卓系统的WebView，并通过CDP调用协议抓取Token信息"
                     TextWrapping="Wrap" />

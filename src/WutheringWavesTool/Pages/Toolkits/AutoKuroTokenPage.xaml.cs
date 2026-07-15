@@ -8,6 +8,7 @@ public sealed partial class AutoKuroTokenPage : Page, IWindowPage
     {
         InitializeComponent();
         this.ViewModel = Instance.Host.Services.GetRequiredService<AutoKuroTokenViewModel>();
+        this.RequestedTheme = Instance.Host.Services.GetRequiredService<IThemeService>().CurrentTheme;
     }
 
     public AutoKuroTokenViewModel ViewModel { get; private set; }

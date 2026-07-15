@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +9,7 @@ namespace Haiyu.Services;
 
 public sealed class ThemeService : IThemeService
 {
-    private readonly Lazy<string?> _currentTheme;
+    private Lazy<string?> _currentTheme;
 
     public ThemeService(IAppContext<App> appContext,AppSettings appSettings)
     {
@@ -49,5 +49,7 @@ public sealed class ThemeService : IThemeService
             }else
                 page.RequestedTheme = theme.Value;
         }
+
+        _currentTheme = new(() => AppSettings.GetElementThemeAsync().GetAwaiter().GetResult());
     }
 }

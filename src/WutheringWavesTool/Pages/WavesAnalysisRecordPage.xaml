@@ -248,11 +248,13 @@
                                 FontSize="15"
                                 Foreground="{ThemeResource TextFillColorSecondaryBrush}"
                                 Text="称号" />
-                            <TextBlock
-                                HorizontalAlignment="Center"
-                                FontSize="20"
-                                FontWeight="Bold"
-                                Text="{x:Bind ViewModel.Header.Designation, Mode=OneWay}" />
+                            <Viewbox MaxWidth="60" HorizontalAlignment="Center">
+
+                                <TextBlock
+                                    FontSize="20"
+                                    FontWeight="Bold"
+                                    Text="{x:Bind ViewModel.Header.Designation, Mode=OneWay}" />
+                            </Viewbox>
                         </StackPanel>
                         <StackPanel
                             Grid.Column="2"

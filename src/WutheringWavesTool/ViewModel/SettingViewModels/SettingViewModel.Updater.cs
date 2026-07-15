@@ -8,11 +8,22 @@ namespace Haiyu.ViewModel;
 
 partial class SettingViewModel
 {
+    private bool _isLoadingGithubSettings;
+
     [ObservableProperty]
     public partial List<string> UpdateAppType { get; set; } = ["Github", "Mirror"];
 
     [ObservableProperty]
     public partial ObservableCollection<GithubIpDisplayGroup> GithubIpGroups { get; set; } = [];
+
+    [ObservableProperty]
+    public partial string? GithubCdn { get; set; }
+
+    [ObservableProperty]
+    public partial bool GithubFrontingEnabled { get; set; }
+
+    [ObservableProperty]
+    public partial bool GithubCdnEnabled { get; set; }
 
     [ObservableProperty]
     public partial bool HasGithubIpGroups { get; set; }
@@ -60,14 +71,44 @@ partial class SettingViewModel
 
     private async Task LoadGithubIpConfigAsync()
     {
-        var settings = await GithubIpSettings.GetMergedGithubIpsAsync();
+        _isLoadingGithubSettings = true;
+        try
+        {
+            var settings = await GithubIpSettings.GetMergedGithubIpsAsync();
 
-        GithubIpGroups = settings
-            .Where(x => !string.IsNullOrWhiteSpace(x.Host))
-            .Select(CreateGithubIpDisplayGroup)
-            .ToObservableCollection();
+            GithubIpGroups = settings
+                .Where(x => !string.IsNullOrWhiteSpace(x.Host))
+                .Select(CreateGithubIpDisplayGroup)
+                .ToObservableCollection();
+            this.GithubCdn = await GithubIpSettings.GetgithubCdnAsync(this.CTS.Token);
+            GithubFrontingEnabled = await GithubIpSettings.GetgithubFrontingEnabledAsync(this.CTS.Token);
+            GithubCdnEnabled = await GithubIpSettings.GetgithubCdnEnabledAsync(this.CTS.Token);
+            HasGithubIpGroups = GithubIpGroups.Count > 0;
+        }
+        finally
+        {
+            _isLoadingGithubSettings = false;
+        }
+    }
 
-        HasGithubIpGroups = GithubIpGroups.Count > 0;
+    async partial void OnGithubCdnEnabledChanged(bool oldValue, bool newValue)
+    {
+        if (_isLoadingGithubSettings || oldValue == newValue)
+        {
+            return;
+        }
+
+        await GithubIpSettings.SetgithubCdnEnabledAsync(newValue, this.CTS.Token);
+    }
+
+    async partial void OnGithubFrontingEnabledChanged(bool oldValue, bool newValue)
+    {
+        if (_isLoadingGithubSettings || oldValue == newValue)
+        {
+            return;
+        }
+
+        await GithubIpSettings.SetgithubFrontingEnabledAsync(newValue, this.CTS.Token);
     }
 
     private static GithubIpDisplayGroup CreateGithubIpDisplayGroup(IPEndPointWrapper setting)
@@ -117,6 +158,35 @@ partial class SettingViewModel
         await GithubIpSettings.SetgithubIpsAsync(settings);
         await LoadGithubIpConfigAsync();
         TipShow.ShowMessage("Github 域前置配置已保存", Symbol.Accept);
+    }
+
+    [RelayCommand]
+    async Task SaveeGithubCdn()
+    {
+        var cdn = GithubCdn?.Trim();
+        if (string.IsNullOrWhiteSpace(cdn))
+        {
+            TipShow.ShowMessage("Github CDN 配置不能为空", Symbol.Important);
+            return;
+        }
+
+        if (!cdn.Contains("{downloadUrl}", StringComparison.Ordinal))
+        {
+            TipShow.ShowMessage("Github CDN 配置必须包含 {downloadUrl}", Symbol.Important);
+            return;
+        }
+
+        await GithubIpSettings.SetgithubCdnAsync(cdn, this.CTS.Token);
+        GithubCdn = await GithubIpSettings.GetgithubCdnAsync(this.CTS.Token);
+        TipShow.ShowMessage("Github CDN 配置已保存", Symbol.Accept);
+    }
+
+    [RelayCommand]
+    async Task SaveGithubDownloadOptions()
+    {
+        await GithubIpSettings.SetgithubFrontingEnabledAsync(GithubFrontingEnabled, this.CTS.Token);
+        await GithubIpSettings.SetgithubCdnEnabledAsync(GithubCdnEnabled, this.CTS.Token);
+        TipShow.ShowMessage("Github 下载选项已保存", Symbol.Accept);
     }
 
     [RelayCommand]

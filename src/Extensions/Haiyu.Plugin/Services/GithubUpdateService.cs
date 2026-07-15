@@ -36,11 +36,11 @@ public class GithubUpdateService : IUpdateService
 
     private async Task<GithubResponseModel?> GetInfoAsync(CancellationToken token = default)
     {
-        await RefreshGithubIpsAsync();
+        await RefreshGithubIpsAsync(token);
         var resourceUrl = $"https://api.github.com/repos/{Owner}/{Repo}/releases";
         try
         {
-            using (var client = SocketHttpFactory.CreateGithubClient(null, this._ips))
+            using (var client = CreateGithubClient())
             {
                 client.DefaultRequestHeaders.Add(
                     "User-Agent",
@@ -71,14 +71,24 @@ public class GithubUpdateService : IUpdateService
         }
     }
 
-    private async Task RefreshGithubIpsAsync()
+    private async Task RefreshGithubIpsAsync(CancellationToken token = default)
     {
         _ips.Clear();
+        if (!await GithubIpSettings.GetgithubFrontingEnabledAsync(token))
+        {
+            return;
+        }
+
         var local = await this.GithubIpSettings.GetMergedGithubIpsAsync();
         foreach (var item in local)
         {
             this._ips.Add(item.Host, item.Ips.Select(x => IPAddress.Parse(x)).ToArray());
         }
+    }
+
+    private HttpClient CreateGithubClient()
+    {
+        return SocketHttpFactory.CreateGithubClient(null, _ips);
     }
 
     public async Task<bool> CheckProgramUpdateAsync(
@@ -126,7 +136,7 @@ public class GithubUpdateService : IUpdateService
     {
         try
         {
-            await RefreshGithubIpsAsync();
+            await RefreshGithubIpsAsync(token);
             if (_cacheInfo == null || DateTime.Now - _cacheInfo.Item2 > TimeSpan.FromMinutes(5))
             {
                 await RefreshDownloadInfo(token);
@@ -147,11 +157,19 @@ public class GithubUpdateService : IUpdateService
                 return null;
             }
             var url = asset.BrowserDownloadUrl;
-            var downloadPath = Path.Combine(
-                Path.GetTempPath(),
-                asset.Name + ".exe"
-            );
-            using (var client = SocketHttpFactory.CreateGithubClient(null, this._ips))
+            if (await GithubIpSettings.GetgithubCdnEnabledAsync(token))
+            {
+                var githubCdn = await GithubIpSettings.GetgithubCdnAsync(token);
+                if (
+                    !string.IsNullOrWhiteSpace(githubCdn)
+                    && githubCdn.Contains("{downloadUrl}", StringComparison.Ordinal)
+                )
+                {
+                    url = githubCdn.Replace("{downloadUrl}", url, StringComparison.Ordinal);
+                }
+            }
+            var downloadPath = Path.Combine(Path.GetTempPath(), asset.Name + ".exe");
+            using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add(
                     "User-Agent",

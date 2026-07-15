@@ -1,8 +1,8 @@
+using System.Text.Json;
 using Haiyu.Analyzers;
 using ProxyExtensions.Models;
 using Waves.Core.Common;
 using Waves.Core.Settings;
-using System.Text.Json;
 
 namespace Haiyu.Plugin.Common;
 
@@ -13,6 +13,9 @@ namespace Haiyu.Plugin.Common;
     JsonTypeInfoContextType = typeof(IPEndPointWrapperContext),
     JsonTypeInfoPropertyName = nameof(IPEndPointWrapperContext.ListIPEndPointWrapper)
 )]
+[Settings<bool>(Name = "githubFrontingEnabled", DefaultValue = "true", Nullable = false)]
+[Settings<bool>(Name = "githubCdnEnabled", DefaultValue = "true", Nullable = false)]
+[Settings<string>(Name = "githubCdn", DefaultValue = "https://gh.llkk.cc/{downloadUrl}", Nullable = true)]
 public partial class GithubIpSettings : SettingBase
 {
     public const string GitHubUserContentHost = "*.githubusercontent.com";
@@ -27,11 +30,15 @@ public partial class GithubIpSettings : SettingBase
         "github-registry-files.githubusercontent.com",
     ];
 
-    private const string DefaultGithubIpJson = "[{\"host\":\"github.com\",\"ips\":[\"20.205.243.166\",\"140.82.112.3\",\"140.82.113.3\",\"140.82.114.3\",\"140.82.121.3\"]},{\"host\":\"api.github.com\",\"ips\":[\"20.205.243.168\",\"140.82.112.5\",\"140.82.113.5\",\"140.82.114.6\",\"140.82.121.5\"]},{\"host\":\"codeload.github.com\",\"ips\":[\"20.205.243.165\",\"140.82.112.9\",\"140.82.113.10\",\"140.82.114.10\",\"140.82.121.10\"]},{\"host\":\"avatars.githubusercontent.com\",\"ips\":[\"185.199.108.133\",\"185.199.109.133\",\"185.199.110.133\",\"185.199.111.133\"]},{\"host\":\"*.githubusercontent.com\",\"ips\":[\"185.199.108.133\",\"185.199.109.133\",\"185.199.110.133\",\"185.199.111.133\",\"185.199.108.154\",\"185.199.109.154\",\"185.199.110.154\",\"185.199.111.154\",\"140.82.112.21\"]},{\"host\":\"github.githubassets.com\",\"ips\":[\"185.199.108.215\",\"185.199.109.215\",\"185.199.110.215\",\"185.199.111.215\"]}]";
-    private static readonly string SettingsFilePath = Path.Combine(AppSettings.BassFolder, "githubIp.json");
+    private const string DefaultGithubIpJson =
+        "[{\"host\":\"github.com\",\"ips\":[\"20.205.243.166\",\"140.82.112.3\",\"140.82.113.3\",\"140.82.114.3\",\"140.82.121.3\"]},{\"host\":\"api.github.com\",\"ips\":[\"20.205.243.168\",\"140.82.112.5\",\"140.82.113.5\",\"140.82.114.6\",\"140.82.121.5\"]},{\"host\":\"codeload.github.com\",\"ips\":[\"20.205.243.165\",\"140.82.112.9\",\"140.82.113.10\",\"140.82.114.10\",\"140.82.121.10\"]},{\"host\":\"*.githubusercontent.com\",\"ips\":[\"185.199.108.133\",\"185.199.109.133\",\"185.199.110.133\",\"185.199.111.133\",\"185.199.108.154\",\"185.199.109.154\",\"185.199.110.154\",\"185.199.111.154\",\"140.82.112.21\"]},{\"host\":\"avatars.githubusercontent.com\",\"ips\":[\"185.199.108.133\",\"185.199.109.133\",\"185.199.110.133\",\"185.199.111.133\"]},{\"host\":\"github.githubassets.com\",\"ips\":[\"185.199.108.215\",\"185.199.109.215\",\"185.199.110.215\",\"185.199.111.215\"]}]";
+    private static readonly string SettingsFilePath = Path.Combine(
+        AppSettings.BassFolder,
+        "githubIp.json"
+    );
 
     public GithubIpSettings()
-        : base(SettingsFilePath) {  }
+        : base(SettingsFilePath) { }
 
     public static IReadOnlyList<IPEndPointWrapper> BuiltinSettings { get; } =
         JsonSerializer.Deserialize(
@@ -47,11 +54,7 @@ public partial class GithubIpSettings : SettingBase
 
         foreach (var item in BuiltinSettings)
         {
-            merged[item.Host] = new IPEndPointWrapper()
-            {
-                Host = item.Host,
-                Ips = [.. item.Ips],
-            };
+            merged[item.Host] = new IPEndPointWrapper() { Host = item.Host, Ips = [.. item.Ips] };
         }
 
         foreach (var item in local.Where(x => !string.IsNullOrWhiteSpace(x.Host)))

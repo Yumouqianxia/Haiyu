@@ -109,7 +109,7 @@ partial class KuroGameContextBaseV2
                 {
                     { "resource", resource.Resource },
                     { "launcher", launcher },
-                    { "isDelete", false },
+                    { "isDelete", isRepir },
                     { "folder", folder },
                     { "httpClient", HttpClientService! },
                     { "downloadState", DownloadState! },

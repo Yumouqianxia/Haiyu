@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl
+    x:Class="Haiyu.Controls.GameSelectionCard"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:ani="using:CommunityToolkit.WinUI.Animations"
+    xmlns:b="using:CommunityToolkit.WinUI.Behaviors"
+    xmlns:cui="using:CommunityToolkit.WinUI"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:local="using:Haiyu.Controls"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:ui="using:Haiyu.Controls"
+    mc:Ignorable="d">
+    <Grid
+        x:Name="backGrid"
+        cui:VisualExtensions.NormalizedCenterPoint="0.5,0.5"
+        Background="{x:Bind Background, Mode=OneWay}"
+        BorderBrush="{x:Null}"
+        CornerRadius="{x:Bind CornerRadius}"
+        PointerEntered="backGrid_PointerEntered"
+        PointerExited="backGrid_PointerExited">
+        <ani:Explicit.Animations>
+            <ani:AnimationSet x:Name="CardElevateUp">
+                <ani:Vector3Animation Target="Translation" Duration="0:0:0.001" />
+                <ani:TranslationAnimation
+                    EasingMode="EaseOut"
+                    EasingType="Cubic"
+                    To="0, -8, 0"
+                    Duration="0:0:0.2" />
+            </ani:AnimationSet>
+            <ani:AnimationSet x:Name="CardElevateDown">
+                <ani:Vector3Animation Target="Translation" Duration="0:0:0.001" />
+                <ani:TranslationAnimation
+                    EasingMode="EaseOut"
+                    EasingType="Cubic"
+                    To="0, 0, 0"
+                    Duration="0:0:0.2" />
+            </ani:AnimationSet>
+        </ani:Explicit.Animations>
+        <i:Interaction.Behaviors>
+            <i:EventTriggerBehavior EventName="Loaded">
+                <i:ChangePropertyAction
+                    PropertyName="Visibility"
+                    TargetObject="{x:Bind cardContet}"
+                    Value="Collapsed" />
+            </i:EventTriggerBehavior>
+            <i:EventTriggerBehavior EventName="PointerEntered">
+                <b:StartAnimationAction Animation="{x:Bind BorderOpacityUp}" />
+                <b:StartAnimationAction Animation="{x:Bind BorderThicknessUp}" />
+                <b:StartAnimationAction Animation="{x:Bind ImageScaleUp}" />
+                <!--
+                <b:StartAnimationAction Animation="{x:Bind CardElevateUp}" />-->
+            </i:EventTriggerBehavior>
+            <i:EventTriggerBehavior EventName="PointerExited">
+                <b:StartAnimationAction Animation="{x:Bind BorderOpacityDown}" />
+                <b:StartAnimationAction Animation="{x:Bind BorderThicknessDown}" />
+                <b:StartAnimationAction Animation="{x:Bind ImageScaleDown}" />
+                <!--
+                <b:StartAnimationAction Animation="{x:Bind CardElevateDown}" />-->
+            </i:EventTriggerBehavior>
+            <i:EventTriggerBehavior EventName="PointerPressed">
+                <b:StartAnimationAction Animation="{x:Bind ImagePress}" />
+            </i:EventTriggerBehavior>
+            <i:EventTriggerBehavior EventName="PointerReleased">
+                <b:StartAnimationAction Animation="{x:Bind ImageScaleUp}" />
+            </i:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+        <ui:ImageEx
+            x:Name="image"
+            cui:UIElementExtensions.ClipToBounds="True"
+            cui:VisualExtensions.NormalizedCenterPoint="0.5,0.5"
+            CornerRadius="{x:Bind CornerRadius}"
+            Source="{x:Bind CardImage, Mode=OneWay}"
+            Stretch="UniformToFill">
+            <ani:Explicit.Animations>
+                <ani:AnimationSet x:Name="ImageScaleUp">
+                    <ani:Vector3Animation Target="CenterPoint" Duration="0:0:0.001" />
+                    <ani:ScaleAnimation
+                        EasingMode="EaseOut"
+                        EasingType="Cubic"
+                        To="1.5"
+                        Duration="0:0:0.2" />
+                </ani:AnimationSet>
+                <ani:AnimationSet x:Name="ImageScaleDown">
+                    <ani:Vector3Animation Target="CenterPoint" Duration="0:0:0.001" />
+                    <ani:ScaleAnimation
+                        EasingMode="EaseOut"
+                        EasingType="Cubic"
+                        From="1.2"
+                        To="1"
+                        Duration="0:0:0.2" />
+                </ani:AnimationSet>
+                <ani:AnimationSet x:Name="ImagePress">
+                    <ani:Vector3Animation Target="CenterPoint" Duration="0:0:0.001" />
+                    <ani:ScaleAnimation
+                        EasingMode="EaseOut"
+                        EasingType="Cubic"
+                        To="1.3"
+                        Duration="0:0:0.2" />
+                </ani:AnimationSet>
+            </ani:Explicit.Animations>
+            <i:Interaction.Behaviors>
+                <i:EventTriggerBehavior EventName="PointerEntered" />
+                <i:EventTriggerBehavior EventName="PointerExited" />
+            </i:Interaction.Behaviors>
+        </ui:ImageEx>
+        <Border
+            cui:VisualExtensions.NormalizedCenterPoint="0.5,0.5"
+            Background="{ThemeResource AppBarBackgroundThemeBrush}"
+            CornerRadius="{x:Bind CornerRadius}">
+            <ani:Implicit.ShowAnimations>
+                <ani:OpacityAnimation To="0" Duration="0:0:0.2" />
+            </ani:Implicit.ShowAnimations>
+            <ani:Explicit.Animations>
+                <ani:AnimationSet x:Name="BorderOpacityUp">
+                    <ani:OpacityAnimation To="0.5" Duration="0:0:0.2" />
+                </ani:AnimationSet>
+                <ani:AnimationSet x:Name="BorderOpacityDown">
+                    <ani:OpacityAnimation To="0" Duration="0:0:0.2" />
+                </ani:AnimationSet>
+            </ani:Explicit.Animations>
+
+        </Border>
+        <Border
+            BorderBrush="{x:Bind BorderBrush, Mode=OneWay}"
+            BorderThickness="{x:Bind BorderThickness, Mode=OneWay}"
+            CornerRadius="{x:Bind CornerRadius}">
+            <ani:Implicit.ShowAnimations>
+                <ani:OpacityAnimation To="0" Duration="0:0:0.2" />
+            </ani:Implicit.ShowAnimations>
+            <ani:Explicit.Animations>
+
+                <ani:AnimationSet x:Name="BorderThicknessUp">
+                    <ani:OpacityAnimation To="1" Duration="0:0:0.2" />
+                </ani:AnimationSet>
+                <ani:AnimationSet x:Name="BorderThicknessDown">
+                    <ani:OpacityAnimation To="0" Duration="0:0:0.2" />
+                </ani:AnimationSet>
+            </ani:Explicit.Animations>
+        </Border>
+        <ContentControl
+            x:Name="cardContet"
+            Margin="{x:Bind Padding}"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            HorizontalContentAlignment="Stretch"
+            VerticalContentAlignment="Stretch"
+            Content="{x:Bind CardContent, Mode=OneWay}">
+            <ani:Implicit.ShowAnimations>
+                <ani:OpacityAnimation To="1" Duration="0:0:0.2" />
+            </ani:Implicit.ShowAnimations>
+            <ani:Implicit.HideAnimations>
+                <ani:OpacityAnimation To="0" Duration="0:0:0.2" />
+            </ani:Implicit.HideAnimations>
+        </ContentControl>
+    </Grid>
+</UserControl>

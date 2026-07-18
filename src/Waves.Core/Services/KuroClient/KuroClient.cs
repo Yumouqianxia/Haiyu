@@ -1,17 +1,3 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using System.Net.Http.Headers;
-using System.Text.Json;
-using System.Text.Json.Nodes;
-using Waves.Api.Models;
-using Waves.Api.Models.Communitys;
-using Waves.Api.Models.QRLogin;
-using Waves.Core;
-using Waves.Core.Contracts;
-using Waves.Core.Helpers;
-using Waves.Core.Models;
-using Waves.Core.Services;
-using WavesLauncher.Core.Contracts;
-
 namespace Waves.Core.Services;
 
 public sealed partial class KuroClient : IKuroClient
@@ -331,7 +317,7 @@ public sealed partial class KuroClient : IKuroClient
             jsonStr,
             CommunityContext.Default.GamerBassString
         );
-        if (resultCode == null)
+        if (resultCode == null || resultCode.Data == null)
         {
             return null;
         }
@@ -504,7 +490,7 @@ public sealed partial class KuroClient : IKuroClient
         try
         {
             var users = await AccountService.GetUsersAsync();
-            var tokenId = AccountService.AppSettings.LastSelectUser;
+            var tokenId = await AccountService.AppSettings.GetLastSelectUserAsync().ConfigureAwait(false);
             var defaultSenect = users.FirstOrDefault(x => x.TokenId == tokenId);
             if (tokenId != null && defaultSenect != null)
             {
@@ -522,7 +508,7 @@ public sealed partial class KuroClient : IKuroClient
                 {
                     //有信息则选定这个用户
                     AccountService.SetCurrentUser(defaultSenect);
-                    AccountService.AppSettings.LastSelectUser = defaultSenect.TokenId;
+                    await AccountService.AppSettings.SetLastSelectUserAsync(defaultSenect.TokenId).ConfigureAwait(false);
                 }
 
             }
@@ -531,9 +517,9 @@ public sealed partial class KuroClient : IKuroClient
                 await SetAutoUserAsync(users, token);
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            throw;
+            LoggerService.WriteError(ex.Message + ex.StackTrace);
         }
     }
 
@@ -558,7 +544,7 @@ public sealed partial class KuroClient : IKuroClient
             }
             //有信息则选定这个用户
             AccountService.SetCurrentUser(item);
-            AccountService.AppSettings.LastSelectUser = item.TokenId;
+            await AccountService.AppSettings.SetLastSelectUserAsync(item.TokenId).ConfigureAwait(false);
         }
     }
 }

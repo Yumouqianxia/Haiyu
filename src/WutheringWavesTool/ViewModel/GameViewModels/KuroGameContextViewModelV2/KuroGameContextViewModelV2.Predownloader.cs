@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Waves.Core.Models.Enums;
@@ -22,6 +22,9 @@ partial class KuroGameContextViewModelV2
 
     [ObservableProperty]
     public partial Visibility PredDownloadDoneVisibility { get; set; } = Visibility.Collapsed;
+
+    [ObservableProperty]
+    public partial Visibility PreAdvanceVisiblity { get; set; } = Visibility.Collapsed;
 
     [ObservableProperty]
     public partial double PreDownloadProgress { get; set; } = 0;
@@ -70,7 +73,6 @@ partial class KuroGameContextViewModelV2
                 await this.GameContext.PauseDownloadAsync();
                 return;
             }
-            // 正在下载中，进行暂停逻辑
         }
         var result = await DialogManager.ShowUpdateGameDialogAsync(
             this.GameContext.ContextName,
@@ -78,7 +80,7 @@ partial class KuroGameContextViewModelV2
         );
         if (result.IsOk)
         {
-            await this.GameContext.StartProdDownloadGameResourceAsync();
+            StartBackground(() => this.GameContext.StartProdDownloadGameResourceAsync());
         }
     }
 
@@ -102,12 +104,36 @@ partial class KuroGameContextViewModelV2
         }
         if (done!= null && done.ToLower() == "true" && Directory.Exists(path))
         {
-            await this.GameContext.StartProdDownloadGameResourceAsync();
+            StartBackground(() => this.GameContext.StartProdDownloadGameResourceAsync());
         }
         else
         {
-            await StartPreDownloadGame();
+            StartBackground(()=>StartPreDownloadGame());
         }
     }
 
+    /// <summary>
+    /// 提前安装
+    /// </summary>
+    private void ShowAdvanceInstallBth(GameContextStatus status)
+    {
+        PreAdvanceVisiblity = Visibility.Visible;
+    }
+
+    [RelayCommand]
+    public async Task AdvanceGameAsync()
+    {
+        var result = await DialogManager.ShowMessageDialog(new ShowDialogOption()
+        {
+            CloseText = "取消",
+            Context = "提前安装游戏文件之后，在最新版本开服之前无法正常启动游戏，请确认是否安装",
+            ShowPrimaryButton = true,
+            PrimaryText = "确定安装"
+        });
+        if(result == ContentDialogResult.None)
+        {
+            return;
+        }
+        this.StartBackground(this.GameContext.AdvanceInstallGameResourceAsync);
+    }
 }

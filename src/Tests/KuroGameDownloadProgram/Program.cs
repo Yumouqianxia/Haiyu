@@ -1,4 +1,4 @@
-﻿using System.Text.Json;
+using System.Text.Json;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Haiyu.Plugin.Services;
 using Haiyu.RpcClient;
@@ -27,27 +27,11 @@ IHost host = Host.CreateDefaultBuilder(args)
     .ConfigureServices(services =>
     {
         services.AddGameContext();
-        services.AddSingleton<CloudGameService>();
-        services.AddSingleton<CloudConfigManager>(
-            (s) =>
-            {
-                return new CloudConfigManager(AppSettings.CloudFolderPath);
-            }
-        );
-        services.AddSingleton<IHttpClientService, HttpClientService>();
         services.AddSingleton<AppSettings>();
-        services.AddKeyedSingleton<LoggerService>(
-            "AppLog",
-            (s, e) =>
-            {
-                var logger = new LoggerService();
-                logger.InitLogger(AppSettings.LogPath, Serilog.RollingInterval.Day);
-                return logger;
-            }
-        );
     })
     .Build();
-
+var appSettings = host.Services.GetService<AppSettings>();
+var a = await appSettings.GetPunishAutoOpenContextAsync();
 var v2 = host.Services.GetRequiredKeyedService<IGameContextV2>(nameof(WavesMainGameContextV2));
 await v2.InitAsync();
 v2.ProgressState.OnProgressChanged += (t) =>
@@ -59,7 +43,7 @@ v2.ProgressState.OnProgressChanged += (t) =>
         Console.SetCursorPosition(0, 0);
         double percentage = t.Percentage;
         string progressBar = "[";
-        int filledTabs = (int)(percentage / 2);
+        int filledTabs = (int) (percentage / 2);
         progressBar += new string('=', filledTabs);
         progressBar += new string(' ', 50 - filledTabs);
         progressBar += $"] {percentage,6:F2}%";
@@ -102,7 +86,7 @@ v2.ProgressState.OnProgressChanged += (t) =>
 
 Console.Clear();
 Console.SetCursorPosition(0, 15);
-await v2.StartInstallGameResource(true);
+await v2.AdvanceInstallGameResourceAsync();
 while (true)
 {
     Console.WriteLine("Q停止，P暂停，R恢复，输入数字设定下载速度（MB）,回车确认");
@@ -125,14 +109,10 @@ while (true)
 }
 
 
-public class TestContext : KuroGameContextBaseV2
-{
-    public TestContext(KuroGameApiConfig config, string contextName)
-        : base(config, contextName) { }
 
-    public override string GameContextNameKey => throw new NotImplementedException();
 
-    public override GameType GameType => throw new NotImplementedException();
+//DownloadClient downloadClient = new();
+//var resource = await downloadClient.GetVersionResource("https://pcdownload-aliyun.aki-game.com/launcher/game/G152/10003/3.3.0/LwvQueHvaDihmfrFKvPkzsBMsZoMxIAD/resource/10003/3.3.0/indexFile.json");
 
-    public override Type ContextType => throw new NotImplementedException();
-}
+//downloadClient.InitDownload(resource, "https://pcdownload-aliyun.aki-game.com/launcher/game/G152/10003/3.3.0/LwvQueHvaDihmfrFKvPkzsBMsZoMxIAD/zip/", "D:\\WutheringWavesGame");
+//await downloadClient.WaitDownloadAsync();

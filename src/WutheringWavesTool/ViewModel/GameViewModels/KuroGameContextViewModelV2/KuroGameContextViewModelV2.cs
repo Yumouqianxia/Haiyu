@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Text;
 using Haiyu.Models.Dialogs;
+using Haiyu.Models.Enums;
 using Haiyu.Services.DialogServices;
 using Waves.Core.Common;
 using Waves.Core.Models.CoreApi;
@@ -28,6 +29,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
     public IDialogManager DialogManager { get; }
     public IAppContext<App> AppContext { get; }
     public ITipShow TipShow { get; }
+    public IIoCircuitBreaker IoCircuitBreaker { get; }
     public IWallpaperService WallpaperService { get; }
 
     protected KuroGameContextViewModelV2(IAppContext<App> appContext, ITipShow tipShow)
@@ -38,6 +40,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         );
         AppContext = appContext;
         TipShow = tipShow;
+        IoCircuitBreaker = Instance.Host.Services.GetRequiredService<IIoCircuitBreaker>();
         WallpaperService = Instance.GetService<IWallpaperService>();
         RegisterMessager();
     }
@@ -55,15 +58,15 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
     [RelayCommand]
     public async Task Loaded()
     {
-
         this.Servers =
             this.GameType == GameType.Waves
                 ? ServerDisplay.GetWavesV2Games
                 : ServerDisplay.GetPunishV2Games;
+
         var openService =
             this.GameType == GameType.Waves
-                ? AppSettings.WavesAutoOpenContext
-                : AppSettings.PunishAutoOpenContext;
+                ? await AppSettings.GetWavesAutoOpenContextAsync(this.CTS.Token)
+                : await AppSettings.GetPunishAutoOpenContextAsync(this.CTS.Token);
 
         var selectServer = Servers.Where(x => x.Key == openService).FirstOrDefault();
         this.SelectServer = selectServer == null ? Servers[0] : selectServer;
@@ -173,11 +176,17 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         }
         if (this.GameContext.GameType == GameType.Waves)
         {
-            AppSettings.WavesAutoOpenContext = this.GameContext.ContextName;
+            await AppSettings.SetWavesAutoOpenContextAsync(
+                this.GameContext.ContextName,
+                this.CTS.Token
+            );
         }
         else if (this.GameContext.GameType == GameType.Punish)
         {
-            AppSettings.PunishAutoOpenContext = this.GameContext.ContextName;
+            await AppSettings.SetPunishAutoOpenContextAsync(
+                this.GameContext.ContextName,
+                this.CTS.Token
+            );
         }
         await RefreshCoreAsync(showCard);
         GC.Collect();
@@ -188,7 +197,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         var args = tracker.LastArgs;
         if (this.GameContext == null)
             return;
-        
+
         await AppContext.TryInvokeAsync(async () =>
         {
             var actionType = args.Type;
@@ -269,7 +278,8 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                             allSteps.Count - 1
                         );
                         PreSetupText = $"{allSteps[safeStepIndex]}";
-                        PreSetupHeaderText = $"[{safeStepIndex + 1}/{allSteps.Count}]";
+                        PreSetupHeaderText =
+                            $"[{safeStepIndex + 1}/{allSteps.Count}]{tracker.StepName}";
                     }
                     else
                     {
@@ -294,7 +304,14 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
             //显示消息
             if (args.Type == Waves.Core.Models.Enums.GameContextActionType.TipMessage)
             {
-                await DialogManager.ShowMessageDialog(args.TipMessage, "确认", "关闭");
+                await DialogManager.ShowMessageDialog(
+                    new ShowDialogOption()
+                    {
+                        Context = args.TipMessage,
+                        CloseText = "确定",
+                        ShowPrimaryButton = false,
+                    }
+                );
             }
             if (
                 actionType == Waves.Core.Models.Enums.GameContextActionType.None
@@ -350,6 +367,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                         this.PreDownloadIcon = "\uE8FB";
                         this.PreProgress = 100;
                     }
+                    //释放
                 }
                 else
                 {
@@ -370,7 +388,8 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         GameContextStatus status
     )
     {
-        if (disposedValue) return;
+        if (disposedValue)
+            return;
         var now = DateTime.Now;
         this.MaxProgressValue = tracker.TotalBytes;
         this.CurrentProgressValue = tracker.CurrentBytes;
@@ -498,43 +517,6 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         points.Add(new LiveChartsCore.Defaults.DateTimePoint(now, value));
     }
 
-    private static string BuildTrackerProgressSummary(GameProgressTracker tracker)
-    {
-        var segments = new List<string>(6)
-        {
-            $"{tracker.Percentage:F2}%",
-            $"Step {tracker.CurrentStepIndex + 1}/{Math.Max(1, tracker.TotalSteps)}: {tracker.StepName}",
-        };
-
-        if (!string.IsNullOrWhiteSpace(tracker.CurrentStepTip))
-        {
-            segments.Add(tracker.CurrentStepTip);
-        }
-
-        var speedText = tracker.GetSpeedText();
-        if (!string.IsNullOrWhiteSpace(speedText))
-        {
-            segments.Add($"Speed: {speedText}");
-        }
-
-        segments.Add(
-            $"Bytes: {GameProgressTracker.FormatBytes(tracker.CurrentBytes)} / {GameProgressTracker.FormatBytes(tracker.TotalBytes)}"
-        );
-
-        return string.Join(" | ", segments);
-    }
-
-    private enum ButtonActionType
-    {
-        None = 0,
-        SelectInstall = 1,
-        Downloading = 2,
-        StartGame = 3,
-        PrepareUpdate = 4,
-        InGame = 5,
-        InstallPreDownload = 6,
-    }
-
     private ButtonActionType _buttonAction = ButtonActionType.None;
     private bool disposedValue;
 
@@ -543,9 +525,9 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         try
         {
             ProcessAction = true;
-            
+
             var status = await this.GameContext.GetGameContextStatusAsync(this.CTS.Token);
-            
+
             if (!status.IsGameExists)
             {
                 Logger.WriteInfo("未找到游戏文件，显示下载按钮");
@@ -587,17 +569,23 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 index.FunctionCode.Background,
                 this.CTS.Token
             );
-            var wallpaperType = AppSettings.WallpaperType;
-            if (status.IsPredownloaded)
+            var wallpaperType = await AppSettings.GetWallpaperTypeAsync(this.CTS.Token);
+
+            if (status.IsPredownloaded && !status.ProdIsAdvance)
             {
-                PredCardVisibility = Visibility.Visible;
-                if (status.PredownloaAcion && !status.PredownloadedDone && status.IsPause) // 正在预下载但已经暂停
+                if (IsAdvanceInstallAction(status))
+                {
+                    ShowAdvanceInstallActionStatus(status);
+                }
+                else if (status.PredownloaAcion && !status.PredownloadedDone && status.IsPause) // 正在预下载但已经暂停
                 {
                     PredCardVisibility = Visibility.Visible;
                     PredDownloadBthVisibility = Visibility.Collapsed;
                     PredDownloadingVisibility = Visibility.Visible;
                     PredDownloadDoneVisibility = Visibility.Collapsed;
+                    PreAdvanceVisiblity = Visibility.Collapsed;
                     PreDownloadIcon = "\uE769";
+                    PreSetupHeaderText = "预下载暂停";
                 }
                 else if (status.PredownloaAcion && !status.PredownloadedDone && !status.IsPause)
                 {
@@ -605,6 +593,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                     PredDownloadBthVisibility = Visibility.Collapsed;
                     PredDownloadingVisibility = Visibility.Visible;
                     PredDownloadDoneVisibility = Visibility.Collapsed;
+                    PreAdvanceVisiblity = Visibility.Collapsed;
                     PreDownloadIcon = "\uE768";
                 }
                 else if (!status.PredownloadedDone)
@@ -613,6 +602,10 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                     PredDownloadBthVisibility = Visibility.Visible;
                     PredDownloadingVisibility = Visibility.Collapsed;
                     PredDownloadDoneVisibility = Visibility.Collapsed;
+                    PreAdvanceVisiblity = Visibility.Collapsed;
+                    PreDownloadIcon = "\uE74B";
+                    PreProgress = 0;
+                    PreSetupHeaderText = "等待预下载";
                 }
                 else
                 {
@@ -622,13 +615,16 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                     this.PreDownloadIcon = "\uE8FB";
                     this.PreProgress = 100;
                     this.PredDownloadingVisibility = Visibility.Collapsed;
+                    PreAdvanceVisiblity = Visibility.Visible;
+                    PreSetupHeaderText = "预下载完成，按下可以开始校验预下载内容";
+                    ShowAdvanceInstallBth(status);
                 }
             }
             else
             {
-                PredCardVisibility = Visibility.Collapsed;
+                HidePreDownloadStatus();
             }
-            if (isRefreshBackground) //是否刷新资源背景
+            if (isRefreshBackground && background != null) //是否刷新资源背景
             {
                 if (wallpaperType == "Video")
                 {
@@ -650,6 +646,10 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 if (status.Gameing)
                 {
                     WallpaperService.PauseVideo();
+                }
+                else
+                {
+                    WallpaperService.RestartVideo();
                 }
                 await ShowCardAsync(showCard);
                 await LoadAfter();
@@ -732,31 +732,31 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 _buttonAction = ButtonActionType.StartGame;
                 this.CurrentProgressValue = 0;
                 this.MaxProgressValue = 0;
-                var totalTime = await GameContext.GameLocalConfig.GetConfigAsync(
-                    GameLocalSettingName.GameRunTotalTime
-                );
-                if (totalTime == null)
-                {
-                    BottomBarContent = "游戏准备就绪";
-                }
-                else
-                {
-                    if (int.TryParse(totalTime, out var timeResult))
-                    {
-                        var tt = TimeSpan.FromSeconds(timeResult);
-                        BottomBarContent =
-                            "已游玩" + ($"{tt.Days}天{tt.Hours}小时{tt.Minutes}分钟");
-                        ;
-                    }
-                    else
-                    {
-                        BottomBarContent = "游戏准备就绪";
-                    }
-                }
+
                 LauncheContent = "进入游戏";
                 EnableStartGameBth = true;
                 DisplayVersion = version;
                 LauncherIcon = "\uE7FC";
+            }
+            var totalTime = await GameContext.GameLocalConfig.GetConfigAsync(
+                GameLocalSettingName.GameRunTotalTime
+            );
+            if (totalTime == null)
+            {
+                BottomBarContent = "游戏准备就绪";
+            }
+            else
+            {
+                if (int.TryParse(totalTime, out var timeResult))
+                {
+                    var tt = TimeSpan.FromSeconds(timeResult);
+                    BottomBarContent = "已游玩" + ($"{tt.Days}天{tt.Hours}小时{tt.Minutes}分钟");
+                    ;
+                }
+                else
+                {
+                    BottomBarContent = "游戏准备就绪";
+                }
             }
         }
     }
@@ -774,6 +774,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 return;
             }
             Logger.WriteInfo($"选择游戏安装路径：{result.InstallFolder},即将进入通知核心进行下载");
+
             StartBackground(() => this.GameContext.StartDownloadTaskAsync(result.InstallFolder));
         }
         else
@@ -836,6 +837,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         GameDownloadingBthVisibility = Visibility.Collapsed;
         GameLauncherBthVisibility = Visibility.Collapsed;
         PredCardVisibility = Visibility.Collapsed;
+        PreAdvanceVisiblity = Visibility.Collapsed;
     }
 
     private void ShowGameDownloadingBth(GameContextStatus status)
@@ -848,6 +850,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         GameInstallBthVisibility = Visibility.Collapsed;
         GameLauncherBthVisibility = Visibility.Collapsed;
         GameDownloadingBthVisibility = Visibility.Visible;
+        PreAdvanceVisiblity = Visibility.Collapsed;
         PredCardVisibility = Visibility.Collapsed;
     }
 
@@ -862,6 +865,30 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         GameDownloadingBthVisibility = Visibility.Collapsed;
         GameLauncherBthVisibility = Visibility.Collapsed;
         PredCardVisibility = Visibility.Collapsed;
+        PreAdvanceVisiblity = Visibility.Collapsed;
+    }
+
+    private static bool IsAdvanceInstallAction(GameContextStatus status)
+    {
+        return status.IsPredownloaded
+            && status.PredownloadedDone
+            && (status.IsAction || status.IsPause)
+            && !status.PredownloaAcion;
+    }
+
+    private void ShowAdvanceInstallActionStatus(GameContextStatus status)
+    {
+        ShowGameDownloadingBth(status);
+        HidePreDownloadStatus();
+    }
+
+    private void HidePreDownloadStatus()
+    {
+        PredCardVisibility = Visibility.Collapsed;
+        PredDownloadBthVisibility = Visibility.Collapsed;
+        PredDownloadingVisibility = Visibility.Collapsed;
+        PredDownloadDoneVisibility = Visibility.Collapsed;
+        PreAdvanceVisiblity = Visibility.Collapsed;
     }
 
     [RelayCommand]
@@ -870,21 +897,33 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         var state = await this.GameContext.GetGameContextStatusAsync(this.CTS.Token);
         if (state.IsPredownloaded && state.PredownloaAcion)
         {
-            await TipShow.ShowMessageAsync("预下载期间禁止修复游戏！", Symbol.Clear);
+            await DialogManager.ShowMessageDialog(
+                new ShowDialogOption()
+                {
+                    Context = "预下载期间，禁止修复游戏",
+                    CloseText = "确定",
+                    ShowPrimaryButton = false,
+                }
+            );
             return;
         }
         if (
             (
                 await DialogManager.ShowMessageDialog(
-                    "修复游戏会将游戏缓存全部删除，保持与服务器最新文件保持一致\r\n（包含画面设置、滤镜设置、预下载等内容)",
-                    "确认修复",
-                    "取消"
+                    new ShowDialogOption()
+                    {
+                        Context =
+                            "修复游戏会将游戏缓存全部删除，保持与服务器最新文件保持一致\r\n（包含画面设置、滤镜设置、预下载等内容)",
+                        CloseText = "取消",
+                        PrimaryText = "确认修复",
+                        ShowPrimaryButton = true,
+                    }
                 )
             ) == ContentDialogResult.Primary
         )
         {
             Logger.WriteInfo($"开始尝试修复游戏文件");
-            await GameContext.RepairGameAsync();
+            StartBackground(() => GameContext.RepairGameAsync());
         }
         else
         {
@@ -896,6 +935,12 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
     async Task ShowGameResource()
     {
         await DialogManager.ShowGameResourceV2DialogAsync(this.GameContext.ContextName);
+    }
+
+    [RelayCommand]
+    async Task ShowGameSetting()
+    {
+        await DialogManager.ShowGameSettingAsync(this.GameContext.ContextName);
     }
 
     [RelayCommand]
@@ -940,7 +985,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         if (!disposedValue)
         {
             disposedValue = true;
-            if(this.GameContext!= null)
+            if (this.GameContext != null)
                 this.GameContext.ProgressState.OnProgressChanged -= ProgressState_OnProgressChanged;
             if (DownloadSpeedPoints != null)
             {
@@ -970,9 +1015,9 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         }
     }
 
-    private void StartBackground(Func<Task> taskFunc)
+    private async void StartBackground(Func<Task> taskFunc)
     {
-        Task.Run(async () =>
+        _ = Task.Run(async () =>
         {
             try
             {

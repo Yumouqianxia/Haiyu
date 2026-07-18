@@ -57,6 +57,9 @@
     <File Path=".editorconfig" />
   </Folder>
   <Folder Name="/Tests/">
+    <Project Path="Tests/AndroidWebViewNetworkMonitor/AndroidWebViewNetworkMonitor.csproj" Id="8297f2ee-c3ca-4e34-b472-c8670d91b245">
+      <BuildType Solution="All|*" Project="Debug" />
+    </Project>
     <Project Path="Tests/KuroGameDownloadProgram/KuroGameDownloadProgram.csproj" Id="3d00fcfd-9df9-4241-b422-ce04accdfa6f">
       <BuildType Solution="All|*" Project="Debug" />
     </Project>
@@ -77,5 +80,11 @@
     <BuildType Solution="All|x86" Project="Debug" />
     <Platform Project="x64" />
     <Deploy />
+  </Project>
+  <Project Path="Haiyu.Controls/Haiyu.Controls.csproj">
+    <BuildType Solution="All|Any CPU" Project="Release" />
+    <BuildType Solution="All|x64" Project="Debug" />
+    <BuildType Solution="All|x86" Project="Debug" />
+    <Platform Project="x64" />
   </Project>
 </Solution>

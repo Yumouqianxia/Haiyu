@@ -1,18 +1,27 @@
-﻿using Haiyu.Helpers;
+using Haiyu.Helpers;
+using Haiyu.Pages.Communitys;
+using Haiyu.Pages.Toolkits;
+using Haiyu.Plugin.Common;
 using Haiyu.Plugin.Contracts;
 using Haiyu.Plugin.Services;
 using Haiyu.ServiceHost;
 using Haiyu.ServiceHost.XBox.Commons;
 using Haiyu.Services.DialogServices;
 using Haiyu.Services.Navigations.NavigationViewServices;
+using Haiyu.ViewModel.Communitys;
 using Haiyu.ViewModel.GameViewModels;
 using Haiyu.ViewModel.GameViewModels.GameContexts;
 using Haiyu.ViewModel.OOBEViewModels;
+using Haiyu.ViewModel.ToolkitsViewModel;
 using Haiyu.ViewModel.WikiViewModels;
+using MemoryPack;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Waves.Api.Models.Rpc;
+using Waves.Api.Models.CloudGame;
+using Waves.Api.Models.Record;
+using Waves.Api.Models.Wrappers;
 using Waves.Core.Contracts.CloudGame;
+using Waves.Core.Models;
 using Waves.Core.Services;
 using Waves.Core.Services.CloudGameServices;
 using Waves.Core.Settings;
@@ -25,8 +34,19 @@ public static class Instance
 
     public static void InitService()
     {
+        EnsureMemoryPackFormatters();
         Host = Microsoft.Extensions.Hosting.Host.CreateDefaultBuilder().AppBuilder().Build();
-        Task.Run(async()=>await Instance.Host.StartAsync());
+        Task.Run(async () => await Instance.Host.StartAsync());
+    }
+
+    static void EnsureMemoryPackFormatters()
+    {
+        MemoryPackFormatterProvider.Register<RecordCardItemWrapper>();
+        MemoryPackFormatterProvider.Register<RecordCacheDetily>();
+        MemoryPackFormatterProvider.Register<WavesAnalysisPlayerCard>();
+        MemoryPackFormatterProvider.Register<WavesAnalysisPlayerCardItem>();
+        MemoryPackFormatterProvider.Register<Datum>();
+        MemoryPackFormatterProvider.Register<LocalAccount>();
     }
 
     public static T? GetService<T>()
@@ -68,42 +88,33 @@ public static class InstanceBuilderExtensions
                         }
                     )
                     .AddSingleton<AppSettings>()
-                #region XBox
+                    .AddSingleton<GithubIpSettings>()
+                    .AddSingleton<IIoCircuitBreaker,IoCircuitBreaker>()
+                    .AddTransient<IAppActivation,AppActivation>()
+                    #region XBox
                     .AddSingleton<XBoxConfig>()
                     .AddSingleton<XBoxController>()
                     .AddSingleton<XBoxService>()
-                #endregion
+                    #endregion
                     .AddTransient<IRpcMethodService, RpcMethodService>()
                     .AddSingleton<ShellPage>()
                     .AddSingleton<ShellViewModel>()
                     .AddSingleton<OOBEPage>()
                     .AddSingleton<OOBEViewModel>()
-                    .AddTransient<CommunityPage>()
-                    .AddTransient<PlayerRecordPage>()
-                    .AddTransient<PlayerRecordViewModel>()
+                    .AddTransient<WavesAnalysisRecordPage>()
+                    .AddTransient<WavesAnalysisRecordViewModel>()
                     .AddTransient<SettingViewModel>()
-                    .AddTransient<CommunityViewModel>()
                     .AddTransient<GameEnhancedDialog>()
                     .AddTransient<GameEnhancedViewModel>()
+                    .AddTransient<GamerSignPage>()
+                    .AddTransient<GamerSignViewModel>()
                     .AddTransient<CloudSelectNodeDialog>()
                     .AddTransient<CloudSelectNodeViewModel>()
-                    .AddTransient<GameResourceDialog>()
-                    .AddTransient<GameResourceViewModel>()
                     .AddTransient<DeviceInfoPage>()
                     .AddTransient<DeviceInfoViewModel>()
-                    .AddTransient<ResourceBriefViewModel>()
-                    .AddTransient<CloudGameViewModel>()
-                    .AddTransient<ColorFullGame>()
-                    .AddTransient<ColorFullViewModel>()
-                    .AddTransient<StartColorFullGamePage>()
-                    .AddTransient<StartColorFullGameViewModel>()
-                    .AddTransient<AnalysisRecordViewModel>()
-                    .AddTransient<AnalysisRecordPage>()
                     .AddTransient<HomeViewModel>()
                     .AddTransient<LanguageSelectViewModel>()
                     .AddTransient<CloudGameingViewModel>()
-                    #region ColorGame
-                    #endregion
                     #region GameContext
                     .AddTransient<PunishV2GameContextViewModel>()
                     .AddTransient<WavesV2GameContextViewModel>()
@@ -113,25 +124,6 @@ public static class InstanceBuilderExtensions
                     .AddTransient<WavesWikiViewModel>()
                     .AddTransient<PunishWikiViewModel>()
                     #endregion
-                    #region Community
-                    .AddTransient<GamerSignPage>()
-                    .AddTransient<GamerSignViewModel>()
-                    .AddTransient<GamerRoilsDetilyViewModel>()
-                    .AddTransient<GameRoilsViewModel>()
-                    .AddTransient<GamerDockViewModel>()
-                    .AddTransient<GamerChallengeViewModel>()
-                    .AddTransient<GamerExploreIndexViewModel>()
-                    .AddTransient<GamerTowerViewModel>()
-                    .AddTransient<GamerSkinViewModel>()
-                    .AddTransient<GamerSlashDetailViewModel>()
-                #endregion
-                #region Record
-                    .AddTransient<RecordItemViewModel>()
-                    #endregion
-                    #region Roil
-                    .AddTransient<GamerRoilsDetilyPage>()
-                    .AddTransient<GamerRoilViewModel>()
-                    #endregion
                     #region Dialog
                     .AddTransient<LoginDialog>()
                     .AddTransient<LoginGameViewModel>()
@@ -139,14 +131,10 @@ public static class InstanceBuilderExtensions
                     .AddTransient<GameLauncherCacheViewModel>()
                     .AddTransient<WebGameLogin>()
                     .AddTransient<WebGameViewModel>()
-                    .AddTransient<SelectGameFolderDialog>()
                     .AddTransient<SelectGameFolderDialogV2>()
-                    .AddTransient<SelectGameFolderViewModel>()
                     .AddTransient<SelectGameFolderViewModelV2>()
                     .AddTransient<CloseDialog>()
-                    .AddTransient<SelectDownoadGameDialog>()
                     .AddTransient<SelectDownoadGameDialogV2>()
-                    .AddTransient<SelectDownloadGameViewModel>()
                     .AddTransient<QRLoginDialog>()
                     .AddTransient<QrLoginViewModel>()
                     .AddTransient<UpdateGameDialog>()
@@ -163,19 +151,20 @@ public static class InstanceBuilderExtensions
                     .AddTransient<UpdateAppViewModel>()
                     .AddTransient<CloudGameSettingViewModel>()
                     .AddTransient<CloudGameSettingDialog>()
+                    .AddTransient<KuroGameSettingDialog>()
+                    .AddTransient<KuroGameSettingViewModel>()
+                    #endregion
                 #endregion
-                #endregion
-                #region More
+                    #region More
                     .AddTransient<IPageService, PageService>()
                     .AddTransient<IPickersService, PickersService>()
                     .AddSingleton<IWavesChannelService, WavesChannelService>()
                     .AddSingleton<ITipShow, TipShow>()
                     .AddKeyedTransient<ITipShow, PageTipShow>("Cache")
                     .AddKeyedTransient<IDialogManager, MainDialogService>("Cache")
-                    .AddTransient<IColorGameManager, ColorGameManager>()
-                    .AddSingleton<IWavesCloudGameService,WavesCloudGameService>()
-                    .AddKeyedSingleton<IUpdateService,GithubUpdateService>("GitHub")
-                    .AddKeyedSingleton<IUpdateService,MirrorUpdateService>("Mirror")
+                    .AddSingleton<IWavesCloudGameService, WavesCloudGameService>()
+                    .AddKeyedSingleton<IUpdateService, GithubUpdateService>("GitHub")
+                    .AddKeyedSingleton<IUpdateService, MirrorUpdateService>("Mirror")
                     #endregion
                     #region Base
                     .AddSingleton<IAppContext<App>, AppContext<App>>()
@@ -186,7 +175,7 @@ public static class InstanceBuilderExtensions
                     .AddSingleton<IGameWikiClient, GameWikiClient>()
                     .AddTransient<IViewFactorys, ViewFactorys>()
                     .AddSingleton<IThemeService, ThemeService>()
-                    .AddSingleton<IKuroAccountService,KuroAccountService>()
+                    .AddSingleton<IKuroAccountService, KuroAccountService>()
                     .AddHostedService<AutoSignService>()
                     .AddSingleton<CloudConfigManager>(
                         (s) =>
@@ -225,8 +214,17 @@ public static class InstanceBuilderExtensions
                     )
                     #endregion
                     #region Plugin
+                    .AddTransient<IWavesPlayerCardCacheServices, WavesPlayerCardCacheServices>(
+                        _ => new WavesPlayerCardCacheServices(AppSettings.WavesRecordFolder)
+                    )
+                #endregion
+                #region Toolkit
+                    .AddTransient<ToolkitPage>()
+                    .AddTransient<ToolkitViewModel>()
 
-                    #endregion
+                    .AddTransient<AutoKuroTokenPage>()
+                    .AddTransient<AutoKuroTokenViewModel>()
+                #endregion
                     .AddKeyedSingleton<IDialogManager, MainDialogService>(nameof(MainDialogService))
                     .AddKeyedSingleton<LoggerService>(
                         "AppLog",

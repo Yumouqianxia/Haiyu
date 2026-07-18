@@ -1,6 +1,3 @@
-﻿using System.Net.NetworkInformation;
-using System.Threading.Tasks;
-
 namespace Waves.Core.Common;
 
 public static class NetworkCheck

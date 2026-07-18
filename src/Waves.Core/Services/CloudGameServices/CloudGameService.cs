@@ -1,11 +1,3 @@
-﻿using System.Net.Http.Headers;
-using System.Text.Json;
-using Waves.Api.Models;
-using Waves.Api.Models.CloudGame;
-using Waves.Core.Contracts;
-using Waves.Core.Helpers;
-using Waves.Core.Models.CloudGame;
-
 namespace Waves.Core.Services;
 
 public class CloudGameService : ICloudGameService

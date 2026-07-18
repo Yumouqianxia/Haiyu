@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <ContentDialog
     x:Class="Haiyu.Pages.Dialogs.GameResourceDialogV2"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -8,6 +8,8 @@
     xmlns:local="using:Haiyu.Pages.Dialogs"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:ui="using:CommunityToolkit.WinUI.Controls"
+    Background="{ThemeResource AcrylicBackgroundFillColorDefaultBrush}"
+    CornerRadius="5"
     mc:Ignorable="d">
 
     <i:Interaction.Behaviors>
@@ -23,6 +25,7 @@
                 <RowDefinition Height="auto" />
                 <RowDefinition Height="auto" />
             </Grid.RowDefinitions>
+
             <TextBlock
                 VerticalAlignment="Center"
                 FontFamily="{ThemeResource DefaultFont}"

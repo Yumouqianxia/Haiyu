@@ -26,22 +26,22 @@ namespace Haiyu.Pages.Dialogs
             return new CloseWindowResult() { IsExit = this.isExit, IsMinTaskBar = this.isMin };
         }
 
-        private void Min_Win(object sender, RoutedEventArgs e)
+        private async void Min_Win(object sender, RoutedEventArgs e)
         {
             if (isClose.IsChecked == true)
             {
-                AppSettings.CloseWindow = "False";
+                await AppSettings.SetCloseWindowAsync("False");
             }
             this.isExit = false;
             this.isMin = true;
             Instance.Host.Services.GetRequiredKeyedService<IDialogManager>(nameof(MainDialogService)).CloseDialog();
         }
 
-        private void Close_Win(object sender, RoutedEventArgs e)
+        private async void Close_Win(object sender, RoutedEventArgs e)
         {
             if (isClose.IsChecked == true)
             {
-                AppSettings.CloseWindow = "True";
+                await AppSettings.SetCloseWindowAsync("True");
             }
             this.isExit = true;
             this.isMin = false;

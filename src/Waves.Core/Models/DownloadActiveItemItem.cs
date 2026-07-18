@@ -1,5 +1,3 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
-
 namespace Waves.Core.Models;
 
 public sealed partial class DownloadActiveFileItem:ObservableObject
@@ -51,5 +49,5 @@ public sealed partial class DownloadSetupItem:ObservableObject
     public partial bool IsActive { get; set; }
 
     [ObservableProperty]
-    public bool IsOK { get; set; }
+    public partial bool IsOK { get; set; }
 }

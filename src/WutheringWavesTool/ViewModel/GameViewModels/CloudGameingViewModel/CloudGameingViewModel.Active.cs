@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using Waves.Api.Models.CloudGame;
@@ -22,6 +22,12 @@ partial class CloudGameingViewModel
     [ObservableProperty]
     public partial Visibility TitleBarVisiblity { get; set; }
 
+
+    [ObservableProperty]
+    public partial Visibility NetworkVisibility { get; set; }
+    [ObservableProperty]
+    public partial double VolumeValue { get; set; } = 100;
+
     public void UpdateNetworkDisplay(WelinkMessage message)
     {
         this.Window.DispatcherQueue.TryEnqueue(() =>
@@ -37,6 +43,11 @@ partial class CloudGameingViewModel
     async Task SizeChanged()
     {
         await this.SyncBridgeResolutionAsync();
+    }
+
+    async partial void OnVolumeValueChanged(double value)
+    {
+        await this.SetVolumeAsync(Convert.ToInt32(value));
     }
 
     public async Task SyncBridgeResolutionAsync()
@@ -74,5 +85,14 @@ partial class CloudGameingViewModel
         catch
         {
         }
+    }
+
+    public override void Dispose()
+    {
+        WebView2.Close();
+        this._cursorTimer.Stop();
+        this._hotkeyTimer.Stop();
+        this._cursorTimer = null;
+        this._hotkeyTimer = null;
     }
 }

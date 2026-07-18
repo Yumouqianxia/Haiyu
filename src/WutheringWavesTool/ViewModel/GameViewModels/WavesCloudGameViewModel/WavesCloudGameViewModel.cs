@@ -1,4 +1,4 @@
-﻿using Haiyu.Services.DialogServices;
+using Haiyu.Services.DialogServices;
 using System.Text;
 using Waves.Api.Models.CloudGame;
 using Waves.Core.Common;
@@ -18,6 +18,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     public IDialogManager DialogManager { get; }
     public IAppContext<App> App { get; }
     public ITipShow TipShow { get; }
+    public IViewFactorys ViewFactorys { get; }
     public IWallpaperService WallpaperService { get; }
 
     [ObservableProperty]
@@ -43,7 +44,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
             IKuroCloudGameContext kuroCloudGameContext,
         [FromKeyedServices(nameof(MainDialogService))] IDialogManager dialogManager,
         IAppContext<App> app,
-        ITipShow tipShow
+        ITipShow tipShow,IViewFactorys viewFactorys
     )
     {
         WallpaperService = wallpaperService;
@@ -51,6 +52,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         DialogManager = dialogManager;
         App = app;
         TipShow = tipShow;
+        ViewFactorys = viewFactorys;
         KuroCloudGameContext.WavesCloudSurivivalService.MessageHandler +=
             WavesCloudSurivivalService_MessageHandler;
         KuroCloudGameContext.CloudGameProcessTracker.OnProgressChanged +=
@@ -67,6 +69,8 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         await App.TryInvokeAsync(async () =>
         {
             var state = await this.KuroCloudGameContext.GetCloudStateAsync();
+            if (obj == null)
+                return;
             if (obj.CoreType == CloudCoreType.OpeningWeb && obj.QueueResult != null)
             {
                 BottomText = $"正在游戏";
@@ -86,7 +90,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
             }
             else if (obj.CoreType == CloudCoreType.QueueUp)
             {
-                BottomText = $"当前排队：{obj.QueueQty}位，预计:{obj.QueueWaitSecond}秒";
+                BottomText = $"排队：{obj.QueueQty}，{obj.QueueWaitSecond}秒内";
                 StartGameText = "停止排队";
                 this._startBthActive = CloudGameUIActive.QueueUp;
             }
@@ -121,6 +125,7 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
         CloudMessageArgs session
     )
     {
+        await Task.Delay(500);
         if (session.Type == Waves.Core.Models.Enums.CloudCoreType.UserChanged)
         {
             await this.RefreshUserAsync();
@@ -130,6 +135,12 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     private void RegisterMessager()
     {
         this.Messenger.Register<CloudLoginMessager>(this, CloudLoginMethod);
+        this.Messenger.Register<RefreshGamePageMessager>(this, RefreshGamePageMethod);
+    }
+
+    private async void RefreshGamePageMethod(object recipient, RefreshGamePageMessager message)
+    {
+        await this.Loaded();
     }
 
     private async void CloudLoginMethod(object recipient, CloudLoginMessager message)
@@ -264,39 +275,9 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     {
         try
         {
-            var quality = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
-                CloudGameLocalSettingName.QualityType
-            );
-            var fps = 60;
-            var enable = await this.KuroCloudGameContext.GameLocalConfig.GetConfigAsync(
-                CloudGameLocalSettingName.EnableImageEnhancement
-            );
             var dpi = (int)HwndExtensions.GetDpiForWindow(App.App.MainWindow.GetWindowHandle());
             var area = DisplayArea.Primary.OuterBounds;
-            if (
-                bool.TryParse(enable, out var enableImage)
-                && Enum.TryParse<CloudQualityType>(quality, out var quEnum)
-            )
-            {
-                var mode = new StreamQualityOptions(
-                    CloudGameMethod.DefaultBitRate,
-                    CloudGameMethod.MinBitRate,
-                    fps,
-                    area.Width,
-                    area.Height,
-                    CloudGameMethod.DefaultCodecType,
-                    "0",
-                    enableImage,
-                    dpi,
-                    quEnum
-                );
-                return CloudGameDataHelper.ScaleQualityToPhysical(mode, false);
-            }
-            else
-            {
-                Logger.WriteError($"游戏设置内容有错误:{quality}-{enable}");
-                return null;
-            }
+            return await KuroCloudGameContext.GetOptionsAsync(dpi, area.Width, area.Height);
         }
         catch (Exception ex)
         {
@@ -309,6 +290,26 @@ public sealed partial class WavesCloudGameViewModel : ViewModelBase
     async Task OpenSettingsDialog()
     {
         await DialogManager.ShowWavesCloudSettingAsync(GameType.Waves);
+    }
+
+    [RelayCommand]
+    void ShowWavesAnalysis()
+    {
+        if(this.SelectLogin == null)
+        {
+            SystemEventMessager.Publish(new()
+            {
+                Message = "请登录并选中一个鸣潮账号"
+            });
+            return;
+        }
+        var win = ViewFactorys.ShowAnalysisRecordV2(this.SelectLogin);
+        var scale = Haiyu.Controls.TitleBar.GetScaleAdjustment(win);
+        int targetDipWidth = 1200;
+        int targetDipHeight = 750;
+        win.Manager.Height = targetDipHeight;
+        win.Manager.Width = targetDipWidth;
+        win.AppWindow.Show();
     }
 }
 

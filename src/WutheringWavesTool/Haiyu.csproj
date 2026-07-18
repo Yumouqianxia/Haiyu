@@ -25,8 +25,8 @@
 		<PackageCertificateThumbprint>5E3FC358956D46C6784EC5D4D2ECCCF64EDC6A7D</PackageCertificateThumbprint>
 		<AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
 		<AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
-		<GenerateTestArtifacts>False</GenerateTestArtifacts>
-		<AppxBundle>Auto</AppxBundle>
+		<GenerateTestArtifacts>True</GenerateTestArtifacts>
+		<AppxBundle>Always</AppxBundle>
 		<AppxBundlePlatforms>x64</AppxBundlePlatforms>
 		<HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
 		<AppxSymbolPackageEnabled>False</AppxSymbolPackageEnabled>
@@ -41,21 +41,25 @@
 		<Compile Remove="AppPackages\**" />
 		<Compile Remove="BundleArtifacts\**" />
 		<Compile Remove="Common\Plugins\**" />
+		<Compile Remove="Services\CloudGameServices\**" />
 		<Compile Remove="Strings\**" />
 		<Compile Remove="Themes\**" />
 		<EmbeddedResource Remove="AppPackages\**" />
 		<EmbeddedResource Remove="BundleArtifacts\**" />
 		<EmbeddedResource Remove="Common\Plugins\**" />
+		<EmbeddedResource Remove="Services\CloudGameServices\**" />
 		<EmbeddedResource Remove="Strings\**" />
 		<EmbeddedResource Remove="Themes\**" />
 		<None Remove="AppPackages\**" />
 		<None Remove="BundleArtifacts\**" />
 		<None Remove="Common\Plugins\**" />
+		<None Remove="Services\CloudGameServices\**" />
 		<None Remove="Strings\**" />
 		<None Remove="Themes\**" />
 		<Page Remove="AppPackages\**" />
 		<Page Remove="BundleArtifacts\**" />
 		<Page Remove="Common\Plugins\**" />
+		<Page Remove="Services\CloudGameServices\**" />
 		<Page Remove="Strings\**" />
 		<Page Remove="Themes\**" />
 	</ItemGroup>
@@ -89,26 +93,24 @@
 		<PackageReference Include="CommunityToolkit.WinUI.Extensions" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Helpers" Version="8.2.251219" />
 		<PackageReference Include="CommunityToolkit.WinUI.Media" Version="8.2.251219" />
-		<PackageReference Include="LiveChartsCore" Version="2.0.0" />
-		<PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.0" />
-		<PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.0" />
+		<PackageReference Include="LiveChartsCore" Version="2.0.4" />
+		<PackageReference Include="LiveChartsCore.SkiaSharpView" Version="2.0.4" />
+		<PackageReference Include="LiveChartsCore.SkiaSharpView.WinUI" Version="2.0.4" />
 		<PackageReference Include="MemoryPack" Version="1.21.4" />
-		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.7" />
-		<!--<PackageReference Include="Microsoft.Graphics.Win2D" Version="1.3.2" />-->
+		<PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
-		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3967.48" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4022.49" />
 		<PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.28000.1839" />
-		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.0.1" />
+		<PackageReference Include="Microsoft.WindowsAppSDK" Version="2.2.0" />
 		<PackageReference Include="Microsoft.Xaml.Behaviors.WinUI.Managed" Version="3.0.1" />
-		<PackageReference Include="Serilog" Version="4.3.1-dev-02373" />
+		<PackageReference Include="Serilog" Version="4.3.1" />
 		<PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
 		<PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
-		<PackageReference Include="WinUI.TableView" Version="1.4.1" />
-		<PackageReference Include="WinUIEx" Version="2.9.0" />
+		<PackageReference Include="WinUIEx" Version="2.9.1" />
 		<PackageReference Include="ZLinq" Version="1.5.6" />
 		<PackageReference Include="ZXing.Net" Version="0.16.11" />
-		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.275">
+		<PackageReference Include="Microsoft.Windows.CsWin32" Version="0.3.298">
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
@@ -118,7 +120,9 @@
 		<ProjectReference Include="..\Extensions\Haiyu.ServiceHost\Haiyu.ServiceHost.csproj" />
 		<ProjectReference Include="..\Extensions\LanguageEditer.Model\LanguageEditer.Model.csproj" />
 		<ProjectReference Include="..\Extensions\Waves.Api\Waves.Api.csproj" />
+		<ProjectReference Include="..\KuroAndroidMonitoring\ChromeCDPSharp.csproj" />
 		<ProjectReference Include="..\Waves.Core\Waves.Core.csproj" />
+		<ProjectReference Include="..\Haiyu.Controls\Haiyu.Controls.csproj" />
 	</ItemGroup>
 	<ItemGroup>
 		<Content Update="Assets\background.png">
@@ -195,6 +199,9 @@
 		<Content Update="Assets\kLogo.png">
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</Content>
+		<Content Update="Assets\kuroRobot.png">
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
 		<Content Update="Assets\Languages\en-US.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</Content>
@@ -255,6 +262,21 @@
 		<None Update="Assets\HpatchzResource\hpatchz.exe">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
+		<Page Update="Pages\Toolkits\AutoKuroTokenPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="Pages\ToolkitPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="Pages\ToolkitPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="Pages\Dialogs\KuroGameSettingDialog.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
+		<Page Update="Pages\WavesAnalysisRecordPage.xaml">
+		  <Generator>MSBuild:Compile</Generator>
+		</Page>
 		<Page Update="WindowModels\CloudGameWindows.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
@@ -264,23 +286,11 @@
 		<Page Update="Pages\Dialogs\CloudSelectNodeDialog.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
-		<Page Update="Controls\Styles\SVGPath.xaml">
-		  <Generator>MSBuild:Compile</Generator>
-		</Page>
 		<Page Update="Pages\GamePages\WavesCloudGamePage.xaml">
 		  <Generator>MSBuild:Compile</Generator>
 		</Page>
 		<Page Update="WindowModels\KuroDataCenterWindow.xaml">
 		  <Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Pages\Communitys\KuroDataCenterWindow.xaml">
-		  <Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Styles\VersionSubtitle.xaml">
-		  <Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Colors\GamePathChartColor.xaml">
-			<Generator>MSBuild:Compile</Generator>
 		</Page>
 		<Page Update="Pages\Dialogs\GameResourceDialogV2.xaml">
 			<Generator>MSBuild:Compile</Generator>
@@ -297,25 +307,10 @@
 		<Page Update="Pages\Dialogs\SelectDownoadGameDialogV2.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
-		<Page Update="Controls\Styles\StorageRing.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
 		<Page Update="Pages\GamePages\PunishV2GamePage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
 		<Page Update="Pages\GamePages\WavesV2GamePage.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Styles\CardSwitcher.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Pages\PluginPage.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Styles\Shimmer.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Pages\XboxDisplayPage.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
 		<Page Update="Pages\Dialogs\GameEnhancedDialog.xaml">
@@ -327,22 +322,16 @@
 		<Page Update="Pages\Dialogs\UpdateGameDialog.xaml">
 			<Generator>MSBuild:Compile</Generator>
 		</Page>
-		<Page Update="Controls\Styles\Colors.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Styles\LoadingCard.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
-		<Page Update="Controls\Styles\HeaderTileCard.xaml">
-			<Generator>MSBuild:Compile</Generator>
-		</Page>
 	</ItemGroup>
 	<ItemGroup>
 		<Folder Include="Assets\GameAssets\Punish\" />
 		<Folder Include="Assets\Languages\" />
-		<Folder Include="Services\CloudGameServices\" />
 	</ItemGroup>
-	<PropertyGroup Label="Globals" />
+	<PropertyGroup Label="Globals">
+	  <GenerateTemporaryStoreCertificate>True</GenerateTemporaryStoreCertificate>
+	  <SignAssembly>True</SignAssembly>
+	  <DelaySign>False</DelaySign>
+	</PropertyGroup>
 	<!--
     Defining the "HasPackageAndPublishMenuAddedByProject" property here allows the Solution
     Explorer "Package and Publish" context menu entry to be enabled for this project even if
@@ -365,10 +354,13 @@
 		<PRIResource Remove="Themes\**" />
 	</ItemGroup>
 	<ItemGroup>
-	  <None Remove="Controls\Styles\SVGPath.xaml" />
 	  <None Remove="Pages\Dialogs\CloudSelectNodeDialog.xaml" />
 	  <None Remove="Pages\Dialogs\GameSettings\CloudGameSettingDialog.xaml" />
+	  <None Remove="Pages\Dialogs\KuroGameSettingDialog.xaml" />
 	  <None Remove="Pages\GamePages\WavesCloudGamePage.xaml" />
+	  <None Remove="Pages\ToolkitPage.xaml" />
+	  <None Remove="Pages\Toolkits\AutoKuroTokenPage.xaml" />
+	  <None Remove="Pages\WavesAnalysisRecordPage.xaml" />
 	  <None Remove="WindowModels\CloudGameWindows.xaml" />
 	</ItemGroup>
 	<Target Name="CopyXamlResourcesForAot" AfterTargets="Publish" Condition="'$(PublishAot)' == 'true'">
@@ -380,5 +372,8 @@
 	</Target>
 	<ItemGroup>
 	  <PRIResource Remove="Common\Plugins\**" />
+	</ItemGroup>
+	<ItemGroup>
+	  <PRIResource Remove="Services\CloudGameServices\**" />
 	</ItemGroup>
 </Project>

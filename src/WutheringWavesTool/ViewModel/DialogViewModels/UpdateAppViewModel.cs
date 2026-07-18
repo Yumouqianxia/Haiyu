@@ -1,4 +1,4 @@
-﻿using Haiyu.Plugin.Common.LegacyMessageBox;
+using Haiyu.Plugin.Common.LegacyMessageBox;
 using Haiyu.Plugin.Contracts;
 using Haiyu.Plugin.Models;
 using Haiyu.Services.DialogServices;
@@ -29,7 +29,7 @@ public sealed partial class UpdateAppViewModel : DialogViewModelBase
 
     public UpdateAppViewModel([FromKeyedServices(nameof(MainDialogService))] IDialogManager dialogManager,IAppContext<App> appContext) : base(dialogManager)
     {
-        if(AppSettings.UpdateType == "Github")
+        if(AppSettings.GetUpdateTypeAsync().GetAwaiter().GetResult() == "Github")
         {
             UpdateService = Instance.Host.Services.GetRequiredKeyedService<IUpdateService>("GitHub");
         }
@@ -51,10 +51,10 @@ public sealed partial class UpdateAppViewModel : DialogViewModelBase
     }
 
     [RelayCommand]
-    void SkipAppUpdate()
+    async Task SkipAppUpdate()
     {
-        AppSettings.SkipAppVersion = _info.Version;
-        this.Close();
+        await AppSettings.SetSkipAppVersionAsync(_info.Version);
+        await this.Close();
     }
 
     [RelayCommand]

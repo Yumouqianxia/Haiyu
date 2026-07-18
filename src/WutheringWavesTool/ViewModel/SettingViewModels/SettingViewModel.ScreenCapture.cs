@@ -25,38 +25,41 @@ partial class SettingViewModel
 
     partial void OnCaptureModifierKeyChanged(ModifierKey value)
     {
-        AppSettings.CaptureModifierKey = value.Name;
+        AppSettings.SetCaptureModifierKeyAsync(value.Name).GetAwaiter().GetResult();
         var result = ScreenCaptureService.Register();
         this.TipShow.ShowMessage(result.Item2, Symbol.Read);
     }
 
     partial void OnIsOnChanged(bool value)
     {
-        AppSettings.IsCapture = value.ToString();
+        AppSettings.SetIsCaptureAsync(value.ToString()).GetAwaiter().GetResult();
 
     }
 
     partial void OnCaptureKeyChanged(Keys value)
     {
-        AppSettings.CaptureKey = value.Name;
+        AppSettings.SetCaptureKeyAsync(value.Name).GetAwaiter().GetResult();
         var result = ScreenCaptureService.Register();
         this.TipShow.ShowMessage(result.Item2, Symbol.Read);
     }
 
-    public void InitCapture()
+    public async Task InitCapture()
     {
         try
         {
-            this.IsOn = AppSettings.IsCapture == null ? true : Boolean.Parse(AppSettings.IsCapture);
-            if (string.IsNullOrWhiteSpace(AppSettings.CaptureModifierKey) || string.IsNullOrWhiteSpace(AppSettings.CaptureKey))
+            var isCapture = await AppSettings.GetIsCaptureAsync();
+            var captureModifierKey = await AppSettings.GetCaptureModifierKeyAsync();
+            var captureKey = await AppSettings.GetCaptureKeyAsync();
+            this.IsOn = isCapture == null ? true : Boolean.Parse(isCapture);
+            if (string.IsNullOrWhiteSpace(captureModifierKey) || string.IsNullOrWhiteSpace(captureKey))
             {
                 this.CaptureModifierKey = this.CaptureModifierKeys.Where(x => x.Name == "Win").First();
                 this.CaptureKey = this.CaptureKeys.Where(x => x.Name == "F12").First();
             }
             else
             {
-                this.CaptureModifierKey = this.CaptureModifierKeys.Where(x => x.Name == AppSettings.CaptureModifierKey).First();
-                this.CaptureKey = this.CaptureKeys.Where(x => x.Name == AppSettings.CaptureKey).First();
+                this.CaptureModifierKey = this.CaptureModifierKeys.Where(x => x.Name == captureModifierKey).First();
+                this.CaptureKey = this.CaptureKeys.Where(x => x.Name == captureKey).First();
             }
         }
         catch (Exception ex)

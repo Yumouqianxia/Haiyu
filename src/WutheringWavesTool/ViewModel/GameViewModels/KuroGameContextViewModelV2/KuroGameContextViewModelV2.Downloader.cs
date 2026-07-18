@@ -1,4 +1,4 @@
-﻿using LiveChartsCore.Defaults;
+using LiveChartsCore.Defaults;
 using LiveChartsCore.Kernel;
 using Waves.Core.Models.Enums;
 
@@ -119,7 +119,6 @@ partial class KuroGameContextViewModelV2
     [RelayCommand]
     async Task CancelDownloadTask()
     {
-        Logger.WriteInfo($"取消当前操作");
         await GameContext.StopCannelTaskAsync();
         var status = await GameContext.GetGameContextStatusAsync();
         if (!status.IsLauncher)
@@ -142,12 +141,16 @@ partial class KuroGameContextViewModelV2
         this.PreProgress = 0;
         this.PreDownloadProgress = 0;
         this.CurrentProgressValue = 0;
+        this.GameContext.SystemEventPublisher.Publish(new()
+        {
+            Message = $"取消下载成功",
+            Delay = 5
+        });
     }
 
     [RelayCommand]
     async Task SetDownloadSpeedAsync()
     {
-        Logger.WriteInfo($"设置下载限速");
         await GameContext.SetDownloadSpeedAsync(DownloadSpeedValue);
     }
 

@@ -1,4 +1,6 @@
-﻿using Haiyu.Pages.GamePages;
+using System.Collections.Specialized;
+using Haiyu.Pages.GamePages;
+using Microsoft.UI.Xaml.Hosting;
 
 namespace Haiyu.Pages;
 
@@ -14,8 +16,8 @@ public sealed partial class ShellPage : Page
         this.ViewModel.HomeNavigationService.RegisterView(this.frame);
         this.ViewModel.HomeNavigationViewService.Register(this.navigationView);
         this.ViewModel.TipShow.Owner = this.panel;
-        //this.ViewModel.Image = this.image;
         this.ViewModel.AppContext.SetTitleControl(this.titlebar);
+        this.ViewModel.AppContext.WallpaperService.RegisterMediaHost(mediaControl);
     }
 
     private void HomeNavigationService_Navigated(object sender, NavigationEventArgs e)
@@ -33,6 +35,7 @@ public sealed partial class ShellPage : Page
         {
             To8.Start();
             this.titlebar.UpDate();
+            this.ViewModel.WallpaperService.PauseVideo();
         }
         ViewModel.SetSelectItem(e.SourcePageType);
         this.ViewModel.HomeNavigationService.ClearHistory();
@@ -43,13 +46,13 @@ public sealed partial class ShellPage : Page
 
     private void ShellPage_Loaded(object sender, Microsoft.UI.Xaml.RoutedEventArgs e)
     {
+        this.ViewModel.DialogManager.RegisterRoot(this.XamlRoot);
         this.notify.RegisterWin(Instance.GetService<IAppContext<App>>().App.MainWindow);
         this.notify.CreateTrayIcon(
             AppDomain.CurrentDomain.BaseDirectory + "\\Assets\\appLogo.ico",
             "Haiyu"
         );
-        this.ViewModel.DialogManager.RegisterRoot(this.XamlRoot);
-        this.ViewModel.AppContext.WallpaperService.RegisterMediaHost(mediaControl);
+
     }
 
     private void ComboBox_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -60,5 +63,10 @@ public sealed partial class ShellPage : Page
     private void notify_LeftDoubleClick(object sender, EventArgs args)
     {
         this.ViewModel.ShowWindowCommand.Execute(null);
+    }
+
+    private void OpenMessagePane(object sender, RoutedEventArgs e)
+    {
+        view.IsPaneOpen = !view.IsPaneOpen;
     }
 }

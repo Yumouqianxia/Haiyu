@@ -1,11 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using Waves.Api.Models.CloudGame;
-using Waves.Core.Contracts.CloudGame;
-using Waves.Core.Models.CloudGame;
-using Waves.Core.Models.Enums;
-
 namespace Waves.Core.Services.CloudGameServices;
 
 public delegate void CloudSurivivalMessageHandler(object sender, CloudMessageArgs session);
@@ -13,9 +5,11 @@ public delegate void CloudSurivivalMessageHandler(object sender, CloudMessageArg
 /// <summary>
 /// 云游戏账号保活机制
 /// </summary>
-public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
+public partial class WavesCloudSurvivalService : IDisposable, IAsyncDisposable
 {
     public IWavesCloudGameService WavesCloudGameService { get; }
+    public SystemEventPublisher SystemEventPublisher { get; }
+
     CancellationTokenSource? _cts;
     public WavesCloudUserCache Cache { get; }
 
@@ -35,9 +29,13 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
         remove { messageHandler -= value; }
     }
 
-    public WavesCloudSurvivalService(IWavesCloudGameService wavesCloudGameService)
+    public WavesCloudSurvivalService(
+        IWavesCloudGameService wavesCloudGameService,
+        SystemEventPublisher systemEventPublisher
+    )
     {
         WavesCloudGameService = wavesCloudGameService;
+        SystemEventPublisher = systemEventPublisher;
         Cache = new();
     }
 
@@ -54,6 +52,12 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
         }
         _cts = new CancellationTokenSource();
         var users = await WavesCloudGameService.ConfigManager.GetUsersAsync();
+
+        foreach (var user in users)
+        {
+            await InvokeTimerTask(user, _cts.Token);
+        }
+
         timer = new System.Threading.PeriodicTimer(TimeSpan.FromSeconds(3));
         _ = Task.Run(() => StartTask(users));
     }
@@ -94,9 +98,10 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
                     if (accessToken == null || accessToken.Code != 0)
                     {
                         Cache.TryRemove(data);
-                        await this.WavesCloudGameService.ConfigManager.DeleteUserAsync(
-                            data.Sdkuserid
-                        );
+                        SystemEventPublisher.Publish(new()
+                        {
+                            Message = $"{data.Phone}登录失败，如需重启请手动刷新"
+                        });
                         this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
                         return;
                     }
@@ -108,9 +113,10 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
                     if (cacheToken == null || cacheToken.Code != 0)
                     {
                         Cache.TryRemove(data);
-                        await this.WavesCloudGameService.ConfigManager.DeleteUserAsync(
-                            data.Sdkuserid
-                        );
+                        SystemEventPublisher.Publish(new()
+                        {
+                            Message = $"{data.Phone}云鸣潮登录失败，如需重启请手动刷新"
+                        });
                         this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
                         return;
                     }
@@ -132,8 +138,6 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
                 return;
             }
 
-            // 2301 means the character is not currently in a cloud-game session yet.
-            // That is expected while idle or still queueing, and should not invalidate login state.
             if (fetchResult.Code == 2301)
             {
                 return;
@@ -142,21 +146,32 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
             if (fetchResult.Code != 0)
             {
                 Cache.TryRemove(data);
-                await this.WavesCloudGameService.ConfigManager.DeleteUserAsync(data.Sdkuserid);
-                this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
-                return;
+                if (fetchResult.Code == 320)
+                {
+                    this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
+                }
+                else
+                {
+                    Cache.TryRemove(data);
+                    await this.WavesCloudGameService.ConfigManager.DeleteUserAsync(data.Sdkuserid);
+                    this.messageHandler?.Invoke(this, new(CloudCoreType.UserChanged));
+                    return;
+                }
             }
         }
-        catch (Exception ex)  
+        catch (Exception ex)
         {
-            this.messageHandler?.Invoke(this, new CloudMessageArgs(CloudCoreType.Message)
-            {
-                Message = $"异常:{ex.Message}"
-            });
+            this.messageHandler?.Invoke(
+                this,
+                new CloudMessageArgs(CloudCoreType.Message) { Message = $"异常:{ex.Message}" }
+            );
         }
     }
 
-    public async Task<CloudApiResponse<WalletData>?> GetUserWalletData(CloudGameLoginSession session,CancellationToken token =default)
+    public async Task<CloudApiResponse<WalletData>?> GetUserWalletData(
+        CloudGameLoginSession session,
+        CancellationToken token = default
+    )
     {
         var result = await this.WavesCloudGameService.GetWalletDataAsync(session, token);
         return result;
@@ -192,7 +207,7 @@ public partial class WavesCloudSurvivalService:IDisposable,IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if(_cts != null)
+        if (_cts != null)
         {
             await _cts.CancelAsync();
             _cts?.Dispose();

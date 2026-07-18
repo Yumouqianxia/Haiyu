@@ -1,6 +1,3 @@
-﻿using Waves.Core.Models;
-using Waves.Core.Settings;
-
 namespace Waves.Core.Contracts;
 
 /// <summary>

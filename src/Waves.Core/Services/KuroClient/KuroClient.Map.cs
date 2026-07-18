@@ -1,13 +1,3 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Net;
-using System.Net.Http.Json;
-using System.Text;
-using Waves.Api.Models;
-using Waves.Api.Models.Launcher;
-using Waves.Api.Models.Maps;
-using Waves.Core.Socket;
-
 namespace Waves.Core.Services;
 
 partial class KuroClient

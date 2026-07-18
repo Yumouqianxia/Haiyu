@@ -9,7 +9,8 @@ namespace Haiyu.Pages.Dialogs
         {
             InitializeComponent();
             this.ViewModel = Instance.Host.Services.GetRequiredService<CloudSelectNodeViewModel>();
-            
+
+            this.RequestedTheme = Instance.Host.Services.GetRequiredService<IThemeService>().CurrentTheme;
         }
 
         public CloudSelectNodeViewModel ViewModel { get; }

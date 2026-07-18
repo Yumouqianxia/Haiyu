@@ -7,8 +7,8 @@ public sealed partial class KuroDataCenterWindow : WindowModelBase
 {
     KuroCommunityWebViewHostInitializer hostInitializer;
 
-    public KuroDataCenterWindow(nint value, WebSessionContext context)
-        : base(value)
+    public KuroDataCenterWindow(nint value, WebSessionContext context, WindowsOption? windowsOption = null)
+        : base(value, windowsOption)
     {
         InitializeComponent();
         this.titleBar.Window = this;
@@ -31,6 +31,6 @@ public sealed partial class KuroDataCenterWindow : WindowModelBase
     {
         hostInitializer = new KuroCommunityWebViewHostInitializer();
         await hostInitializer.InitializeAsync(webView2, Context);
-        this.webView2.CoreWebView2.Navigate(Context.GetDataCenterUrl());
+        this.webView2.CoreWebView2.Navigate(Context.GetPageUrl());
     }
 }

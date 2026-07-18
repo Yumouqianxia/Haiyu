@@ -1,4 +1,4 @@
-﻿using Waves.Core.Models.Enums;
+using Waves.Core.Models.Enums;
 
 namespace Haiyu.Models.Wrapper;
 
@@ -10,8 +10,7 @@ public partial class GameRoilDataWrapper : ObservableObject
     [ObservableProperty]
     public partial string RoleName { get; set; }
 
-    [ObservableProperty]
-    public string ServerName { get; }
+    public  string ServerName { get; }
 
     [ObservableProperty]
     public partial BitmapImage GameHeadUrl { get; set; }

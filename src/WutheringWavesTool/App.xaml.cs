@@ -1,13 +1,16 @@
-﻿using Haiyu.Helpers;
+using System.Globalization;
+using Haiyu.Helpers;
 using LiveChartsCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Windows.ApplicationModel.Resources;
 using Microsoft.Windows.AppLifecycle;
-using System.Globalization;
 using Waves.Core.Services;
 using Waves.Core.Settings;
+using Windows.ApplicationModel.Activation;
 using Windows.ApplicationModel.Background;
 using Windows.Globalization;
+using Windows.UI.StartScreen;
+using WinRT;
 
 namespace Haiyu;
 
@@ -19,7 +22,7 @@ public partial class App : ClientApplication
     private const int PROCESS_PER_MONITOR_DPI_AWARE = 2;
     private AppInstance mainInstance;
 
-    public static string AppVersion => "1.2.21";
+    public static string AppVersion => "1.3.3";
 
     public AppSettings AppSettings { get; private set; }
 
@@ -32,15 +35,17 @@ public partial class App : ClientApplication
         mainInstance.Activated += MainInstance_Activated;
     }
 
-    private void MainInstance_Activated(object sender, AppActivationArguments e)
+    private async void MainInstance_Activated(object sender, AppActivationArguments e)
     {
-        if (e.Kind == Microsoft.Windows.AppLifecycle.ExtendedActivationKind.File) { }
+        var active = Instance.Host.Services.GetRequiredService<IAppActivation>();
+        await active.ExecLaunchActivatedEventArgs(e);
     }
 
     void CreateFolder()
     {
         Directory.CreateDirectory(AppSettings.BassFolder);
         Directory.CreateDirectory(AppSettings.RecordFolder);
+        Directory.CreateDirectory(AppSettings.WavesRecordFolder);
         Directory.CreateDirectory(AppSettings.ColorGameFolder);
         Directory.CreateDirectory(AppSettings.WrallpaperFolder);
         Directory.CreateDirectory(AppSettings.ScreenCaptures);
@@ -76,9 +81,9 @@ public partial class App : ClientApplication
         this.AppSettings = Instance.Host.Services.GetRequiredService<AppSettings>();
         this.UnhandledException += App_UnhandledException;
         CreateFolder();
-        if (AppSettings.WallpaperType == null)
+        if (await AppSettings.GetWallpaperTypeAsync() == null)
         {
-            AppSettings.WallpaperType = "Video";
+            await AppSettings.SetWallpaperTypeAsync("video");
         }
         SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
         GameContextFactory.GameBassPath = AppSettings.BassFolder;
@@ -100,14 +105,15 @@ public partial class App : ClientApplication
         }
         await LanguageService.InitAsync();
         await Instance.Host.Services.GetRequiredService<IAppContext<App>>().LauncherAsync(this);
-        SetTheme();
+        await SetTheme();
         Instance.Host.Services.GetService<IScreenCaptureService>()!.Register();
     }
 
-    private void SetTheme()
+    private async Task SetTheme()
     {
         var theme = Instance.Host.Services.GetRequiredService<IThemeService>();
-        switch (AppSettings.ElementTheme)
+        var elementTheme = await AppSettings.GetElementThemeAsync();
+        switch (elementTheme)
         {
             case "Light":
                 theme.SetTheme(ElementTheme.Light);

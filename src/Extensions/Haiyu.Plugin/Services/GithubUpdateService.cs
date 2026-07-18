@@ -1,8 +1,9 @@
-﻿using System;
+using System;
 using System.Buffers;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading;
@@ -10,6 +11,7 @@ using System.Threading.Tasks;
 using Haiyu.Plugin.Common;
 using Haiyu.Plugin.Contracts;
 using Haiyu.Plugin.Models;
+using ProxyExtensions.Common;
 using Waves.Core.Settings;
 
 namespace Haiyu.Plugin.Services;
@@ -19,17 +21,26 @@ namespace Haiyu.Plugin.Services;
 /// </summary>
 public class GithubUpdateService : IUpdateService
 {
+    public GithubUpdateService(GithubIpSettings githubIpSettings)
+    {
+        GithubIpSettings = githubIpSettings;
+    }
+
     private const int BufferSize = 81920;
     private const string Owner = "HaiyuGame";
     private const string Repo = "Haiyu";
     private Tuple<GithubResponseModel?, DateTime>? _cacheInfo;
 
+    private readonly Dictionary<string, IPAddress[]> _ips = new();
+    public GithubIpSettings GithubIpSettings { get; }
+
     private async Task<GithubResponseModel?> GetInfoAsync(CancellationToken token = default)
     {
+        await RefreshGithubIpsAsync(token);
         var resourceUrl = $"https://api.github.com/repos/{Owner}/{Repo}/releases";
         try
         {
-            using (var client = new HttpClient())
+            using (var client = CreateGithubClient())
             {
                 client.DefaultRequestHeaders.Add(
                     "User-Agent",
@@ -60,6 +71,26 @@ public class GithubUpdateService : IUpdateService
         }
     }
 
+    private async Task RefreshGithubIpsAsync(CancellationToken token = default)
+    {
+        _ips.Clear();
+        if (!await GithubIpSettings.GetgithubFrontingEnabledAsync(token))
+        {
+            return;
+        }
+
+        var local = await this.GithubIpSettings.GetMergedGithubIpsAsync();
+        foreach (var item in local)
+        {
+            this._ips.Add(item.Host, item.Ips.Select(x => IPAddress.Parse(x)).ToArray());
+        }
+    }
+
+    private HttpClient CreateGithubClient()
+    {
+        return SocketHttpFactory.CreateGithubClient(null, _ips);
+    }
+
     public async Task<bool> CheckProgramUpdateAsync(
         string currentVersion,
         CancellationToken token = default
@@ -71,7 +102,12 @@ public class GithubUpdateService : IUpdateService
             //刷新版本，但不提示更新
             return false;
         }
-        if (_cacheInfo == null || _cacheInfo.Item1 == null || _cacheInfo.Item1.Assets == null || _cacheInfo.Item1.Assets.Count == 0)
+        if (
+            _cacheInfo == null
+            || _cacheInfo.Item1 == null
+            || _cacheInfo.Item1.Assets == null
+            || _cacheInfo.Item1.Assets.Count == 0
+        )
         {
             return false;
         }
@@ -100,6 +136,7 @@ public class GithubUpdateService : IUpdateService
     {
         try
         {
+            await RefreshGithubIpsAsync(token);
             if (_cacheInfo == null || DateTime.Now - _cacheInfo.Item2 > TimeSpan.FromMinutes(5))
             {
                 await RefreshDownloadInfo(token);
@@ -114,15 +151,24 @@ public class GithubUpdateService : IUpdateService
             {
                 return null;
             }
-            var url = _cacheInfo?.Item1?.Assets.FirstOrDefault()?.BrowserDownloadUrl;
-            if (url == null)
+            var asset = _cacheInfo?.Item1?.Assets.FirstOrDefault();
+            if (asset == null || string.IsNullOrWhiteSpace(asset.Url))
             {
                 return null;
             }
-            var downloadPath = Path.Combine(
-                Path.GetTempPath(),
-                System.IO.Path.GetFileName(url)+".exe"
-            );
+            var url = asset.BrowserDownloadUrl;
+            if (await GithubIpSettings.GetgithubCdnEnabledAsync(token))
+            {
+                var githubCdn = await GithubIpSettings.GetgithubCdnAsync(token);
+                if (
+                    !string.IsNullOrWhiteSpace(githubCdn)
+                    && githubCdn.Contains("{downloadUrl}", StringComparison.Ordinal)
+                )
+                {
+                    url = githubCdn.Replace("{downloadUrl}", url, StringComparison.Ordinal);
+                }
+            }
+            var downloadPath = Path.Combine(Path.GetTempPath(), asset.Name + ".exe");
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Add(
@@ -130,11 +176,10 @@ public class GithubUpdateService : IUpdateService
                     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36 Edg/140.0.0.0"
                 );
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
-                using var response = await client.SendAsync(
-                    request,
-                    HttpCompletionOption.ResponseHeadersRead,
-                    token
-                ).ConfigureAwait(false);
+                //request.Headers.Accept.ParseAdd("application/octet-stream");
+                using var response = await client
+                    .SendAsync(request, HttpCompletionOption.ResponseHeadersRead, token)
+                    .ConfigureAwait(false);
                 response.EnsureSuccessStatusCode();
 
                 long downLoadLength = 0;
@@ -156,21 +201,29 @@ public class GithubUpdateService : IUpdateService
                     var buffer = byteShard.Rent(BufferSize);
                     try
                     {
-                        await using var responseStream = await response.Content.ReadAsStreamAsync(token).ConfigureAwait(false);
+                        await using var responseStream = await response
+                            .Content.ReadAsStreamAsync(token)
+                            .ConfigureAwait(false);
                         while (true)
                         {
-                            var read = await responseStream.ReadAsync(buffer.AsMemory(0, BufferSize), token).ConfigureAwait(false);
+                            var read = await responseStream
+                                .ReadAsync(buffer.AsMemory(0, BufferSize), token)
+                                .ConfigureAwait(false);
                             downLoadLength += read;
                             if (read == 0)
                             {
                                 break;
                             }
-                            await fs.WriteAsync(buffer.AsMemory(0, read), token).ConfigureAwait(false);
+                            await fs.WriteAsync(buffer.AsMemory(0, read), token)
+                                .ConfigureAwait(false);
 
                             if (totalLength is > 0)
                             {
                                 var radio = (double)downLoadLength / totalLength.Value * 100;
-                                if (radio - lastReportedProgress >= 1 || downLoadLength == totalLength.Value)
+                                if (
+                                    radio - lastReportedProgress >= 1
+                                    || downLoadLength == totalLength.Value
+                                )
                                 {
                                     lastReportedProgress = radio;
                                     progress.Report(radio);
@@ -188,7 +241,7 @@ public class GithubUpdateService : IUpdateService
         }
         catch (OperationCanceledException cancel)
         {
-            throw cancel;
+            return null;
         }
         catch (Exception)
         {

@@ -1,12 +1,3 @@
-﻿using Waves.Api.Models;
-using Waves.Api.Models.Communitys;
-using Waves.Api.Models.Communitys.DataCenter;
-using Waves.Api.Models.Communitys.DataCenter.ResourceBrief;
-using Waves.Api.Models.GameWikiiClient;
-using Waves.Api.Models.QRLogin;
-using Waves.Core.Contracts;
-using Waves.Core.Models.Enums;
-
 namespace WavesLauncher.Core.Contracts;
 
 public interface IKuroClient

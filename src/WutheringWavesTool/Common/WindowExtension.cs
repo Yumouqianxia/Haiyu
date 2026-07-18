@@ -283,6 +283,7 @@ public static class NativeWindowHelper
     private const int SC_MAXIMIZE = 0xF030; // Maximize command
     private const int WM_SIZE = 0x0005; // Resize message
     private const int SIZE_MAXIMIZED = 2; // Maximized size
+    private const int WM_DPICHANGED = 0x02E0; // DPI change message
     private const int GWLP_WNDPROC = -4;
 
     // Static field to hold the delegate, preventing it from being garbage-collected
@@ -291,7 +292,7 @@ public static class NativeWindowHelper
     // Delegate for the new window procedure
     private delegate IntPtr WndProcDelegate(IntPtr hwnd, uint msg, IntPtr wParam, IntPtr lParam);
 
-    public static void ForceDisableMaximize(Window window)
+    public static void ForceDisableMaximize(Window window, int? targetDipWidth = null, int? targetDipHeight = null)
     {
         var hwnd = WindowNative.GetWindowHandle(window);
 
@@ -325,6 +326,24 @@ public static class NativeWindowHelper
                 return IntPtr.Zero;
             }
 
+            // Handle DPI change at runtime
+            if (msg == WM_DPICHANGED && targetDipWidth.HasValue && targetDipHeight.HasValue)
+            {
+                int newDpiX = wParam.ToInt32() & 0xFFFF;
+                double newScale = newDpiX / 96.0;
+                int newPixelWidth = (int)Math.Round(targetDipWidth.Value * newScale);
+                int newPixelHeight = (int)Math.Round(targetDipHeight.Value * newScale);
+
+                // Let WinUI 3 process DPI change first so it updates internal state
+                var result = CallWindowProc(originalWndProc, wndHwnd, msg, wParam, lParam);
+
+                // Then override to maintain fixed DIP size
+                var rect = Marshal.PtrToStructure<RECT>(lParam);
+                window.AppWindow.Move(new Windows.Graphics.PointInt32 { X = rect.Left, Y = rect.Top });
+                window.AppWindow.Resize(new Windows.Graphics.SizeInt32 { Width = newPixelWidth, Height = newPixelHeight });
+
+                return result;
+            }
 
             try
             {

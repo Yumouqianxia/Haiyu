@@ -5,7 +5,12 @@
 /// </summary>
 public enum CloudQualityType:uint
 {
+    /// <summary>
+    /// 流畅
+    /// </summary>
     Smooth,
+    /// <summary>
+    /// 清晰
+    /// </summary>
     Clarity,
-    Native
 }

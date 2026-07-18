@@ -1,6 +1,3 @@
-﻿using Waves.Api.Models.CloudGame;
-using Waves.Core.Models.Enums;
-
 namespace Waves.Core.Models.CloudGame;
 
 public class CloudMessageArgs

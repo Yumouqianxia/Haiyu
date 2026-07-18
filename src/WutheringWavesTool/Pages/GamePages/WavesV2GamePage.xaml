@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Page
     x:Class="Haiyu.Pages.GamePages.WavesV2GamePage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -265,8 +265,7 @@
             Grid.ColumnSpan="2"
             VerticalAlignment="Bottom">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition x:Name="col1" Width="400" />
-                <ColumnDefinition />
+                <ColumnDefinition x:Name="col1" />
                 <ColumnDefinition />
             </Grid.ColumnDefinitions>
             <Grid.Transitions>
@@ -788,6 +787,7 @@
                                             ToolTipService.ToolTip="切换启动模式" />
                                         <MenuFlyoutItem
                                             Command="{x:Bind ViewModel.RepirGameCommand}"
+                                            IsEnabled="{x:Bind ViewModel.EnableStartGameBth, Mode=OneWay}"
                                             Text="修复游戏"
                                             ToolTipService.ToolTip="此选项等同于下载，启动器会下载服务器资源进行自动覆盖（包含Mod资源）">
                                             <MenuFlyoutItem.Icon>
@@ -800,9 +800,15 @@
                                                 <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xEF19;" />
                                             </MenuFlyoutItem.Icon>
                                         </MenuFlyoutItem>
+                                        <MenuFlyoutItem Command="{x:Bind ViewModel.ShowGameSettingCommand}" Text="游戏设置">
+                                            <MenuFlyoutItem.Icon>
+                                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE713;" />
+                                            </MenuFlyoutItem.Icon>
+                                        </MenuFlyoutItem>
                                         <MenuFlyoutSeparator />
                                         <MenuFlyoutItem
                                             Command="{x:Bind ViewModel.DeleteGameResourceCommand}"
+                                            IsEnabled="{x:Bind ViewModel.EnableStartGameBth, Mode=OneWay}"
                                             Text="卸载游戏"
                                             ToolTipService.ToolTip="此选项将直接删除游戏文件夹">
                                             <MenuFlyoutItem.Icon>
@@ -820,6 +826,15 @@
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Visibility="{x:Bind ViewModel.PredCardVisibility, Mode=OneWay}">
+                        <Grid.ChildrenTransitions>
+                            <TransitionCollection>
+                                <RepositionThemeTransition />
+                            </TransitionCollection>
+                        </Grid.ChildrenTransitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="auto" />
+                            <ColumnDefinition Width="auto" />
+                        </Grid.ColumnDefinitions>
                         <Viewbox
                             Width="80"
                             Height="80"
@@ -831,7 +846,7 @@
                                 CornerRadius="70"
                                 Style="{ThemeResource TransparentButtonStyle}">
                                 <ToolTipService.ToolTip>
-                                    <Grid Width="210" Height="160">
+                                    <Grid>
                                         <Grid.RowDefinitions>
                                             <RowDefinition />
                                             <RowDefinition />
@@ -840,8 +855,11 @@
                                             <ColumnDefinition />
                                             <ColumnDefinition />
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Text="下载步骤" />
-                                        <TextBlock Text="{x:Bind ViewModel.PreSetupHeaderText, Mode=OneWay}" />
+                                        <TextBlock
+                                            Grid.Column="0"
+                                            Grid.ColumnSpan="2"
+                                            HorizontalAlignment="Left"
+                                            Text="{x:Bind ViewModel.PreSetupHeaderText, Mode=OneWay}" />
                                         <TextBlock Grid.Row="1" Text="处理速度" />
                                         <TextBlock
                                             Grid.Row="1"
@@ -867,6 +885,20 @@
                                 </Grid>
                             </Button>
                         </Viewbox>
+                        <Button
+                            Grid.Column="1"
+                            Width="72"
+                            Height="72"
+                            BorderThickness="5"
+                            Command="{x:Bind ViewModel.AdvanceGameCommand}"
+                            CornerRadius="80"
+                            Style="{ThemeResource AccentBorderBurshButtonStyle}"
+                            ToolTipService.ToolTip="提前安装预下载内容"
+                            Visibility="{x:Bind ViewModel.PreAdvanceVisiblity, Mode=OneWay}">
+                            <StackPanel Orientation="Vertical">
+                                <FontIcon FontFamily="Segoe Fluent Icons" Glyph="&#xE7B8;" />
+                            </StackPanel>
+                        </Button>
                     </Grid>
                 </Grid>
 
@@ -988,6 +1020,7 @@
                                     <RowDefinition Height="auto" />
                                     <RowDefinition Height="80" />
                                 </Grid.RowDefinitions>
+
                                 <TextBlock
                                     Margin="3,0,0,0"
                                     FontFamily="{ThemeResource DefaultFont}"
@@ -1309,7 +1342,10 @@
                             ItemsSource="{x:Bind ViewModel.SlideShows, Mode=OneWay}"
                             Style="{ThemeResource DefaultFlipViewStyle}">
                             <i:Interaction.Behaviors>
-                                <bs:FilpViewAutoPlayBehavior IsPlay="True" Duration="0:0:8" />
+                                <bs:FilpViewAutoPlayBehavior
+                                    x:Name="filpViewAutoPlay"
+                                    IsPlay="True"
+                                    Duration="0:0:8" />
                             </i:Interaction.Behaviors>
                             <FlipView.ItemTemplate>
                                 <DataTemplate x:DataType="launcheModel:Slideshow">

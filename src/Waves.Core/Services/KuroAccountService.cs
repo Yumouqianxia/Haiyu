@@ -1,14 +1,4 @@
-﻿using System.Buffers;
-using CommunityToolkit.Mvvm.Messaging;
-using MemoryPack;
-using Microsoft.Extensions.DependencyInjection;
-using Serilog;
-using Waves.Api.Models.Messanger;
-using Waves.Core.Contracts;
-using Waves.Core.Models;
-using Waves.Core.Settings;
-
-namespace Waves.Core.Services;
+﻿namespace Waves.Core.Services;
 
 public class KuroAccountService : IKuroAccountService
 {
@@ -69,7 +59,7 @@ public class KuroAccountService : IKuroAccountService
                     )
                 )
                 {
-                    var bytes = (await fs.ReadAsync(buffer));
+                    var bytes = await fs.ReadAsync(buffer);
                     var model = MemoryPackSerializer.Deserialize<LocalAccount>(
                         buffer.AsSpan(),
                         new MemoryPackSerializerOptions() { StringEncoding = StringEncoding.Utf8 }
@@ -163,7 +153,7 @@ public class KuroAccountService : IKuroAccountService
     {
         if (this._cache.TryGetValue(userId, out var value))
         {
-            AppSettings.LastSelectUser = value.Item2.TokenId;
+            _ = AppSettings.SetLastSelectUserAsync(value.Item2.TokenId).ConfigureAwait(false);
             this.Current = value.Item2;
 
             WeakReferenceMessenger.Default.Send(new SelectUserMessanger(true));
@@ -174,13 +164,14 @@ public class KuroAccountService : IKuroAccountService
     {
         this.Current = localAccount;
         if (isWrite)
-            AppSettings.LastSelectUser = localAccount.TokenId;
+            _ = AppSettings.SetLastSelectUserAsync(localAccount.TokenId).ConfigureAwait(false);
     }
 
     public async Task SetAutoUser()
     {
         await GetUsersAsync();
-        if (AppSettings.LastSelectUser == null)
+        var lastSelectUser = await AppSettings.GetLastSelectUserAsync().ConfigureAwait(false);
+        if (lastSelectUser == null)
         {
             if (_cache == null)
             {
@@ -191,7 +182,7 @@ public class KuroAccountService : IKuroAccountService
         else
         {
             var result = _cache
-                .Where(x => x.Value.Item2.TokenId == AppSettings.LastSelectUser)
+                .Where(x => x.Value.Item2.TokenId == lastSelectUser)
                 .FirstOrDefault();
             if (result.Key == null || result.Value == null)
             {

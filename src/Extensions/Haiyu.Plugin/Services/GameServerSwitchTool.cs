@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -38,10 +38,10 @@ public class GameServerSwitchTool : ITool
     /// <param name="progress"></param>
     /// <returns></returns>
     /// <exception cref="NotImplementedException"></exception>
-    public async Task InvokeAsync(ServerAnalyseModel analyResult, IProgress<ToolOutputArgs> progress)
-    {
-
-    }
+    public async Task InvokeAsync(
+        ServerAnalyseModel analyResult,
+        IProgress<ToolOutputArgs> progress
+    ) { }
 
     /// <summary>
     /// 分析差异
@@ -56,12 +56,28 @@ public class GameServerSwitchTool : ITool
         CancellationToken token = default
     )
     {
-        var inputResource = await inputGameContext.GetGameResourceAsync(
-            (await inputGameContext.GetGameLauncherSourceAsync(null, token))!.ResourceDefault
-        );
-        var outputResource = await outputGameContext.GetGameResourceAsync(
-            (await outputGameContext.GetGameLauncherSourceAsync(null, token))!.ResourceDefault
-        );
+        var resourceIndexUrl =
+            (await inputGameContext.GetGameLauncherSourceAsync(null, token))
+                .ResourceDefault.CdnList.Where(x => x.P != 0)
+                .OrderBy(x => x.P)
+                .First()
+                .Url
+            + (await inputGameContext.GetGameLauncherSourceAsync(null, token))
+                .ResourceDefault
+                .Config
+                .IndexFile;
+        var inputResource = await inputGameContext.GetGameResourceAsync(resourceIndexUrl);
+        var resourceIndexUrl2 =
+            (await outputGameContext.GetGameLauncherSourceAsync(null, token))
+                .ResourceDefault.CdnList.Where(x => x.P != 0)
+                .OrderBy(x => x.P)
+                .First()
+                .Url
+            + (await outputGameContext.GetGameLauncherSourceAsync(null, token))
+                .ResourceDefault
+                .Config
+                .IndexFile;
+        var outputResource = await outputGameContext.GetGameResourceAsync(resourceIndexUrl2);
         var folder =
             await inputGameContext.GameLocalConfig.GetConfigAsync(
                 GameLocalSettingName.GameLauncherBassFolder
@@ -114,27 +130,47 @@ public class GameServerSwitchTool : ITool
             .ToList();
         var config = new
         {
-            NewFileRatioWeight = 40,    // 新增文件占比权重（满分40分）
-            RewriteFileRatioWeight = 30,// 重写文件占比权重（满分30分）
+            NewFileRatioWeight = 40, // 新增文件占比权重（满分40分）
+            RewriteFileRatioWeight = 30, // 重写文件占比权重（满分30分）
             DeleteFileRatioWeight = 25, // 删除文件占比权重（满分25分）
-            ExtremeCountPenalty = 5,    // 极端数量惩罚分（比如单类文件超80%额外加5分）
-            TotalScoreThreshold = 35,   // 总分阈值：超过则不建议转换
-            ExtremeRatioThreshold = 0.8 // 极端占比阈值（80%）
+            ExtremeCountPenalty = 5, // 极端数量惩罚分（比如单类文件超80%额外加5分）
+            TotalScoreThreshold = 35, // 总分阈值：超过则不建议转换
+            ExtremeRatioThreshold = 0.8, // 极端占比阈值（80%）
         };
-        double newFileRatio = outputResource.Resource.Count == 0 ? 0 : (double)newFiles.Count / outputResource.Resource.Count;
-        double rewriteFileRatio = outputResource.Resource.Count == 0 ? 0 : (double)rewriteFiles.Count / outputResource.Resource.Count;
-        double deleteFileRatio = inputResource.Resource.Count == 0 ? 0 : (double)deleteFiles.Count / inputResource.Resource.Count;
+        double newFileRatio =
+            outputResource.Resource.Count == 0
+                ? 0
+                : (double)newFiles.Count / outputResource.Resource.Count;
+        double rewriteFileRatio =
+            outputResource.Resource.Count == 0
+                ? 0
+                : (double)rewriteFiles.Count / outputResource.Resource.Count;
+        double deleteFileRatio =
+            inputResource.Resource.Count == 0
+                ? 0
+                : (double)deleteFiles.Count / inputResource.Resource.Count;
         double newFileScore = newFileRatio * config.NewFileRatioWeight;
         double rewriteFileScore = rewriteFileRatio * config.RewriteFileRatioWeight;
         double deleteFileScore = deleteFileRatio * config.DeleteFileRatioWeight;
         double penaltyScore = 0;
-        if (newFileRatio > config.ExtremeRatioThreshold || rewriteFileRatio > config.ExtremeRatioThreshold || deleteFileRatio > config.ExtremeRatioThreshold)
+        if (
+            newFileRatio > config.ExtremeRatioThreshold
+            || rewriteFileRatio > config.ExtremeRatioThreshold
+            || deleteFileRatio > config.ExtremeRatioThreshold
+        )
         {
             penaltyScore = config.ExtremeCountPenalty;
         }
         double totalScore = newFileScore + rewriteFileScore + deleteFileScore + penaltyScore;
         totalScore = Math.Min(totalScore, 100);
         bool suggestConvert = totalScore <= config.TotalScoreThreshold;
-        return new ServerAnalyseModel(newFiles, rewriteFiles, deleteFiles, unchangedFiles, suggestConvert,totalScore);
+        return new ServerAnalyseModel(
+            newFiles,
+            rewriteFiles,
+            deleteFiles,
+            unchangedFiles,
+            suggestConvert,
+            totalScore
+        );
     }
 }

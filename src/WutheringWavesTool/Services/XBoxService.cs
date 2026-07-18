@@ -1,4 +1,4 @@
-﻿using System.Numerics;
+using System.Numerics;
 using System.Runtime.InteropServices;
 using Haiyu.ServiceHost;
 using Haiyu.ServiceHost.XBox;
@@ -68,7 +68,8 @@ public class XBoxService
         {
             while (!token.IsCancellationRequested)
             {
-                if (Config.IsEnable == false)
+                var isEnable = await Config.GetIsEnableAsync(token);
+                if (isEnable == false)
                 {
                     await Task.Delay(3000);
                     continue;

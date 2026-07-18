@@ -1,17 +1,36 @@
-﻿using System.Runtime.CompilerServices;
-using System.Text.Json;
-using Waves.Core.Adaptives;
-using Waves.Core.Common;
-using Waves.Core.Models;
+using Haiyu.Analyzers;
 
 namespace Waves.Core.Settings;
 
-public class AppSettings : SettingBase
+[SettingsAttribute<string>(Name = "WallpaperType", Nullable = true)]
+[SettingsAttribute<string>(Name = "AreaCounterPostion", Nullable = true)]
+[SettingsAttribute<bool>(Name = "AutoSignCommunity", Nullable = true, DefaultValue = "False")]
+[SettingsAttribute<string>(Name = "LastSelectUser", Nullable = true)]
+[SettingsAttribute<string>(Name = "WallpaperPath", Nullable = true)]
+[SettingsAttribute<string>(Name = "CloseWindow", Nullable = true)]
+[SettingsAttribute<string>(Name = "SelectCursor", Nullable = true)]
+[SettingsAttribute<string>(Name = "CaptureModifierKey", Nullable = true)]
+[SettingsAttribute<string>(Name = "CaptureKey", Nullable = true)]
+[SettingsAttribute<string>(Name = "IsCapture", Nullable = true)]
+[SettingsAttribute<string>(Name = "Language", Nullable = true)]
+[SettingsAttribute<string>(Name = "AutoOOBE", Nullable = true)]
+[SettingsAttribute<string>(Name = "ElementTheme")]
+[SettingsAttribute<string>(Name = "RpcToken", Nullable = true)]
+[SettingsAttribute<string>(Name = "WavesAutoOpenContext", Nullable = true)]
+[SettingsAttribute<string>(Name = "PunishAutoOpenContext", Nullable = true)]
+[SettingsAttribute<string>(Name = "UpdateType", Nullable = true, DefaultValue = "Github")]
+[SettingsAttribute<string>(Name = "SkipAppVersion", Nullable = true)]
+[SettingsAttribute<bool>(Name = "StartGameAllowCloseMain", Nullable = true, DefaultValue = "False")]
+[SettingsAttribute<string>(Name = "MirrorKey", Nullable = true)]
+[SettingsAttribute<string>(Name = "LauncheBth", Nullable = true, DefaultValue = "Home")]
+public partial class AppSettings : SettingBase
 {
     public static string BassFolder =>
         Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\Waves";
 
     public static string RecordFolder => BassFolder + "\\RecordCache";
+
+    public static string WavesRecordFolder => BassFolder + "\\WavesRecordCache";
 
     public static string WrallpaperFolder => BassFolder + "\\WallpaperImages";
 
@@ -33,121 +52,17 @@ public class AppSettings : SettingBase
     public AppSettings()
         : base(SettingsFilePath)
     {
-        LoadSettings();
+        _ = LoadSettingsAsync();
     }
 
-    public string? WallpaperType
+    public async Task<int> GetMaxIoConcurrentAsync(CancellationToken ct = default)
     {
-        get => Read();
-        set => Write(value);
+        var val = await ReadAsync("MaxIoConcurrent", ct).ConfigureAwait(false);
+        return int.TryParse(val, out var r) ? r : 1;
     }
 
-    public string? AreaCounterPostion
+    public async Task SetMaxIoConcurrentAsync(int value, CancellationToken ct = default)
     {
-        get => Read();
-        set => Write(value);
-    }
-
-    public bool? AutoSignCommunity
-    {
-        get => NullBoolAdaptive.Instance.GetForward(Read());
-        set => Write(NullBoolAdaptive.Instance.GetBack(value));
-    }
-
-    public string? LastSelectUser
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    public string? WallpaperPath
-    {
-        get => Read();
-        set => Write(value);
-    }
-    public string? CloseWindow
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    public string? SelectCursor
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    public string? CaptureModifierKey
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    public string? CaptureKey
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    public string? IsCapture
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    public string? Language
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    public string? AutoOOBE
-    {
-        get => Read();
-        set => Write(value);
-    }
-    public string ElementTheme
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    public string? RpcToken
-    {
-        get => Read();
-        set => Write(value);
-    }
-    public string? WavesAutoOpenContext
-    {
-        get => Read();
-        set => Write(value);
-    }
-    public string? PunishAutoOpenContext
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    public string? UpdateType
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    public string? SkipAppVersion
-    {
-        get => Read();
-        set=> Write(value);
-    }
-
-    public bool? StartGameAllowCloseMain
-    {
-        get => NullBoolAdaptive.Instance.GetForward(Read());
-        set => Write(NullBoolAdaptive.Instance.GetBack(value));
-    }
-    public string MirrorKey
-    {
-        get => Read();
-        set => Write(value);
+        await WriteAsync(Math.Clamp(value, 1, 4).ToString(), "MaxIoConcurrent", ct).ConfigureAwait(false);
     }
 }

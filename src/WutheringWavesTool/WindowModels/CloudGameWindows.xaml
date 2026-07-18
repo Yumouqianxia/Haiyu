@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <Window
     x:Class="Haiyu.WindowModels.CloudGameWindows"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -7,6 +7,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:local="using:Haiyu.WindowModels"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="using:Haiyu.ViewModel.DialogViewModels"
     mc:Ignorable="d">
     <Window.SystemBackdrop>
         <MicaBackdrop />
@@ -15,6 +16,7 @@
         <i:Interaction.Behaviors>
             <i:EventTriggerBehavior EventName="Loaded">
                 <i:InvokeCommandAction Command="{x:Bind ViewModel.LoadedCommand}" />
+                <i:InvokeCommandAction Command="{x:Bind CloudSettingModel.LoadedCommand}" />
             </i:EventTriggerBehavior>
             <i:EventTriggerBehavior EventName="SizeChanged">
                 <i:InvokeCommandAction Command="{x:Bind ViewModel.SizeChangedCommand}" />
@@ -44,6 +46,78 @@
                             <DesktopAcrylicBackdrop />
                         </SystemBackdropElement.SystemBackdrop>
                     </SystemBackdropElement>
+                    <Grid Padding="20" VerticalAlignment="Top">
+                        <Grid ColumnSpacing="10" RowSpacing="5">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition />
+                                <RowDefinition Height="auto" />
+                            </Grid.RowDefinitions>
+                            <TextBlock VerticalAlignment="Center" Text="清晰度选择" />
+                            <ComboBox
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Center"
+                                ItemsSource="{x:Bind CloudSettingModel.Qualitys, Mode=OneWay}"
+                                SelectedItem="{x:Bind CloudSettingModel.SelectQualitys, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate x:DataType="vm:QualityWrapper">
+                                        <TextBlock Text="{x:Bind DisplayName}" />
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+                            <TextBlock
+                                Grid.Row="1"
+                                VerticalAlignment="Center"
+                                Text="帧率" />
+                            <ComboBox
+                                Grid.Row="1"
+                                Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                ItemsSource="{x:Bind CloudSettingModel.Fps, Mode=OneWay}"
+                                SelectedItem="{x:Bind CloudSettingModel.SelectFps, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                            <TextBlock
+                                Grid.Row="2"
+                                VerticalAlignment="Center"
+                                Text="画质增强" />
+                            <ToggleSwitch
+                                Grid.Row="2"
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                IsOn="{x:Bind CloudSettingModel.Enable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                OffContent="关"
+                                OnContent="开" />
+
+                            <TextBlock
+                                Grid.Row="3"
+                                VerticalAlignment="Center"
+                                Text="是否显示网络状态" />
+                            <ToggleSwitch
+                                Grid.Row="3"
+                                Grid.Column="1"
+                                VerticalAlignment="Center"
+                                IsOn="{x:Bind CloudSettingModel.ShowNetworkState, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                OffContent="关"
+                                OnContent="开" />
+                            <TextBlock
+                                Grid.Row="4"
+                                VerticalAlignment="Center"
+                                Text="音量" />
+                            <Slider
+                                Grid.Row="4"
+                                Grid.Column="1"
+                                Maximum="100"
+                                Minimum="0"
+                                Value="{x:Bind ViewModel.VolumeValue, Mode=TwoWay}" />
+                        </Grid>
+                    </Grid>
                 </Grid>
             </SplitView.Pane>
             <Grid>
@@ -58,7 +132,10 @@
                     Padding="10"
                     HorizontalAlignment="Center"
                     VerticalAlignment="Top">
-                    <StackPanel Orientation="Horizontal" Spacing="10">
+                    <StackPanel
+                        Orientation="Horizontal"
+                        Spacing="10"
+                        Visibility="{x:Bind ViewModel.NetworkVisibility, Mode=OneWay}">
                         <TextBlock
                             FontFamily="{ThemeResource DefaultFont}"
                             FontSize="16"

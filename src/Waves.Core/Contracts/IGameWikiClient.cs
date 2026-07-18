@@ -1,6 +1,3 @@
-﻿using Waves.Api.Models.Enums;
-using Waves.Api.Models.GameWikiiClient;
-
 namespace Waves.Core.Contracts;
 
 /// <summary>

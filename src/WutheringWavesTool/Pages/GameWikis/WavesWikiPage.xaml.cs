@@ -14,6 +14,7 @@ public sealed partial class WavesWikiPage : Page, IPage,IDisposable
     protected override void OnNavigatedFrom(NavigationEventArgs e)
     {
         this.ViewModel.Dispose();
+        this.ViewModel = null;
         base.OnNavigatedFrom(e);
     }
 

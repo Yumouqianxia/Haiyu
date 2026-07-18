@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Threading.Channels;
-using Waves.Core.Contracts.Events;
-using Waves.Core.Models;
-
 namespace Waves.Core.Services;
 
 public sealed class GameEventPublisher
     : EventPublishBase<GameContextOutputArgs>,
-        IGameEventPublisher,
+        IGameEventPublisher<GameContextOutputArgs>,
         IAsyncDisposable,
         IPublisher
 {

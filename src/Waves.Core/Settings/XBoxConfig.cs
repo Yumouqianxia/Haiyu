@@ -1,12 +1,18 @@
-﻿using Waves.Core.Adaptives;
-using Waves.Core.Common;
+using Haiyu.Analyzers;
 
 namespace Waves.Core.Settings;
 
-/// <summary>
-/// Xbox 配置信息
-/// </summary>
-public class XBoxConfig : SettingBase
+[SettingsAttribute<bool>(Name = "IsEnable", Nullable = true)]
+[SettingsAttribute<string>(Name = "A", Nullable = true)]
+[SettingsAttribute<string>(Name = "B", Nullable = true)]
+[SettingsAttribute<string>(Name = "X", Nullable = true)]
+[SettingsAttribute<string>(Name = "Y", Nullable = true)]
+[SettingsAttribute<string>(Name = "Left", Nullable = true)]
+[SettingsAttribute<string>(Name = "Top", Nullable = true)]
+[SettingsAttribute<string>(Name = "Right", Nullable = true)]
+[SettingsAttribute<string>(Name = "Bottom", Nullable = true)]
+[SettingsAttribute<bool>(Name = "FpsEnable", DefaultValue = "False")]
+public partial class XBoxConfig : SettingBase
 {
     private static readonly string XboxConfigFilelPath = Path.Combine(
         AppSettings.BassFolder,
@@ -14,90 +20,5 @@ public class XBoxConfig : SettingBase
     );
 
     public XBoxConfig()
-        : base(XboxConfigFilelPath) { }
-
-    /// <summary>
-    /// 是否启用模拟鼠标控制
-    /// </summary>
-    public bool? IsEnable
-    {
-        get => NullBoolAdaptive.Instance.GetForward(Read());
-        set => Write(NullBoolAdaptive.Instance.GetBack(value));
-    }
-
-    /// <summary>
-    /// A 键映射
-    /// </summary>
-    public string? A
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    /// <summary>
-    /// B 键映射
-    /// </summary>
-    public string? B
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    /// <summary>
-    /// X 键映射
-    /// </summary>
-    public string? X
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    /// <summary>
-    /// Y 键映射
-    /// </summary>
-    public string? Y
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    /// <summary>
-    /// 左键映射
-    /// </summary>
-    public string? Left
-    {
-        get => Read();
-        set => Write(value);
-    }
-    /// <summary>
-    /// 上键映射
-    /// </summary>
-    public string? Top
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    /// <summary>
-    /// 右键映射
-    /// </summary>
-    public string? Right
-    {
-        get => Read();
-        set => Write(value);
-    }
-
-    /// <summary>
-    /// 下键映射
-    /// </summary>
-    public string? Bottom
-    {
-        get => Read();
-        set => Write(value);
-    }
-    public bool FpsEnable
-    {
-        get => BoolAdaptive.Instance.GetForward(Read());
-        set => Write(BoolAdaptive.Instance.GetBack(value));
-    }
+        : base(XboxConfigFilelPath) {}
 }

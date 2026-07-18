@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.IO.Compression;
 using System.Text.Json;
 using SharpCompress.Archives.SevenZip;
@@ -33,7 +33,7 @@ public class DecompressionSetup : ISetup
         {
             List<string> installFile = new List<string>();
             using (var memoryStream = new MemoryStream(fileBuffer))
-            using (var archive = SharpCompress.Archives.Zip.ZipArchive.Open(memoryStream))
+            using (var archive = SharpCompress.Archives.Zip.ZipArchive.OpenArchive(memoryStream))
             {
                 long totalBytes = archive.Entries.Sum(x => x.Size);
                 long processedBytes = 0;

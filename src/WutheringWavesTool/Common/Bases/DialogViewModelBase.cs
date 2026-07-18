@@ -1,4 +1,4 @@
-﻿using Haiyu.Services.DialogServices;
+using Haiyu.Services.DialogServices;
 using Waves.Core.Services;
 
 namespace Haiyu.Common.Bases;
@@ -24,20 +24,24 @@ public abstract partial class DialogViewModelBase : ViewModelBase
     public LoggerService Logger { get; }
 
     [RelayCommand]
-    protected void Close()
+    protected async Task Close()
     {
         if (Result == null)
             this.Result = ContentDialogResult.None;
+        await BeforeCloseAsync();
         BeforeClose();
         DialogManager.CloseDialog();
         WeakReferenceMessenger.Default.UnregisterAll(this);
         this.CTS.Cancel();
         AfterClose();
-
+        await AfterCloseAsync();
         GC.SuppressFinalize(this);
     }
 
     public virtual void BeforeClose() { }
 
     public virtual void AfterClose() { }
+
+    public async virtual Task BeforeCloseAsync() { }
+    public async virtual Task AfterCloseAsync() { }
 }

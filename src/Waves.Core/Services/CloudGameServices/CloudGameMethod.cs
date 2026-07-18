@@ -1,7 +1,3 @@
-﻿using System.Net;
-using System.Net.Http.Headers;
-using Waves.Core.Models.CloudGame;
-
 namespace Waves.Core.Services.CloudGameServices;
 
 /// <summary>

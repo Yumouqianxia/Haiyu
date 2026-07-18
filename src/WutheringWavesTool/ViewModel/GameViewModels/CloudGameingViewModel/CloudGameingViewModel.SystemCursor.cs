@@ -238,7 +238,7 @@ partial class CloudGameingViewModel
         return CreateCursor(IntPtr.Zero, 0, 0, 1, 1, andMask, xorMask);
     }
 
-    private void ShowSystemCursor()
+    public void ShowSystemCursor()
     {
         if (!_cursorHidden)
         {

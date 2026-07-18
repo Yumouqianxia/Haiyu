@@ -1,4 +1,4 @@
-﻿using Haiyu.Services.DialogServices;
+using Haiyu.Services.DialogServices;
 using Waves.Core.Contracts.CloudGame;
 using Waves.Core.Models.CloudGame;
 
@@ -102,6 +102,6 @@ public sealed partial class WebGameViewModel : DialogViewModelBase
         }
         var saveResult = await CloudGameService.ConfigManager.SaveUserAsync(result.Data);
         WeakReferenceMessenger.Default.Send(new CloudLoginMessager(true, result.Data.Username));
-        this.Close();
+        await this.Close();
     }
 }

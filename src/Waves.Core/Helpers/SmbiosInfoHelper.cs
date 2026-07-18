@@ -1,8 +1,4 @@
-﻿using System.Runtime.InteropServices;
-using System.Security.Cryptography;
-using System.Text;
-using Waves.Core;
-namespace Waves.Core.Helpers;
+﻿namespace Waves.Core.Helpers;
 
 public class HardwareIdGenerator
 {

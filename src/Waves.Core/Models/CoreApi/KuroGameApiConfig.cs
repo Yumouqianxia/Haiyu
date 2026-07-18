@@ -1,6 +1,3 @@
-﻿using Waves.Core.Contracts;
-using Waves.Core.Models.Enums;
-
 namespace Waves.Core.Models.CoreApi
 {
     public class KuroGameApiConfig:IGameAPIConfig

@@ -18,15 +18,16 @@
 
   <ItemGroup>
 	  <PackageReference Include="MemoryPack" Version="1.21.4" />
-	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.7" />
+	  <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.9" />
 
-	  <PackageReference Include="Serilog" Version="4.3.1-dev-02373" />
+	  <PackageReference Include="Serilog" Version="4.3.1" />
 	  <PackageReference Include="Serilog.Sinks.Async" Version="2.1.0" />
 	  <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Extensions\Waves.Api\Waves.Api.csproj" />
+    <ProjectReference Include="..\Haiyu.Analyzers\Haiyu.Analyzers.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
 
 </Project>

@@ -1,16 +1,10 @@
-﻿using Waves.Core.Contracts.Events;
-using Waves.Core.Contracts.Events.CloudGame;
-using Waves.Core.Models.CloudGame;
-using Waves.Core.Models.Enums;
-
 namespace Waves.Core.Services.CloudGameServices;
 
-public class CloudGameProcessTracker:IAsyncDisposable
+public class CloudGameProcessTracker:TrackerBase<CloudGameProcessTracker, CloudMessageArgs>,IAsyncDisposable
 {
     private IGameEventSubscription? _subscription;
     private PeriodicTimer _timer;
     private Task _timerTask;
-    private bool _isDirty;
     private DateTime lastTime;
 
     public CloudCoreType CoreType { get; private set; }
@@ -21,39 +15,10 @@ public class CloudGameProcessTracker:IAsyncDisposable
     public string CurrentRegion { get; private set; }
     public CloudPayType PayType { get; private set; }
 
-    public event Action<CloudGameProcessTracker>? OnProgressChanged;
+    public override void Invoke() => this.onTrackerHandle?.Invoke(this);
 
-    public async Task StartTrackingAsync(ICloudGameEventPublisher publisher)
-    {
-        if (publisher == null)
-            throw new ArgumentNullException(nameof(publisher));
-        _subscription = await publisher.SubscribeAsync(HandleEventAsync).ConfigureAwait(false);
-        _timer = new PeriodicTimer(TimeSpan.FromMilliseconds(50));
-        _timerTask = NotifyLoopAsync();
-    }
-
-
-    /// <summary>
-    /// 轮询推送数据
-    /// </summary>
-    /// <returns></returns>
-    private async Task NotifyLoopAsync()
-    {
-        try
-        {
-            while (await _timer!.WaitForNextTickAsync().ConfigureAwait(false))
-            {
-                if (_isDirty)
-                {
-                    _isDirty = false;
-                    OnProgressChanged?.Invoke(this);
-                }
-            }
-        }
-        catch (Exception) { }
-    }
-
-    private async ValueTask HandleEventAsync(CloudMessageArgs args)
+    
+    public async override ValueTask HandleEventAsync(CloudMessageArgs args)
     {
         if (args == null)
             return;
@@ -72,28 +37,8 @@ public class CloudGameProcessTracker:IAsyncDisposable
         this.QueueQty = args.QueueQty;
         this.QueueWaitSecond = args.QueueTime;
         this.CurrentRegion = args.CurrentRegion;
-        this.PayType = (CloudPayType)args.PayType;
+        this.PayType = (CloudPayType) args.PayType;
         _isDirty = true;
         await ValueTask.CompletedTask;
     }
-
-    
-
-    public async ValueTask DisposeAsync()
-    {
-        try
-        {
-            _timer?.Dispose();
-            _subscription?.Dispose();
-            _subscription = null;
-            OnProgressChanged = null;
-            if (_timerTask != null)
-            {
-                await _timerTask;
-            }
-        }
-        catch { }
-    }
-
-    
 }

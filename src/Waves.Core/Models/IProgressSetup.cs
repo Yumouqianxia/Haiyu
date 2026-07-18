@@ -1,5 +1,3 @@
-﻿using Waves.Core.Contracts.Events;
-
 namespace Waves.Core.Models;
 
 /// <summary>
@@ -38,5 +36,5 @@ public interface IProgressSetup
     /// </summary>
     /// <param name="param"></param>
     /// <param name="gameEventPublisher"></param>
-    public void SetParam(Dictionary<string, object> param, IGameEventPublisher gameEventPublisher);
+    public void SetParam(Dictionary<string, object> param, IGameEventPublisher<GameContextOutputArgs> gameEventPublisher);
 }

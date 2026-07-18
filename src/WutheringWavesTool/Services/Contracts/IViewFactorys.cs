@@ -1,4 +1,5 @@
-﻿using Waves.Api.Models.CloudGame;
+using Waves.Api.Models.CloudGame;
+using Waves.Core.Models.CloudGame;
 
 namespace Haiyu.Services.Contracts;
 
@@ -9,15 +10,13 @@ public interface IViewFactorys
 
     public WindowModelBase ShowSignWindow(GameRoilDataItem role);
 
-    public WindowModelBase ShowRolesDataWindow(ShowRoleData detily);
 
-    public WindowModelBase ShowPlayerRecordWindow();
 
-    public WindowModelBase ShowWavesDataCenter(GameRoilDataItem item);
-    public Window ShowAnalysisRecord(CloudGameLoginData data);
     public TransparentWindow CreateTransperentWindow();
+
     public WindowModelBase ShowAdminDevice();
 
-    public WindowModelBase ShowStartColorGame();
-    public WindowModelBase ShowColorGame();
+    public WindowModelBase ShowAnalysisRecordV2(CloudGameLoginSession selectLogin);
+
+    public WindowModelBase ShowAutoKruoTokenWindow();
 }

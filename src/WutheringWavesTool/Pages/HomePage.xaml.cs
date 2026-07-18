@@ -16,7 +16,8 @@
         protected override void OnNavigatedFrom(NavigationEventArgs e)
         {
             base.OnNavigatedFrom(e);
-            if(frame.Content is IDisposable disposable)
+            this.Bindings.StopTracking();
+            if (frame.Content is IDisposable disposable)
             {
                 disposable.Dispose();
                 frame.Content = null;

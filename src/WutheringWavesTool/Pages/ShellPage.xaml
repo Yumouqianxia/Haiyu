@@ -75,7 +75,10 @@
                         </Button>
                     </Grid>
 
-                    <Grid Margin="5,5,0,0" CornerRadius="5">
+                    <Grid
+                        Margin="5,5,0,0"
+                        ColumnSpacing="5"
+                        CornerRadius="5">
                         <Grid.ChildrenTransitions>
                             <TransitionCollection>
                                 <RepositionThemeTransition />
@@ -98,7 +101,7 @@
                         <Button
                             Width="40"
                             Height="40"
-                            Margin="5"
+                            Margin="5,0,0,0"
                             Padding="5"
                             HorizontalAlignment="Stretch"
                             VerticalAlignment="Center"
@@ -278,7 +281,7 @@
                     <ani:OpacityAnimation
                         EasingMode="EaseOut"
                         EasingType="Linear"
-                        To="0.1"
+                        To="0.03"
                         Duration="0:0:0.5" />
                 </ani:AnimationSet>
                 <ani:AnimationSet x:Name="To0" IsSequential="True">
@@ -340,24 +343,34 @@
                             <ImageIcon Source="ms-appx:///Assets/GameIcons/pgr.ico" />
                         </NavigationViewItem.Icon>
                     </NavigationViewItem>
-
+                    <NavigationViewItem property:NavigationItemClickHelper.NavigationKey="Haiyu.ViewModel.ToolkitViewModel" Content="工具箱">
+                        <NavigationViewItem.InfoBadge>
+                            <InfoBadge Value="2" />
+                        </NavigationViewItem.InfoBadge>
+                        <NavigationViewItem.Icon>
+                            <FontIcon FontFamily="Segoe UI Emoji" Glyph="&#x1F9F0;" />
+                        </NavigationViewItem.Icon>
+                    </NavigationViewItem>
                 </NavigationView.MenuItems>
                 <NavigationView.PaneFooter>
-                    <Button
-                        Width="50"
-                        Padding="15"
-                        HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        Background="Transparent"
-                        Command="{x:Bind ViewModel.OpenSettingCommand}"
-                        Control.IsTemplateFocusTarget="True"
-                        CornerRadius="5"
-                        Style="{ThemeResource TransparentButtonStyle}">
-                        <FontIcon
-                            FontFamily="Segoe Fluent Icons"
-                            FontSize="14"
-                            Glyph="&#xE713;" />
-                    </Button>
+                    <StackPanel Orientation="Vertical" Spacing="4">
+
+                        <Button
+                            Width="50"
+                            Padding="15"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Background="Transparent"
+                            Command="{x:Bind ViewModel.OpenSettingCommand}"
+                            Control.IsTemplateFocusTarget="True"
+                            CornerRadius="5"
+                            Style="{ThemeResource TransparentButtonStyle}">
+                            <FontIcon
+                                FontFamily="Segoe Fluent Icons"
+                                FontSize="14"
+                                Glyph="&#xE713;" />
+                        </Button>
+                    </StackPanel>
                 </NavigationView.PaneFooter>
                 <Grid>
 

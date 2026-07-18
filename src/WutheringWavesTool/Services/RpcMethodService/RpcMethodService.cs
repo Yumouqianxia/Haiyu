@@ -70,7 +70,7 @@ public partial class RpcMethodService : IRpcMethodService
         {
             if(TryGetValue("token",rpcParams,out var token))
             {
-                if (AppSettings.RpcToken != Md5Helper.ComputeMd532(token))
+                if (AppSettings.GetRpcTokenAsync().GetAwaiter().GetResult() != Md5Helper.ComputeMd532(token))
                 {
                     throw new ArgumentException("Verification failed");
                 }

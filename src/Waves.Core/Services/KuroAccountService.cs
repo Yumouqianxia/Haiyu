@@ -153,7 +153,7 @@ public class KuroAccountService : IKuroAccountService
     {
         if (this._cache.TryGetValue(userId, out var value))
         {
-            AppSettings.LastSelectUser = value.Item2.TokenId;
+            _ = AppSettings.SetLastSelectUserAsync(value.Item2.TokenId).ConfigureAwait(false);
             this.Current = value.Item2;
 
             WeakReferenceMessenger.Default.Send(new SelectUserMessanger(true));
@@ -164,13 +164,14 @@ public class KuroAccountService : IKuroAccountService
     {
         this.Current = localAccount;
         if (isWrite)
-            AppSettings.LastSelectUser = localAccount.TokenId;
+            _ = AppSettings.SetLastSelectUserAsync(localAccount.TokenId).ConfigureAwait(false);
     }
 
     public async Task SetAutoUser()
     {
         await GetUsersAsync();
-        if (AppSettings.LastSelectUser == null)
+        var lastSelectUser = await AppSettings.GetLastSelectUserAsync().ConfigureAwait(false);
+        if (lastSelectUser == null)
         {
             if (_cache == null)
             {
@@ -181,7 +182,7 @@ public class KuroAccountService : IKuroAccountService
         else
         {
             var result = _cache
-                .Where(x => x.Value.Item2.TokenId == AppSettings.LastSelectUser)
+                .Where(x => x.Value.Item2.TokenId == lastSelectUser)
                 .FirstOrDefault();
             if (result.Key == null || result.Value == null)
             {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Net.NetworkInformation;
 using System.Text;
 using Haiyu.Models.Dialogs;
+using Haiyu.Models.Enums;
 using Haiyu.Services.DialogServices;
 using Waves.Core.Common;
 using Waves.Core.Models.CoreApi;
@@ -57,15 +58,15 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
     [RelayCommand]
     public async Task Loaded()
     {
-
         this.Servers =
             this.GameType == GameType.Waves
                 ? ServerDisplay.GetWavesV2Games
                 : ServerDisplay.GetPunishV2Games;
+
         var openService =
             this.GameType == GameType.Waves
-                ? AppSettings.WavesAutoOpenContext
-                : AppSettings.PunishAutoOpenContext;
+                ? await AppSettings.GetWavesAutoOpenContextAsync(this.CTS.Token)
+                : await AppSettings.GetPunishAutoOpenContextAsync(this.CTS.Token);
 
         var selectServer = Servers.Where(x => x.Key == openService).FirstOrDefault();
         this.SelectServer = selectServer == null ? Servers[0] : selectServer;
@@ -175,11 +176,17 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         }
         if (this.GameContext.GameType == GameType.Waves)
         {
-            AppSettings.WavesAutoOpenContext = this.GameContext.ContextName;
+            await AppSettings.SetWavesAutoOpenContextAsync(
+                this.GameContext.ContextName,
+                this.CTS.Token
+            );
         }
         else if (this.GameContext.GameType == GameType.Punish)
         {
-            AppSettings.PunishAutoOpenContext = this.GameContext.ContextName;
+            await AppSettings.SetPunishAutoOpenContextAsync(
+                this.GameContext.ContextName,
+                this.CTS.Token
+            );
         }
         await RefreshCoreAsync(showCard);
         GC.Collect();
@@ -190,7 +197,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         var args = tracker.LastArgs;
         if (this.GameContext == null)
             return;
-        
+
         await AppContext.TryInvokeAsync(async () =>
         {
             var actionType = args.Type;
@@ -271,7 +278,8 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                             allSteps.Count - 1
                         );
                         PreSetupText = $"{allSteps[safeStepIndex]}";
-                        PreSetupHeaderText = $"[{safeStepIndex + 1}/{allSteps.Count}]{tracker.StepName}";
+                        PreSetupHeaderText =
+                            $"[{safeStepIndex + 1}/{allSteps.Count}]{tracker.StepName}";
                     }
                     else
                     {
@@ -380,7 +388,8 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         GameContextStatus status
     )
     {
-        if (disposedValue) return;
+        if (disposedValue)
+            return;
         var now = DateTime.Now;
         this.MaxProgressValue = tracker.TotalBytes;
         this.CurrentProgressValue = tracker.CurrentBytes;
@@ -508,43 +517,6 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         points.Add(new LiveChartsCore.Defaults.DateTimePoint(now, value));
     }
 
-    private static string BuildTrackerProgressSummary(GameProgressTracker tracker)
-    {
-        var segments = new List<string>(6)
-        {
-            $"{tracker.Percentage:F2}%",
-            $"Step {tracker.CurrentStepIndex + 1}/{Math.Max(1, tracker.TotalSteps)}: {tracker.StepName}",
-        };
-
-        if (!string.IsNullOrWhiteSpace(tracker.CurrentStepTip))
-        {
-            segments.Add(tracker.CurrentStepTip);
-        }
-
-        var speedText = tracker.GetSpeedText();
-        if (!string.IsNullOrWhiteSpace(speedText))
-        {
-            segments.Add($"Speed: {speedText}");
-        }
-
-        segments.Add(
-            $"Bytes: {GameProgressTracker.FormatBytes(tracker.CurrentBytes)} / {GameProgressTracker.FormatBytes(tracker.TotalBytes)}"
-        );
-
-        return string.Join(" | ", segments);
-    }
-
-    private enum ButtonActionType
-    {
-        None = 0,
-        SelectInstall = 1,
-        Downloading = 2,
-        StartGame = 3,
-        PrepareUpdate = 4,
-        InGame = 5,
-        InstallPreDownload = 6,
-    }
-
     private ButtonActionType _buttonAction = ButtonActionType.None;
     private bool disposedValue;
 
@@ -553,9 +525,9 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         try
         {
             ProcessAction = true;
-            
+
             var status = await this.GameContext.GetGameContextStatusAsync(this.CTS.Token);
-            
+
             if (!status.IsGameExists)
             {
                 Logger.WriteInfo("未找到游戏文件，显示下载按钮");
@@ -597,8 +569,8 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 index.FunctionCode.Background,
                 this.CTS.Token
             );
-            var wallpaperType = AppSettings.WallpaperType;
-            
+            var wallpaperType = await AppSettings.GetWallpaperTypeAsync(this.CTS.Token);
+
             if (status.IsPredownloaded && !status.ProdIsAdvance)
             {
                 if (IsAdvanceInstallAction(status))
@@ -652,7 +624,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
             {
                 HidePreDownloadStatus();
             }
-            if (isRefreshBackground) //是否刷新资源背景
+            if (isRefreshBackground && background != null) //是否刷新资源背景
             {
                 if (wallpaperType == "Video")
                 {
@@ -674,6 +646,10 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 if (status.Gameing)
                 {
                     WallpaperService.PauseVideo();
+                }
+                else
+                {
+                    WallpaperService.RestartVideo();
                 }
                 await ShowCardAsync(showCard);
                 await LoadAfter();
@@ -750,22 +726,21 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 EnableStartGameBth = false;
                 DisplayVersion = version;
                 LauncherIcon = "\uE71A";
-
             }
             else
             {
                 _buttonAction = ButtonActionType.StartGame;
                 this.CurrentProgressValue = 0;
                 this.MaxProgressValue = 0;
-                
+
                 LauncheContent = "进入游戏";
                 EnableStartGameBth = true;
                 DisplayVersion = version;
                 LauncherIcon = "\uE7FC";
             }
             var totalTime = await GameContext.GameLocalConfig.GetConfigAsync(
-                    GameLocalSettingName.GameRunTotalTime
-                );
+                GameLocalSettingName.GameRunTotalTime
+            );
             if (totalTime == null)
             {
                 BottomBarContent = "游戏准备就绪";
@@ -775,8 +750,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 if (int.TryParse(totalTime, out var timeResult))
                 {
                     var tt = TimeSpan.FromSeconds(timeResult);
-                    BottomBarContent =
-                        "已游玩" + ($"{tt.Days}天{tt.Hours}小时{tt.Minutes}分钟");
+                    BottomBarContent = "已游玩" + ($"{tt.Days}天{tt.Hours}小时{tt.Minutes}分钟");
                     ;
                 }
                 else
@@ -800,7 +774,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
                 return;
             }
             Logger.WriteInfo($"选择游戏安装路径：{result.InstallFolder},即将进入通知核心进行下载");
-            
+
             StartBackground(() => this.GameContext.StartDownloadTaskAsync(result.InstallFolder));
         }
         else
@@ -924,13 +898,13 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         if (state.IsPredownloaded && state.PredownloaAcion)
         {
             await DialogManager.ShowMessageDialog(
-                    new ShowDialogOption()
-                    {
-                        Context = "预下载期间，禁止修复游戏",
-                        CloseText = "确定",
-                        ShowPrimaryButton = false,
-                    }
-                );
+                new ShowDialogOption()
+                {
+                    Context = "预下载期间，禁止修复游戏",
+                    CloseText = "确定",
+                    ShowPrimaryButton = false,
+                }
+            );
             return;
         }
         if (
@@ -949,7 +923,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         )
         {
             Logger.WriteInfo($"开始尝试修复游戏文件");
-            StartBackground(() => GameContext.RepairGameAsync()); 
+            StartBackground(() => GameContext.RepairGameAsync());
         }
         else
         {
@@ -1011,7 +985,7 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
         if (!disposedValue)
         {
             disposedValue = true;
-            if(this.GameContext!= null)
+            if (this.GameContext != null)
                 this.GameContext.ProgressState.OnProgressChanged -= ProgressState_OnProgressChanged;
             if (DownloadSpeedPoints != null)
             {
@@ -1043,7 +1017,6 @@ public abstract partial class KuroGameContextViewModelV2 : ViewModelBase
 
     private async void StartBackground(Func<Task> taskFunc)
     {
-        
         _ = Task.Run(async () =>
         {
             try

@@ -26,15 +26,17 @@ public class ScreenCaptureService : IScreenCaptureService
         Unregister();
         int? modifier = 0;
         int? key = 0;
-        if (string.IsNullOrWhiteSpace(AppSettings.CaptureModifierKey) || string.IsNullOrWhiteSpace(AppSettings.CaptureKey))
+        var captureModifierKey = AppSettings.GetCaptureModifierKeyAsync().GetAwaiter().GetResult();
+        var captureKey = AppSettings.GetCaptureKeyAsync().GetAwaiter().GetResult();
+        if (string.IsNullOrWhiteSpace(captureModifierKey) || string.IsNullOrWhiteSpace(captureKey))
         {
             modifier = ModifierKey.GetDefault().Where(x => x.Name == "Win").FirstOrDefault()?.Value;
             key = Keys.GetDefault().Where(x => x.Name == "F8").FirstOrDefault()?.Value;
         }
         else
         {
-            modifier = ModifierKey.GetDefault().Where(x => x.Name == AppSettings.CaptureModifierKey).FirstOrDefault()?.Value;
-            key = Keys.GetDefault().Where(x => x.Name == AppSettings.CaptureKey).FirstOrDefault()?.Value;
+            modifier = ModifierKey.GetDefault().Where(x => x.Name == captureModifierKey).FirstOrDefault()?.Value;
+            key = Keys.GetDefault().Where(x => x.Name == captureKey).FirstOrDefault()?.Value;
         }
         if (modifier == null || key == null)
         {
@@ -55,7 +57,7 @@ public class ScreenCaptureService : IScreenCaptureService
         {
             if (e.Message.WParam == HOTKEY_ID)
             {
-                if (!Convert.ToBoolean(AppSettings.IsCapture))
+                if (!Convert.ToBoolean(AppSettings.GetIsCaptureAsync().GetAwaiter().GetResult()))
                     return;
                 Task.Run(Capture).GetAwaiter().GetResult();
             }

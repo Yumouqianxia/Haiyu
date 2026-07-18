@@ -4,12 +4,15 @@ public partial class WindowModelBase : Window
 {
     public AppWindow AppWindowApp;
 
+    public WindowsOption? WindowsOption { get; }
+
     OverlappedPresenter? Overlapped => this.AppWindow.Presenter as OverlappedPresenter;
 
     public WindowManager Manager => WindowManager.Get(this);
 
-    public WindowModelBase(nint value)
+    public WindowModelBase(nint value, WindowsOption? windowsOption = null)
     {
+        WindowsOption = windowsOption;
         this.SystemBackdrop = new DesktopAcrylicBackdrop();
         if (Overlapped != null)
         {
@@ -32,5 +35,7 @@ public partial class WindowModelBase : Window
                 WindowExtension.SwitchToThisWindow(baseHwnd,true);
             };
         }
+
+        this.ApplyWindowsOption(windowsOption);
     }
 }

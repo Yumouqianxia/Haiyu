@@ -1,4 +1,4 @@
-﻿using Haiyu.Plugin.Common;
+using Haiyu.Plugin.Common;
 using Haiyu.Plugin.Contracts;
 using Haiyu.Plugin.Models;
 using System;
@@ -16,7 +16,7 @@ namespace Haiyu.Plugin.Services;
 public class MirrorUpdateService : IMirrorUpdateService, IUpdateService
 {
     private const int BufferSize = 81920;
-    private string _key;
+    private string? _key;
     Tuple<MirrorReponseModel?, DateTime> _cacheInfo;
 
     private async Task<MirrorReponseModel?> GetInfoAsync(CancellationToken token = default)
@@ -224,7 +224,7 @@ public class MirrorUpdateService : IMirrorUpdateService, IUpdateService
         }
     }
 
-    public void SetMirrorKey(string key)
+    public void SetMirrorKey(string? key)
     {
         _key = key;
     }

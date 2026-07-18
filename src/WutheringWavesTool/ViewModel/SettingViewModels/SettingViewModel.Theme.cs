@@ -16,7 +16,12 @@ partial class SettingViewModel
     
     partial void OnSelectThemeChanged(string value)
     {
-        if (AppSettings.ElementTheme != null && AppSettings.ElementTheme == value)
+        _ = OnSelectThemeChangedAsync(value);
+    }
+
+    private async Task OnSelectThemeChangedAsync(string value)
+    {
+        if (await AppSettings.GetElementThemeAsync() == value)
         {
             return;
         }
@@ -25,7 +30,7 @@ partial class SettingViewModel
             : value == "Dark" ? ElementTheme.Dark
             : ElementTheme.Default
         );
-        AppSettings.ElementTheme = value.ToString();
+        await AppSettings.SetElementThemeAsync(value.ToString());
     }
 
     [RelayCommand]
@@ -42,15 +47,20 @@ partial class SettingViewModel
 
     partial void OnSelectWallpaperNameChanged(WallpaperType value)
     {
+        _ = OnSelectWallpaperNameChangedAsync(value);
+    }
+
+    private async Task OnSelectWallpaperNameChangedAsync(WallpaperType value)
+    {
         if (value == null)
             return;
         if (value.Name == "视频")
         {
-            AppSettings.WallpaperType = "Video";
+            await AppSettings.SetWallpaperTypeAsync("Video");
         }
         else
         {
-            AppSettings.WallpaperType = "Image";
+            await AppSettings.SetWallpaperTypeAsync("Image");
         }
     }
 }

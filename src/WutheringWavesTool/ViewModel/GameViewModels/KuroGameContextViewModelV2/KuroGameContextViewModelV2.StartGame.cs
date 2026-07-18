@@ -1,3 +1,4 @@
+using Haiyu.Models.Enums;
 using Microsoft.Windows.AppNotifications;
 using Microsoft.Windows.AppNotifications.Builder;
 using Waves.Core.Models.Enums;
@@ -15,7 +16,7 @@ partial class KuroGameContextViewModelV2
             {
                 this.WallpaperService.PauseVideo();
             }
-            if((AppSettings.StartGameAllowCloseMain == true))
+            if((await AppSettings.GetStartGameAllowCloseMainAsync()) == true)
             {
                 this.AppContext.MinToTaskbar();
             }

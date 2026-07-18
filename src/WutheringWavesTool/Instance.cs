@@ -1,5 +1,7 @@
 using Haiyu.Helpers;
 using Haiyu.Pages.Communitys;
+using Haiyu.Pages.Toolkits;
+using Haiyu.Plugin.Common;
 using Haiyu.Plugin.Contracts;
 using Haiyu.Plugin.Services;
 using Haiyu.ServiceHost;
@@ -10,6 +12,7 @@ using Haiyu.ViewModel.Communitys;
 using Haiyu.ViewModel.GameViewModels;
 using Haiyu.ViewModel.GameViewModels.GameContexts;
 using Haiyu.ViewModel.OOBEViewModels;
+using Haiyu.ViewModel.ToolkitsViewModel;
 using Haiyu.ViewModel.WikiViewModels;
 using MemoryPack;
 using Microsoft.Extensions.Hosting;
@@ -85,6 +88,7 @@ public static class InstanceBuilderExtensions
                         }
                     )
                     .AddSingleton<AppSettings>()
+                    .AddSingleton<GithubIpSettings>()
                     .AddSingleton<IIoCircuitBreaker,IoCircuitBreaker>()
                     .AddTransient<IAppActivation,AppActivation>()
                     #region XBox
@@ -212,7 +216,14 @@ public static class InstanceBuilderExtensions
                     .AddTransient<IWavesPlayerCardCacheServices, WavesPlayerCardCacheServices>(
                         _ => new WavesPlayerCardCacheServices(AppSettings.WavesRecordFolder)
                     )
-                    #endregion
+                #endregion
+                #region Toolkit
+                    .AddTransient<ToolkitPage>()
+                    .AddTransient<ToolkitViewModel>()
+
+                    .AddTransient<AutoKuroTokenPage>()
+                    .AddTransient<AutoKuroTokenViewModel>()
+                #endregion
                     .AddKeyedSingleton<IDialogManager, MainDialogService>(nameof(MainDialogService))
                     .AddKeyedSingleton<LoggerService>(
                         "AppLog",

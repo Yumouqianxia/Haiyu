@@ -49,7 +49,7 @@ public class AppContext<T> : IAppContext<T>
         try
         {
             var xboxConfig = Instance.Host.Services.GetRequiredService<XBoxConfig>();
-            if (xboxConfig.IsEnable == true)
+            if ((await xboxConfig.GetIsEnableAsync()) == true)
             {
                 await Instance.Host.Services.GetRequiredService<XBoxService>().StartAsync();
             }
@@ -61,49 +61,14 @@ public class AppContext<T> : IAppContext<T>
                 is IMirrorUpdateService mirror
             )
             {
-                mirror.SetMirrorKey(AppSettings.MirrorKey);
+                mirror.SetMirrorKey(await AppSettings.GetMirrorKeyAsync());
             }
             #endregion
             try
             {
-                var scale = TitleBar.GetScaleAdjustment(win);
-                //if (string.IsNullOrWhiteSpace(AppSettings.AutoOOBE))
-                //{
-                //    int targetDipWidth = 800;
-                //    int targetDipHeight = 500;
-                //    var pixelWidth = (int)Math.Round(targetDipWidth * scale);
-                //    var pixelHeight = (int)Math.Round(targetDipHeight * scale);
-                //    win.AppWindow.Resize(
-                //        new Windows.Graphics.SizeInt32 { Width = pixelWidth, Height = pixelHeight }
-                //    );
-                //    var page = Instance.Host.Services!.GetRequiredService<OOBEPage>();
-                //    page.titlebar.Window = win;
-                //    win.Content = page;
-                //}
-                //else
-                //{
-                //    int targetDipWidth = 1150;
-                //    int targetDipHeight = 650;
-                //    var pixelWidth = (int)Math.Round(targetDipWidth * scale);
-                //    var pixelHeight = (int)Math.Round(targetDipHeight * scale);
-                //    win.AppWindow.Resize(
-                //        new Windows.Graphics.SizeInt32 { Width = pixelWidth, Height = pixelHeight }
-                //    );
-                //    var page = Instance.Host.Services!.GetRequiredService<ShellPage>();
-                //    page.titlebar.Window = win;
-                //    win.Content = page;
-                //}
-                int targetDipWidth = 1150;
-                int targetDipHeight = 650;
-                var pixelWidth = (int)Math.Round(targetDipWidth * scale);
-                var pixelHeight = (int)Math.Round(targetDipHeight * scale);
-                win.AppWindow.Resize(
-                    new Windows.Graphics.SizeInt32 { Width = pixelWidth, Height = pixelHeight }
-                );
                 var page = Instance.Host.Services!.GetRequiredService<ShellPage>();
                 page.titlebar.Window = win;
                 win.Content = page;
-
             }
             catch (Exception ex) { }
 
@@ -232,7 +197,7 @@ public class AppContext<T> : IAppContext<T>
 
     public async Task CloseAsync()
     {
-        var close = AppSettings.CloseWindow;
+        var close = await AppSettings.GetCloseWindowAsync();
         if (close == "True")
         {
             Environment.Exit(0);
@@ -269,7 +234,7 @@ public class AppContext<T> : IAppContext<T>
                 return;
             }
             IUpdateService? service = null;
-            if (AppSettings.UpdateType == "Github")
+            if ((await AppSettings.GetUpdateTypeAsync()) == "Github")
             {
                 service =
                     Instance.Host.Services.GetKeyedService<Haiyu.Plugin.Contracts.IUpdateService>(
@@ -290,7 +255,7 @@ public class AppContext<T> : IAppContext<T>
                 var info = await service.GetLasterProgramInfoAsync(token);
                 if (info != null)
                 {
-                    if (!isApply && info.Version == AppSettings.SkipAppVersion)
+                    if (!isApply && info.Version == await AppSettings.GetSkipAppVersionAsync())
                     {
                         return;
                     }

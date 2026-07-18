@@ -44,7 +44,7 @@ public sealed class AutoSignService : IHostedService
     {
         try
         {
-            if (AppSettings.AutoSignCommunity == false)
+            if (await AppSettings.GetAutoSignCommunityAsync(token) == false)
                 return;
             int successCount = 0;
             int errorCount = 0;

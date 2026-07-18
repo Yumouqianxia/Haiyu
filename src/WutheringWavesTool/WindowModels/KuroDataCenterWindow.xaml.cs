@@ -7,8 +7,8 @@ public sealed partial class KuroDataCenterWindow : WindowModelBase
 {
     KuroCommunityWebViewHostInitializer hostInitializer;
 
-    public KuroDataCenterWindow(nint value, WebSessionContext context)
-        : base(value)
+    public KuroDataCenterWindow(nint value, WebSessionContext context, WindowsOption? windowsOption = null)
+        : base(value, windowsOption)
     {
         InitializeComponent();
         this.titleBar.Window = this;

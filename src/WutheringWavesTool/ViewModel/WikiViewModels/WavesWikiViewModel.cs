@@ -10,6 +10,27 @@ namespace Haiyu.ViewModel.WikiViewModels;
 
 public partial class WavesWikiViewModel : WikiViewModelBase
 {
+    private static readonly WindowsOption SignWindowOption =
+        new()
+        {
+            Width = 400,
+            Height = 400,
+            MaxWidth = 400,
+            MaxHeight = 400,
+            IsResizable = false,
+            IsMaximizable = false,
+            CenterOnScreen = true,
+        };
+
+    private static readonly WindowsOption CommunityWindowOption =
+        new()
+        {
+            Width = 400,
+            Height = 700,
+            IsResizable = true,
+            CenterOnScreen = true,
+        };
+
     public WavesWikiViewModel(IAppContext<App> appContext)
     {
         this.Messenger.Register<SelectUserMessanger>(this, LoginMessangerMethod);
@@ -132,8 +153,7 @@ public partial class WavesWikiViewModel : WikiViewModelBase
     void OpenGameSign()
     {
         var win = Instance.Host.Services.GetRequiredService<IViewFactorys>()!.ShowSignWindow(this.SelectGamer);
-        win.Manager.MaxHeight = 400;
-        win.Manager.MaxWidth = 400;
+        win.ApplyWindowsOption(SignWindowOption);
         win.ExtendsContentIntoTitleBar = true;
         win.AppWindow.Show();
     }
@@ -198,9 +218,11 @@ public partial class WavesWikiViewModel : WikiViewModelBase
         }
 
         var win = WindowNative.GetWindowHandle(AppContext.App.MainWindow);
-        KuroDataCenterWindow window = new KuroDataCenterWindow(win, context);
-        window.Manager.Width = 400;
-        window.Manager.Height = 700;
+        KuroDataCenterWindow window = new KuroDataCenterWindow(win, context, CommunityWindowOption);
+        if(window.Content is FrameworkElement element)
+        {
+            element.RequestedTheme = Instance.Host.Services.GetRequiredService<IThemeService>().CurrentTheme;
+        }
         window.AppWindow.Show();
     }
 

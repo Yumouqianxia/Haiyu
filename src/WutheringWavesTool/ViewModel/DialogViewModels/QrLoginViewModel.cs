@@ -37,6 +37,30 @@ public partial class QrLoginViewModel : DialogViewModelBase
     [ObservableProperty]
     public partial Visibility SessionVisibility { get; set; } = Visibility.Collapsed;
 
+    private void ShowScanState()
+    {
+        SelectWindowVisibility = Visibility.Visible;
+        SessionVisibility = Visibility.Collapsed;
+        VerifyCodeVisibility = Visibility.Collapsed;
+        LoginBthVisibility = Visibility.Collapsed;
+    }
+
+    private void ShowRoleState()
+    {
+        SelectWindowVisibility = Visibility.Collapsed;
+        SessionVisibility = Visibility.Visible;
+        VerifyCodeVisibility = Visibility.Collapsed;
+        LoginBthVisibility = Visibility.Visible;
+    }
+
+    private void ShowVerifyState()
+    {
+        SelectWindowVisibility = Visibility.Collapsed;
+        SessionVisibility = Visibility.Collapsed;
+        VerifyCodeVisibility = Visibility.Visible;
+        LoginBthVisibility = Visibility.Visible;
+    }
+
     [ObservableProperty]
     public partial string ScreenMessage { get; set; } = "选择显示器";
 
@@ -107,8 +131,7 @@ public partial class QrLoginViewModel : DialogViewModelBase
                     _session = null;
                     this.Datums = result.Data.ToObservableCollection();
                     this.SelectDatum = Datums[0];
-                    this.LoginBthVisibility = Visibility.Visible;
-                    SessionVisibility = Visibility.Visible;
+                    ShowRoleState();
                 }
                 else
                 {
@@ -159,6 +182,7 @@ public partial class QrLoginViewModel : DialogViewModelBase
         GraphicsCaptureItem item = await picker.PickSingleItemAsync();
         if (item != null)
         {
+            ShowScanState();
             if (_framePool != null)
             {
                 _framePool?.FrameArrived -= _framePool_FrameArrived;
@@ -198,7 +222,7 @@ public partial class QrLoginViewModel : DialogViewModelBase
         {
             TipMessage = "该设备不安全，安全验证已经发送至手机";
             var result2 = await WavesClient.GetQrCodeAsync(QRResult);
-            VerifyCodeVisibility = Visibility.Visible;
+            ShowVerifyState();
             return;
         }
         else if (result.Code == 200)

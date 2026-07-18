@@ -29,7 +29,7 @@ public sealed partial class UpdateAppViewModel : DialogViewModelBase
 
     public UpdateAppViewModel([FromKeyedServices(nameof(MainDialogService))] IDialogManager dialogManager,IAppContext<App> appContext) : base(dialogManager)
     {
-        if(AppSettings.UpdateType == "Github")
+        if(AppSettings.GetUpdateTypeAsync().GetAwaiter().GetResult() == "Github")
         {
             UpdateService = Instance.Host.Services.GetRequiredKeyedService<IUpdateService>("GitHub");
         }
@@ -53,7 +53,7 @@ public sealed partial class UpdateAppViewModel : DialogViewModelBase
     [RelayCommand]
     async Task SkipAppUpdate()
     {
-        AppSettings.SkipAppVersion = _info.Version;
+        await AppSettings.SetSkipAppVersionAsync(_info.Version);
         await this.Close();
     }
 

@@ -13,7 +13,7 @@ public class IoCircuitBreaker : IIoCircuitBreaker
     public IoCircuitBreaker(AppSettings appSettings)
     {
         AppSettings = appSettings;
-        _currentMax = AppSettings.MaxIoConcurrent;
+        _currentMax = AppSettings.GetMaxIoConcurrentAsync().GetAwaiter().GetResult();
         _semaphore = new SemaphoreSlim(_currentMax, _currentMax);
     }
 
@@ -25,9 +25,10 @@ public class IoCircuitBreaker : IIoCircuitBreaker
     }
     public bool TryAcquire()
     {
-        if (AppSettings.MaxIoConcurrent != _currentMax)
+        var maxIoConcurrent = AppSettings.GetMaxIoConcurrentAsync().GetAwaiter().GetResult();
+        if (maxIoConcurrent != _currentMax)
         {
-            _currentMax = AppSettings.MaxIoConcurrent;
+            _currentMax = maxIoConcurrent;
             _semaphore = new SemaphoreSlim(_currentMax, _currentMax);
         }
         return _semaphore.Wait(0);

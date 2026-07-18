@@ -22,7 +22,7 @@ public partial class App : ClientApplication
     private const int PROCESS_PER_MONITOR_DPI_AWARE = 2;
     private AppInstance mainInstance;
 
-    public static string AppVersion => "1.3.2";
+    public static string AppVersion => "1.3.3";
 
     public AppSettings AppSettings { get; private set; }
 
@@ -81,9 +81,9 @@ public partial class App : ClientApplication
         this.AppSettings = Instance.Host.Services.GetRequiredService<AppSettings>();
         this.UnhandledException += App_UnhandledException;
         CreateFolder();
-        if (AppSettings.WallpaperType == null)
+        if (await AppSettings.GetWallpaperTypeAsync() == null)
         {
-            AppSettings.WallpaperType = "Video";
+            await AppSettings.SetWallpaperTypeAsync("video");
         }
         SetProcessDpiAwareness(PROCESS_PER_MONITOR_DPI_AWARE);
         GameContextFactory.GameBassPath = AppSettings.BassFolder;
@@ -105,14 +105,15 @@ public partial class App : ClientApplication
         }
         await LanguageService.InitAsync();
         await Instance.Host.Services.GetRequiredService<IAppContext<App>>().LauncherAsync(this);
-        SetTheme();
+        await SetTheme();
         Instance.Host.Services.GetService<IScreenCaptureService>()!.Register();
     }
 
-    private void SetTheme()
+    private async Task SetTheme()
     {
         var theme = Instance.Host.Services.GetRequiredService<IThemeService>();
-        switch (AppSettings.ElementTheme)
+        var elementTheme = await AppSettings.GetElementThemeAsync();
+        switch (elementTheme)
         {
             case "Light":
                 theme.SetTheme(ElementTheme.Light);

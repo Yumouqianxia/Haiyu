@@ -11,7 +11,14 @@ partial class KuroGameContextViewModelV2
     {
         if (_buttonAction == ButtonActionType.StartGame)
         {
-            if ((await GameContext.StartGameAsync()))
+            if (!await PrepareStartGameAsync())
+            {
+                return;
+            }
+
+            var handledStartResult = await TryStartGameOverrideAsync();
+            var startResult = handledStartResult ?? await GameContext.StartGameAsync();
+            if (startResult)
             {
                 this.WallpaperService.PauseVideo();
             }
@@ -81,5 +88,15 @@ partial class KuroGameContextViewModelV2
             await this.GameContext.PauseDownloadAsync();
             this.PreDownloadIcon = "\uE768";
         }
+    }
+
+    protected virtual Task<bool> PrepareStartGameAsync()
+    {
+        return Task.FromResult(true);
+    }
+
+    protected virtual Task<bool?> TryStartGameOverrideAsync()
+    {
+        return Task.FromResult<bool?>(null);
     }
 }

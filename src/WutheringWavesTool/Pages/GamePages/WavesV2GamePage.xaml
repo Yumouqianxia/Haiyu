@@ -30,8 +30,46 @@
         </i:EventTriggerBehavior>
     </i:Interaction.Behaviors>
     <Page.Resources>
+        <ResourceDictionary>
+        <ResourceDictionary.ThemeDictionaries>
+            <ResourceDictionary x:Key="Light">
+                <SolidColorBrush x:Key="WavesCommandSurfaceBrush" Color="#1FFFFFFF" />
+                <SolidColorBrush x:Key="WavesCommandBorderBrush" Color="#52FFFFFF" />
+                <SolidColorBrush x:Key="WavesPrimaryActionBrush" Color="#FF173A44" />
+                <SolidColorBrush x:Key="WavesPrimaryActionPointerOverBrush" Color="#FF204D59" />
+                <SolidColorBrush x:Key="WavesPrimaryActionPressedBrush" Color="#FF0E2C35" />
+                <SolidColorBrush x:Key="WavesPrimaryActionForegroundBrush" Color="#FFFFFFFF" />
+                <SolidColorBrush x:Key="WavesSecondaryActionBrush" Color="#33FFFFFF" />
+                <SolidColorBrush x:Key="WavesSecondaryActionPointerOverBrush" Color="#59FFFFFF" />
+                <SolidColorBrush x:Key="WavesSecondaryActionPressedBrush" Color="#73FFFFFF" />
+                <SolidColorBrush x:Key="WavesStatusAccentBrush" Color="#FF177D8D" />
+            </ResourceDictionary>
+            <ResourceDictionary x:Key="Dark">
+                <SolidColorBrush x:Key="WavesCommandSurfaceBrush" Color="#E61A1E22" />
+                <SolidColorBrush x:Key="WavesCommandBorderBrush" Color="#38FFFFFF" />
+                <SolidColorBrush x:Key="WavesPrimaryActionBrush" Color="#FFE0F5F7" />
+                <SolidColorBrush x:Key="WavesPrimaryActionPointerOverBrush" Color="#FFFFFFFF" />
+                <SolidColorBrush x:Key="WavesPrimaryActionPressedBrush" Color="#FFC2E2E7" />
+                <SolidColorBrush x:Key="WavesPrimaryActionForegroundBrush" Color="#FF0A242B" />
+                <SolidColorBrush x:Key="WavesSecondaryActionBrush" Color="#8A253038" />
+                <SolidColorBrush x:Key="WavesSecondaryActionPointerOverBrush" Color="#BF33434C" />
+                <SolidColorBrush x:Key="WavesSecondaryActionPressedBrush" Color="#E6172025" />
+                <SolidColorBrush x:Key="WavesStatusAccentBrush" Color="#FF79D9E5" />
+            </ResourceDictionary>
+        </ResourceDictionary.ThemeDictionaries>
+        <Style x:Key="WavesPrimaryLaunchButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{ThemeResource WavesPrimaryActionBrush}" />
+            <Setter Property="Foreground" Value="{ThemeResource WavesPrimaryActionForegroundBrush}" />
+            <Setter Property="BorderThickness" Value="0" />
+            <Setter Property="CornerRadius" Value="6" />
+            <Setter Property="Padding" Value="18,10" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="UseSystemFocusVisuals" Value="True" />
+        </Style>
         <convert:StepOKColorConverter x:Key="StepOKColorConverter" />
         <convert:StepOKVisiblityConverter x:Key="StepOKVisiblityConverter" />
+        </ResourceDictionary>
     </Page.Resources>
     <Grid x:Name="backGrid" Margin="-1,0,0,0">
         <Grid.RowDefinitions>
@@ -50,25 +88,176 @@
             VerticalAlignment="Top"
             Background="Transparent"
             IsIndeterminate="{x:Bind ViewModel.ProcessAction, Mode=OneWay}" />
-        <ComboBox
-            Margin="10,10,0,0"
-            Padding="10,5"
-            CornerRadius="10 3 10 3"
-            ItemsSource="{x:Bind ViewModel.Servers, Mode=OneWay}"
-            SelectedItem="{x:Bind ViewModel.SelectServer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-            Style="{ThemeResource AcrylicComboBoxStyle}">
-            <ComboBox.ItemTemplate>
-                <DataTemplate x:DataType="m:ServerDisplay">
-                    <Border CornerRadius="5">
-                        <TextBlock
-                            FontFamily="{ThemeResource DefaultFont}"
-                            FontSize="15"
-                            Foreground="{ThemeResource AccentAAFillColorDefaultBrush}"
-                            Text="{x:Bind Display}" />
-                    </Border>
-                </DataTemplate>
-            </ComboBox.ItemTemplate>
-        </ComboBox>
+        <Border
+            Grid.ColumnSpan="2"
+            Margin="12,12,12,0"
+            Padding="6"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Background="{ThemeResource WavesCommandSurfaceBrush}"
+            BorderBrush="{ThemeResource WavesCommandBorderBrush}"
+            BorderThickness="1"
+            CornerRadius="8">
+            <StackPanel Orientation="Horizontal" Spacing="6">
+                <ComboBox
+                    Width="108"
+                    Height="40"
+                    Padding="10,5"
+                    Background="{ThemeResource WavesSecondaryActionBrush}"
+                    CornerRadius="6"
+                    ItemsSource="{x:Bind ViewModel.Servers, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.SelectServer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate x:DataType="m:ServerDisplay">
+                            <TextBlock
+                                FontFamily="{ThemeResource DefaultFont}"
+                                FontSize="14"
+                                Text="{x:Bind Display}" />
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                </ComboBox>
+                <ComboBox
+                    Width="132"
+                    Height="40"
+                    Padding="10,5"
+                    Background="{ThemeResource WavesSecondaryActionBrush}"
+                    CornerRadius="6"
+                    ItemsSource="{x:Bind ViewModel.ChannelOptions, Mode=OneWay}"
+                    SelectedItem="{x:Bind ViewModel.SelectedChannelOption, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    ToolTipService.ToolTip="{x:Bind ViewModel.ChannelStatusText, Mode=OneWay}">
+                <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="m:WavesChannelOption">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <TextBlock
+                                FontFamily="{ThemeResource DefaultFont}"
+                                Text="{x:Bind Display}" />
+                            <TextBlock
+                                FontFamily="{ThemeResource DefaultFont}"
+                                FontSize="11"
+                                Opacity="0.7"
+                                Text="{x:Bind Tag}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ComboBox.ItemTemplate>
+            </ComboBox>
+            <Button
+                Height="40"
+                MinWidth="82"
+                Padding="12,5"
+                AutomationProperties.Name="切换到所选渠道"
+                Background="{ThemeResource WavesSecondaryActionBrush}"
+                Command="{x:Bind ViewModel.SwitchSelectedChannelCommand}"
+                CornerRadius="6"
+                Style="{ThemeResource TransparentButtonStyle}"
+                ToolTipService.ToolTip="切换到所选渠道">
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                    <FontIcon
+                        FontFamily="Segoe Fluent Icons"
+                        FontSize="12"
+                        Glyph="&#xE8AB;" />
+                    <TextBlock
+                        FontFamily="{ThemeResource DefaultFont}"
+                        FontSize="12"
+                        Text="切换" />
+                </StackPanel>
+            </Button>
+            <Button
+                Height="40"
+                Padding="12,5"
+                AutomationProperties.Name="游戏目录"
+                Background="{ThemeResource WavesSecondaryActionBrush}"
+                CornerRadius="6"
+                Style="{ThemeResource TransparentButtonStyle}"
+                ToolTipService.ToolTip="定位游戏目录">
+                <Button.Flyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem
+                            Command="{x:Bind ViewModel.SelectGameProgramCommand}"
+                            Text="选择游戏目录">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE8B7;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyout>
+                </Button.Flyout>
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <FontIcon
+                        FontFamily="Segoe Fluent Icons"
+                        FontSize="12"
+                        Glyph="&#xE8B7;" />
+                    <TextBlock
+                        FontFamily="{ThemeResource DefaultFont}"
+                        FontSize="12"
+                        Text="游戏目录" />
+                </StackPanel>
+            </Button>
+            <Button
+                Height="40"
+                Padding="12,5"
+                AutomationProperties.Name="渠道备份"
+                Background="{ThemeResource WavesSecondaryActionBrush}"
+                CornerRadius="6"
+                Style="{ThemeResource TransparentButtonStyle}"
+                ToolTipService.ToolTip="备份与刷新渠道包">
+                <Button.Flyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem
+                            Command="{x:Bind ViewModel.BackupCurrentChannelCommand}"
+                            Text="备份当前渠道">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE74E;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutItem
+                            Command="{x:Bind ViewModel.RefreshSelectedChannelBackupCommand}"
+                            Text="刷新所选渠道备份">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE895;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                        <MenuFlyoutSeparator />
+                        <MenuFlyoutItem
+                            Command="{x:Bind ViewModel.OpenChannelBackupFolderCommand}"
+                            Text="打开备份目录">
+                            <MenuFlyoutItem.Icon>
+                                <FontIcon Glyph="&#xE838;" />
+                            </MenuFlyoutItem.Icon>
+                        </MenuFlyoutItem>
+                    </MenuFlyout>
+                </Button.Flyout>
+                <StackPanel Orientation="Horizontal" Spacing="5">
+                    <FontIcon
+                        FontFamily="Segoe Fluent Icons"
+                        FontSize="12"
+                        Glyph="&#xE74E;" />
+                    <TextBlock
+                        FontFamily="{ThemeResource DefaultFont}"
+                        FontSize="12"
+                        Text="备份" />
+                </StackPanel>
+            </Button>
+            <Border
+                Height="40"
+                MaxWidth="260"
+                Padding="12,0"
+                Background="{ThemeResource WavesSecondaryActionBrush}"
+                CornerRadius="6"
+                ToolTipService.ToolTip="{x:Bind ViewModel.ChannelStatusText, Mode=OneWay}">
+                <StackPanel VerticalAlignment="Center" Orientation="Horizontal" Spacing="8">
+                    <Ellipse
+                        Width="6"
+                        Height="6"
+                        Fill="{ThemeResource WavesStatusAccentBrush}" />
+                    <TextBlock
+                        VerticalAlignment="Center"
+                        FontFamily="{ThemeResource DefaultFont}"
+                        FontSize="12"
+                        Text="{x:Bind ViewModel.ChannelStatusShortText, Mode=OneWay}"
+                        TextTrimming="CharacterEllipsis" />
+                </StackPanel>
+            </Border>
+            </StackPanel>
+        </Border>
         <!--  下载游戏  -->
         <Grid
             Grid.Row="0"
@@ -496,100 +685,100 @@
                         <ColumnDefinition Width="auto" />
                         <ColumnDefinition Width="auto" />
                     </Grid.ColumnDefinitions>
-                    <Grid Grid.Column="1" Padding="5">
+                    <Border
+                        Grid.Column="1"
+                        Margin="0,0,8,8"
+                        Padding="8"
+                        Background="{ThemeResource WavesCommandSurfaceBrush}"
+                        BorderBrush="{ThemeResource WavesCommandBorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="8"
+                        Visibility="{x:Bind ViewModel.GameLauncherBthVisibility, Mode=OneWay}">
+                        <Grid MinWidth="248">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="auto" />
-                            <RowDefinition />
+                            <RowDefinition Height="64" />
                         </Grid.RowDefinitions>
-                        <Grid
-                            Margin="15,0,15,-2"
-                            BorderBrush="{ThemeResource LayerOnMicaBaseAltFillColorSecondaryBrush}"
-                            BorderThickness="1,1,1,0"
-                            CornerRadius="5 5 0 0"
-                            Visibility="{x:Bind ViewModel.GameLauncherBthVisibility, Mode=OneWay}">
-                            <SystemBackdropElement Grid.ColumnSpan="2" CornerRadius="5 5 0 0">
-                                <SystemBackdropElement.SystemBackdrop>
-                                    <DesktopAcrylicBackdrop />
-                                </SystemBackdropElement.SystemBackdrop>
-                            </SystemBackdropElement>
+                        <StackPanel
+                            Margin="4,0,4,7"
+                            Orientation="Horizontal"
+                            Spacing="8">
+                            <Ellipse
+                                Width="6"
+                                Height="6"
+                                VerticalAlignment="Center"
+                                Fill="{ThemeResource WavesStatusAccentBrush}" />
                             <TextBlock
-                                Margin="4"
-                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
                                 FontFamily="{ThemeResource DefaultFont}"
+                                FontSize="12"
+                                FontWeight="SemiBold"
                                 Text="{x:Bind ViewModel.BottomBarContent, Mode=OneWay}" />
-                        </Grid>
+                        </StackPanel>
                         <Grid
                             Grid.Row="1"
-                            BorderBrush="{ThemeResource LayerOnMicaBaseAltFillColorSecondaryBrush}"
-                            BorderThickness="1"
-                            CornerRadius="4"
-                            Visibility="{x:Bind ViewModel.GameLauncherBthVisibility, Mode=OneWay}">
+                            ColumnSpacing="8">
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition />
-                                <ColumnDefinition Width="auto" />
+                                <ColumnDefinition Width="52" />
                             </Grid.ColumnDefinitions>
-                            <SystemBackdropElement Grid.ColumnSpan="2" CornerRadius="5">
-                                <SystemBackdropElement.SystemBackdrop>
-                                    <DesktopAcrylicBackdrop />
-                                </SystemBackdropElement.SystemBackdrop>
-                            </SystemBackdropElement>
                             <Button
-                                Grid.Row="1"
                                 Height="60"
-                                Margin="5,5,0,5"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
-                                Background="{ThemeResource SystemFillColorSuccess}"
-                                BorderThickness="0"
+                                AutomationProperties.Name="启动游戏"
                                 Command="{x:Bind ViewModel.UpdateGameCommand}"
-                                CornerRadius="4"
-                                Foreground="{ThemeResource TextOnAccentFillColorPrimaryBrush}"
-                                IsEnabled="{x:Bind ViewModel.EnableStartGameBth, Mode=OneWay}">
+                                IsEnabled="{x:Bind ViewModel.EnableStartGameBth, Mode=OneWay}"
+                                Style="{StaticResource WavesPrimaryLaunchButtonStyle}">
+                                <Button.Resources>
+                                    <StaticResource x:Key="ButtonBackgroundPointerOver" ResourceKey="WavesPrimaryActionPointerOverBrush" />
+                                    <StaticResource x:Key="ButtonBackgroundPressed" ResourceKey="WavesPrimaryActionPressedBrush" />
+                                    <StaticResource x:Key="ButtonForegroundPointerOver" ResourceKey="WavesPrimaryActionForegroundBrush" />
+                                    <StaticResource x:Key="ButtonForegroundPressed" ResourceKey="WavesPrimaryActionForegroundBrush" />
+                                </Button.Resources>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition />
-                                        <ColumnDefinition />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition />
-                                        <RowDefinition />
-                                    </Grid.RowDefinitions>
                                     <FontIcon
-                                        Grid.RowSpan="2"
+                                        VerticalAlignment="Center"
                                         FontFamily="Segoe Fluent Icons"
-                                        FontSize="25"
+                                        FontSize="22"
                                         Glyph="{x:Bind ViewModel.LauncherIcon, Mode=OneWay}" />
-                                    <TextBlock
+                                    <StackPanel
                                         Grid.Column="1"
-                                        Margin="10,0,0,0"
+                                        Margin="14,0,4,0"
                                         VerticalAlignment="Center"
-                                        FontFamily="{ThemeResource DefaultFont}"
-                                        FontSize="15"
-                                        Text="{x:Bind ViewModel.LauncheContent, Mode=OneWay}" />
-                                    <TextBlock
-                                        Grid.Row="1"
-                                        Grid.Column="1"
-                                        Margin="15,0,0,0"
-                                        VerticalAlignment="Center"
-                                        FontSize="10"
-                                        Text="{x:Bind ViewModel.DisplayVersion, Mode=OneWay}" />
+                                        Spacing="1">
+                                        <TextBlock
+                                            FontFamily="{ThemeResource DefaultFont}"
+                                            FontSize="16"
+                                            FontWeight="SemiBold"
+                                            Text="{x:Bind ViewModel.LauncheContent, Mode=OneWay}" />
+                                        <TextBlock
+                                            FontFamily="{ThemeResource DefaultFont}"
+                                            FontSize="11"
+                                            Opacity="0.72"
+                                            Text="{x:Bind ViewModel.DisplayVersion, Mode=OneWay}" />
+                                    </StackPanel>
                                 </Grid>
-
                             </Button>
                             <Button
-                                Grid.Row="1"
                                 Grid.Column="1"
-                                Width="60"
-                                Margin="5,5,5,5"
                                 HorizontalAlignment="Stretch"
                                 VerticalAlignment="Stretch"
-                                BorderThickness="0"
+                                AutomationProperties.Name="更多启动选项"
+                                Background="{ThemeResource WavesSecondaryActionBrush}"
+                                BorderBrush="{ThemeResource WavesCommandBorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="6"
                                 IsEnabled="{x:Bind ViewModel.EnableStartGameBth, Mode=OneWay}"
                                 Style="{ThemeResource TransparentButtonStyle}">
                                 <FontIcon
                                     FontFamily="Segoe Fluent Icons"
-                                    FontSize="18"
-                                    Glyph="&#xEC7A;" />
+                                    FontSize="17"
+                                    Glyph="&#xE712;" />
 
                                 <Button.Flyout>
                                     <MenuFlyout Placement="Bottom">
@@ -624,7 +813,8 @@
                                 </Button.Flyout>
                             </Button>
                         </Grid>
-                    </Grid>
+                        </Grid>
+                    </Border>
                     <Grid
                         Margin="0,10,0,0"
                         HorizontalAlignment="Center"

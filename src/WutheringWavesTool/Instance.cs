@@ -168,6 +168,7 @@ public static class InstanceBuilderExtensions
                 #region More
                     .AddTransient<IPageService, PageService>()
                     .AddTransient<IPickersService, PickersService>()
+                    .AddSingleton<IWavesChannelService, WavesChannelService>()
                     .AddSingleton<ITipShow, TipShow>()
                     .AddKeyedTransient<ITipShow, PageTipShow>("Cache")
                     .AddKeyedTransient<IDialogManager, MainDialogService>("Cache")
